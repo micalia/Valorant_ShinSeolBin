@@ -1,0 +1,83 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "BaseWeapon.generated.h"
+
+UCLASS()
+class VALORANT_API ABaseWeapon : public AActor
+{
+	GENERATED_BODY()
+	
+public:	
+	// Sets default values for this actor's properties
+	ABaseWeapon();
+
+
+protected:
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:
+	UPROPERTY()
+	ABaseCharacter* playerInstance;
+
+	UPROPERTY()
+	class UPlayerFireComponent* fireComp;
+
+	UPROPERTY(VisibleAnywhere, Category=MySettings)
+	class UBoxComponent* boxComp;
+
+	/** ¾×ÅÍÀÇ ½ºÄÌ·¹Åæ ¸Å½Ã*/
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	class USkeletalMeshComponent* meshComp;
+
+	//UFUNCTION()
+	//void ReleaseWeapon(class ABaseCharacter* player);
+
+	//void Reloading(class ABaseCharacter* player);
+	
+	//UFUNCTION(Server, Unreliable)
+	//	void ServerFire(FHitResult FireHit, const FVector& Start, const FVector& End);
+
+	//UFUNCTION(Server, Unreliable)
+	//void ServerFireEffect(const FHitResult& FireHit, const FVector& Start, const FVector& End);
+
+	//UFUNCTION(NetMulticast, Unreliable)
+	//void MulticastFireEffect();
+
+	// ÆÄÆ¼Å¬
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* ImpactParticles;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* BeamParticles;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* MuzzleFlash;
+	
+	UPROPERTY(EditAnywhere)
+	class USoundCue* FireSound;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlaySound();
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+private:
+
+	/*UFUNCTION()
+	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);*/
+
+	UFUNCTION()
+	void GrabWeapon(class ABaseCharacter* player);
+		int32 ammo = 30;
+		int32 attackPower = 20;
+		int32 magazine = 3;
+		float fireInterval = 0.1f;
+	// ÅºÃ¢
+};

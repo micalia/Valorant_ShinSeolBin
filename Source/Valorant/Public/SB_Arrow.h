@@ -38,7 +38,7 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int32 maxBounceCount=2;
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Replicated)
 	int32 currBounceCount;
 
 

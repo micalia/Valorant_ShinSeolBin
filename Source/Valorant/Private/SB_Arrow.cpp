@@ -46,3 +46,9 @@ void ASB_Arrow::Tick(float DeltaTime)
 
 }
 
+void ASB_Arrow::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASB_Arrow, currBounceCount);
+}

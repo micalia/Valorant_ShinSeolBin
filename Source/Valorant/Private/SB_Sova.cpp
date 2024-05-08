@@ -585,5 +585,6 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, scoutingArrowSpeed);
 	DOREPLIFETIME(ASB_Sova, isGun);
 	DOREPLIFETIME(ASB_Sova, currState);
+	DOREPLIFETIME(ASB_Sova, airSmokeCurrCount);
 }
 

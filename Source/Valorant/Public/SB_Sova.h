@@ -147,7 +147,7 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int32 airSmokeMaxCount = 3;
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Replicated)
 	int32 airSmokeCurrCount;
 
 	//********MH 순간이동*********//

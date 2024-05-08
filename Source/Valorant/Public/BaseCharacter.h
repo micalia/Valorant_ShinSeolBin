@@ -23,15 +23,12 @@ public:
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
-	
+
 	UPROPERTY(EditAnywhere)
 	class USoundCue* FireSound;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySound();
-		/** Follow camera */
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-	//class UCameraComponent* DeathCamera;
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -50,34 +47,34 @@ public:
 	class UInputAction* LookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* mouseLeftAction;
+	class UInputAction* mouseLeftAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* mouseRightAction;
+	class UInputAction* mouseRightAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_Q_action;
+	class UInputAction* Key_Q_action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_E_action;
+	class UInputAction* Key_E_action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_X_action;
+	class UInputAction* Key_X_action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_C_action;
+	class UInputAction* Key_C_action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_F_action;
+	class UInputAction* Key_F_action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_R_action;
+	class UInputAction* Key_R_action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_V_action;
+	class UInputAction* Key_V_action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_G_action;
+	class UInputAction* Key_G_action;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		class UInputAction* Key_B_action;
+	class UInputAction* Key_B_action;
 
 public:
 	// Sets default values for this character's properties
@@ -116,7 +113,7 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 	virtual void Tick(float DeltaTime) override;
-public:	
+public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
@@ -124,17 +121,17 @@ public:
 
 	FInputBindingDelegate onInputBindingDelegate;
 
-	virtual void PlayFireAnimation(){};
+	virtual void PlayFireAnimation() {};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly) 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class USkeletalMeshComponent* fpsMesh;
 
 	//			//애니메이션
 	UPROPERTY(EditAnywhere, Category = Anim)
-		class UAnimMontage* DieMonatage;
+	class UAnimMontage* DieMonatage;
 
-public: 
-//Default Attack
+public:
+	//Default Attack
 	UPROPERTY()
 	class UPlayerFireComponent* fireComp = nullptr;
 	UFUNCTION(BlueprintCallable)
@@ -143,21 +140,18 @@ public:
 	void DefaultShootRelease();
 
 public:
-//stat
+	//stat
 
 	FORCEINLINE int32 GetHP() const { return CurrHP; }
 
 	UPROPERTY(EditAnywhere, Replicated)
 	float FullHP = 100;
-	UPROPERTY(BlueprintReadWrite,Replicated)
-	float CurrHP=0;
-
-	//void DamagedHealth(int32 value);
-	//void AddHealth(int32 value);
+	UPROPERTY(BlueprintReadWrite, Replicated)
+	float CurrHP = 0;
 
 	UFUNCTION(Server, Reliable)
 	void ServerAddHealth(int32 value);
-	
+
 	UFUNCTION(Server, Reliable)
 	void ServerDamagedHealth(int32 value, ABaseCharacter* otherPlayer);
 
@@ -177,9 +171,9 @@ public:
 	TSubclassOf<class UFadeOut> FadeOutFactory;
 
 	UFUNCTION(Server, Reliable)
-		void Server_AllEndGame();
+	void Server_AllEndGame();
 	UFUNCTION(NetMulticast, Reliable)
-		void Multicast_AllEndGame();
+	void Multicast_AllEndGame();
 
 	UPROPERTY()
 	class UFadeOut* FadeOutUI;
@@ -189,35 +183,23 @@ public:
 	UPROPERTY(Replicated)
 	bool bDie;
 	UPROPERTY(Replicated)
-	bool bDieOn=false;
+	bool bDieOn = false;
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool TheEndGame = false;
 
-	UPROPERTY(BlueprintReadOnly,Replicated)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool TheEndGameOn = false;
 
 	class ABattleGameModeBase* BM;
 
 	UPROPERTY(Replicated)
-	float Score=0;
+	float Score = 0;
 
 	UFUNCTION(Server, Reliable)
 	void Server_WinLose();
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_WinLose();
-
-	//UFUNCTION(Server, Unreliable, WithValidation)
-	//	void ServerFire();
-
-	//UFUNCTION(NetMulticast, Unreliable)
-	//	void MulticastFire(bool hasAmmo);
-
-	//UFUNCTION(Server, Unreliable)
-	//	void ServerHitProcess();
-
-	//UFUNCTION(NetMulticast, Unreliable)
-	//	void MulticastHitProcess();
 
 	UFUNCTION(Server, Reliable)
 	void ServerDie();
@@ -262,15 +244,8 @@ public:
 	class USoundBase* soundKill;
 	class USoundBase* soundV;
 	class USoundBase* soundShot;
-	//class USoundBase* sound2;
-	//class USoundBase* sound1;
-	//class USoundBase* sound1;
-	//class USoundBase* sound1;
 	class ABaseCharacter* other;
 public:
-	/*UFUNCTION(NetMulticast, Reliable)
-	void Multicast_DieShowMyMesh();*/
-
 	UFUNCTION(Server, Reliable)
 	void Server_NoCollision();
 	UFUNCTION(NetMulticast, Reliable)
@@ -279,11 +254,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void InitInputSetting(class APlayerController* con);
 
-	public:
+public:
 	UFUNCTION(Server, Reliable)
 	void Server_CheckWinLose();
 	UFUNCTION(NetMulticast, Reliable)
-		void Multicast_CheckWinLose();
+	void Multicast_CheckWinLose();
 
 
 	virtual void NotifyRestarted() override;

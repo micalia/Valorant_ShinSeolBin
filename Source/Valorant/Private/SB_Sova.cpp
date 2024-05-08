@@ -22,6 +22,8 @@
 #include "SH_Neon.h"
 #include <UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
 #include <Sound/SoundBase.h>
+#include "Kismet/KismetMathLibrary.h"
+#include <AirSmokeMinimapWidget.h>
 
 ASB_Sova::ASB_Sova()
 {
@@ -34,7 +36,7 @@ ASB_Sova::ASB_Sova()
 	if (tempArrowFactory.Succeeded()) {
 		arrowFactory = tempArrowFactory.Class;
 	}
-	
+
 	GetCapsuleComponent()->SetCapsuleHalfHeight(105.0f);
 
 	projectileComp = CreateDefaultSubobject<USceneComponent>(TEXT("projectileComp"));
@@ -46,7 +48,7 @@ ASB_Sova::ASB_Sova()
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetRelativeLocation(FVector(0.854105, 0, -106.501848));
-	GetMesh()->SetRelativeRotation(FRotator(0,-90,0));
+	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
 
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> tempSK(TEXT("/Script/Engine.SkeletalMesh'/Game/SB/Models/Sova/TPS/sovaComplex.sovaComplex'"));
@@ -61,9 +63,6 @@ ASB_Sova::ASB_Sova()
 		GetMesh()->SetAnimInstanceClass(tempAnimTPS.Class);
 	}
 
-	/*fpsMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("fpsMesh"));
-	fpsMesh->SetupAttachment(GetCapsuleComponent());*/
-	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> tempFpsMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SB/Models/Sova/FPS/RealSovaFPS/sova1st.sova1st'"));
 	if (tempFpsMesh.Succeeded())
 	{
@@ -80,7 +79,7 @@ ASB_Sova::ASB_Sova()
 
 	static ConstructorHelpers::FClassFinder<USkillWidget> tempSovaSkillUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SB/UMG/WB_Sova_Skill.WB_Sova_Skill_C'"));
 	if (tempSovaSkillUI.Succeeded()) {
-		SkillWidgetFactory = tempSovaSkillUI.Class; 
+		SkillWidgetFactory = tempSovaSkillUI.Class;
 	}
 
 	static ConstructorHelpers::FClassFinder<UFireUserWidget> tempFireWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/PSH/UI/WBP_Fire.WBP_Fire_C'"));
@@ -95,6 +94,19 @@ ASB_Sova::ASB_Sova()
 	static ConstructorHelpers::FClassFinder<UUserWidget> tempProtoSmokeSkillUIFactory(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SB/UMG/WB_Proto_SmokeSkillUI.WB_Proto_SmokeSkillUI_C'"));
 	if (tempSmokeSkillUI.Succeeded()) {
 		ProtoSmokeSkillUIFactory = tempProtoSmokeSkillUIFactory.Class;
+	}
+	static ConstructorHelpers::FClassFinder<AActor> tempSmokeObjFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_SpawnSmokeObj.BP_SpawnSmokeObj_C'"));
+	if (tempSmokeObjFactory.Succeeded()) {
+		SmokeObjFactory = tempSmokeObjFactory.Class;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempSovaAirSmokeVoice1(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/AirSmoke/sova_AirSmoke0.sova_AirSmoke0'"));
+	if (tempSovaAirSmokeVoice1.Succeeded()) {
+		SovaAirSmokeVoice1 = tempSovaAirSmokeVoice1.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempSovaAirSmokeVoice2(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/AirSmoke/sova_AirSmoke1.sova_AirSmoke1'"));
+	if (tempSovaAirSmokeVoice2.Succeeded()) {
+		SovaAirSmokeVoice2 = tempSovaAirSmokeVoice2.Object;
 	}
 
 	bReplicates = true;
@@ -113,7 +125,7 @@ void ASB_Sova::BeginPlay()
 void ASB_Sova::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(IsLocallyControlled() == false) return;
+	if (IsLocallyControlled() == false) return;
 	if (mouseLeftClick) {
 		switch (currState)
 		{
@@ -162,6 +174,7 @@ void ASB_Sova::Tick(float DeltaTime)
 void ASB_Sova::MouseLeftAction()
 {
 	if (IsLocallyControlled() == false) return;
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> MouseLeftAction"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	mouseLeftClick = true;
 	switch (currState)
 	{
@@ -196,7 +209,7 @@ void ASB_Sova::MouseLeftAction()
 			}
 		}
 	}
-		break;
+								  break;
 	default:
 		break;
 	}
@@ -206,7 +219,7 @@ void ASB_Sova::MouseLeftReleasedAction()
 {
 	if (IsLocallyControlled() == false) return;
 	mouseLeftClick = false;
-	
+
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
@@ -238,12 +251,12 @@ void ASB_Sova::MouseLeftReleasedAction()
 	default:
 		break;
 	}
-	
+
 }
 
 void ASB_Sova::MouseRightAction()
 {
-	if(IsLocallyControlled() == false) return;
+	if (IsLocallyControlled() == false) return;
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
@@ -279,7 +292,7 @@ void ASB_Sova::KeyE()
 		//SetScoutingArrow(true);
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Visible);
 	}
-	else if(currState == ESovaState::ScoutingArrow){
+	else if (currState == ESovaState::ScoutingArrow) {
 		currState = ESovaState::DefaultAtk;
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(false);
@@ -305,7 +318,7 @@ void ASB_Sova::KeyQ()
 		}
 		GrenadeThrowReady();
 	}
-	else if(currState == ESovaState::Grenade){
+	else if (currState == ESovaState::Grenade) {
 		currState = ESovaState::DefaultAtk;
 		if (HasAuthority()) {
 			Server_SetCurrState_Implementation(currState);
@@ -357,7 +370,7 @@ void ASB_Sova::KeyF()
 			/*DrawDebugLine(GetWorld(), start, end, FColor::Orange, false, 2.0f);*/
 			////GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("11111111111111111111111")), true, FVector2D(1, 1));
 		}
-		
+
 	}
 	else if (currState == ESovaState::MinhaTeleport) {
 		currState = ESovaState::DefaultAtk;
@@ -400,7 +413,6 @@ void ASB_Sova::Server_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
 void ASB_Sova::Mulitcast_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
 {
 	bScoutingArrow = bScoutingChk;
-	//if (HasAuthority()) {
 	if (bScoutingChk) {
 		if (!arrowMesh->GetVisibleFlag()) {
 			isGun = false;
@@ -408,12 +420,11 @@ void ASB_Sova::Mulitcast_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
 		}
 	}
 	else {
-		if(arrowMesh->GetVisibleFlag()) {
+		if (arrowMesh->GetVisibleFlag()) {
 			isGun = true;
 			arrowMesh->SetVisibility(false);
 		}
 	}
-	//}
 }
 
 void ASB_Sova::InitScoutingArrow()
@@ -435,16 +446,16 @@ void ASB_Sova::MultiCast_SpawnArrow_Implementation(FTransform transform, int32 b
 	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 	float customSpeed = scoutingArrowSpeed;
 	auto doFunc = [customSpeed](AActor* ObjectToModify)
-	{
-		ASB_Arrow* arrowToModify = Cast<ASB_Arrow>(ObjectToModify);
-		if (arrowToModify)
 		{
-			arrowToModify->initSpeed = customSpeed;
-		}
-	};
+			ASB_Arrow* arrowToModify = Cast<ASB_Arrow>(ObjectToModify);
+			if (arrowToModify)
+			{
+				arrowToModify->initSpeed = customSpeed;
+			}
+		};
 
-	spawnConfig.CustomPreSpawnInitalization= doFunc;
-		
+	spawnConfig.CustomPreSpawnInitalization = doFunc;
+
 	ASB_Arrow* arrow = GetWorld()->SpawnActor<ASB_Arrow>(arrowFactory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
 	if (arrow) {
 		arrow->SetOwner(this);
@@ -454,7 +465,7 @@ void ASB_Sova::MultiCast_SpawnArrow_Implementation(FTransform transform, int32 b
 
 void ASB_Sova::ArrowPowerGaugeUp()
 {
-	gaugeCurrTime+=GetWorld()->GetDeltaSeconds();
+	gaugeCurrTime += GetWorld()->GetDeltaSeconds();
 	if (gaugeCurrTime < gaugeTime) {
 		float alpha = gaugeCurrTime / gaugeTime;
 		if (HasAuthority()) {
@@ -496,30 +507,97 @@ void ASB_Sova::Mulitcast_SetFloatScoutingArrow_Implementation(float arrowSpeedAl
 
 void ASB_Sova::IncreaseBounceCount()
 {
-	if(ui_SB_ScoutingArrowInstance == nullptr) return;
-	if(IsLocallyControlled() == false) return;
-	
-		skillBounceCount++;
+	if (ui_SB_ScoutingArrowInstance == nullptr) return;
+	if (IsLocallyControlled() == false) return;
 
-		if (skillBounceCount == 0) {
-			ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
-			ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+	skillBounceCount++;
+
+	if (skillBounceCount == 0) {
+		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+	}
+	else if (skillBounceCount == 1) {
+		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
+		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+	}
+	else if (skillBounceCount == 2) {
+		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
+		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
+	}
+	else if (skillBounceCount > 2)
+	{
+		skillBounceCount = 0;
+		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+	}
+
+}
+
+void ASB_Sova::DeactiveAirSmoke()
+{
+	if (smokeSkillUIinstance) {
+		smokeSkillUIinstance->SetVisibility(ESlateVisibility::Hidden);
+		if (auto PC = GetWorld()->GetFirstPlayerController()) {
+			PC->SetShowMouseCursor(false);
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC);
+			AirSmokeMarkerRef->SetVisibility(ESlateVisibility::Hidden);
+			airSmokeCurrCount = 0;
+			OnRemoveSmokerUI.ExecuteIfBound();
+			if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
+				SmokeSkillUI->SpawnSmokePos.Empty();
+				currState = ESovaState::DefaultAtk;
+			}
 		}
-		else if (skillBounceCount == 1) {
-			ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
-			ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
-		}
-		else if (skillBounceCount == 2) {
-			ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
-			ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
-		}
-		else if (skillBounceCount > 2)
+	}
+}
+
+void ASB_Sova::AirSmokeLogic()
+{
+	AirSmokeVoice();
+	if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
+		for (auto& SpawnSmokePosVal : SmokeSkillUI->SpawnSmokePos)
 		{
-			skillBounceCount = 0;
-			ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
-			ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+			FVector StartLoc = FVector(SpawnSmokePosVal.X, SpawnSmokePosVal.Y, 5000);
+			FVector EndLoc = FVector(SpawnSmokePosVal.X, SpawnSmokePosVal.Y, -5000);
+			FHitResult HitResult;
+			FCollisionQueryParams param;
+			param.AddIgnoredActor(GetOwner());
+			bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECC_GameTraceChannel7, param);
+			if (IsHit) {
+				if (HasAuthority()) {
+					ServerSpawnSmokeObj_Implementation(HitResult.ImpactPoint);
+				}
+				else {
+					ServerSpawnSmokeObj(HitResult.ImpactPoint);
+				}
+			}
 		}
+		SmokeSkillUI->SpawnSmokePos.Empty();
+	}
+}
 
+void ASB_Sova::AirSmokeVoice()
+{
+	if (airSmokeCurrCount > 0) {
+		int32 RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+		switch (RanVal)
+		{
+		case 0:
+			UGameplayStatics::PlaySound2D(GetWorld(), SovaAirSmokeVoice1);
+			break;
+		case 1:
+			UGameplayStatics::PlaySound2D(GetWorld(), SovaAirSmokeVoice2);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void ASB_Sova::ServerSpawnSmokeObj_Implementation(FVector SpawnPos)
+{
+	FRotator Rot;
+	GetWorld()->SpawnActor<AActor>(SmokeObjFactory, SpawnPos, Rot);
 }
 
 void ASB_Sova::Server_SetLocation_Implementation(FVector pos)

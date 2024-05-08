@@ -25,6 +25,8 @@ public:
 	class UImage* SmokeSkillMiniMap;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector2D WorldScale = FVector2D(15780);
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class USB_AirSmokeMarker> AirSmokeMarkerFactory;
 private:
 	float LocationX;
 	float LocationY;

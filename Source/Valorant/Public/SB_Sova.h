@@ -7,7 +7,7 @@
 #include "SB_Sova.generated.h"
 
 UENUM(BlueprintType)
-enum class ESovaState:uint8
+enum class ESovaState :uint8
 {
 	DefaultAtk,
 	ScoutingArrow,
@@ -15,12 +15,12 @@ enum class ESovaState:uint8
 	Grenade,
 	MinhaTeleport,
 };
-
+DECLARE_DELEGATE(FRemoveSmokeMarkerUI);
 UCLASS()
 class VALORANT_API ASB_Sova : public ABaseCharacter
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASB_Sova();
 
@@ -41,19 +41,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASH_Neon> neonFactory;
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Replicated)
-	bool isGun=true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	bool isGun = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		class USceneComponent* projectileComp;
+	class USceneComponent* projectileComp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class USplineComponent* projectilePath;
-
-		/*UPROPERTY(EditAnywhere, BlueprintReadOnly)
-			class USkeletalMeshComponent* fpsMesh;*/
-
-		UPROPERTY(EditAnywhere)
-			class USkeletalMeshComponent* arrowMesh;
+	class USplineComponent* projectilePath;
+	UPROPERTY(EditAnywhere)
+	class USkeletalMeshComponent* arrowMesh;
 public:
 	UPROPERTY(BlueprintReadOnly)
 	float h;
@@ -83,8 +79,6 @@ public:
 	void Server_SetBoolScoutingArrow(bool bScoutingChk);
 	UFUNCTION(NetMulticast, Reliable)
 	void Mulitcast_SetBoolScoutingArrow(bool bScoutingChk);
-	/*UFUNCTION(Server, Reliable)
-	void Server*/
 
 	TSubclassOf<class ASB_Arrow> arrowFactory;
 
@@ -107,9 +101,9 @@ public:
 	void ArrowPowerGaugeUp();
 
 	UPROPERTY(EditAnywhere, Category = "ScoutingArrow")
-	float minScoutingArrowSpeed =2500;
+	float minScoutingArrowSpeed = 2500;
 	UPROPERTY(EditAnywhere, Category = "ScoutingArrow")
-	float maxScoutingArrowSpeed =8500;
+	float maxScoutingArrowSpeed = 8500;
 	UPROPERTY(BlueprintReadOnly, Category = "ScoutingArrow", Replicated)
 	float scoutingArrowSpeed;
 	UFUNCTION(Server, Reliable)
@@ -119,7 +113,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int32 skillBounceCount = 0;
 	void IncreaseBounceCount();
-
 
 	UPROPERTY()
 	TSubclassOf<class UUI_SB_ScoutingArrow> ui_SB_ScoutingArrowFactory;
@@ -137,24 +130,40 @@ public:
 	void CancelGrenade();
 
 	//********공중연막********//
+	UPROPERTY()
+	class USoundBase* SovaAirSmokeVoice1;
+	UPROPERTY()
+	class USoundBase* SovaAirSmokeVoice2;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bProtoMapSkillMode = false;
 
+	FRemoveSmokeMarkerUI OnRemoveSmokerUI;
+	UPROPERTY(BlueprintReadWrite)
+	class UUserWidget* AirSmokeMarkerRef;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> SmokeObjFactory;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ActiveAirSmoke();
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void DeactiveAirSmoke();
 
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 airSmokeMaxCount = 3;
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	int32 airSmokeCurrCount;
+
+	void AirSmokeLogic();
+	void AirSmokeVoice();
+	UFUNCTION(Server, Reliable)
+	void ServerSpawnSmokeObj(FVector SpawnPos);
 
 	//********MH 순간이동*********//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
 	FVector ImpactPoint;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	bool Impacted=false;
+	bool Impacted = false;
 
 
 	//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
@@ -181,17 +190,19 @@ public:
 	void Multicast_SetLocation(FVector pos);
 
 	UPROPERTY(EditAnywhere, Category = MySettings)
-		TSubclassOf<class UFireUserWidget> fireWidget;
+	TSubclassOf<class UFireUserWidget> fireWidget;
 	UPROPERTY(EditAnywhere, Category = MySettings)
 	TSubclassOf<class UUserWidget> smokeSkillUIFactory;
 	UPROPERTY(EditAnywhere, Category = MySettings)
 	TSubclassOf<class UUserWidget> ProtoSmokeSkillUIFactory;
-	
+
 	UPROPERTY()
 	class UFireUserWidget* fire_UI;
 
 public:
+	UPROPERTY()
 	class USoundBase* throwBump;
+	UPROPERTY()
 	class USoundBase* expl;
 
 	UPROPERTY(BlueprintReadWrite)

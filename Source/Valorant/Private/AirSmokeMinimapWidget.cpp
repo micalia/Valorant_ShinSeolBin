@@ -8,6 +8,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Image.h"
+#include "../Public/SB_AirSmokeMarker.h"
 
 UAirSmokeMinimapWidget::UAirSmokeMinimapWidget(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
 {
@@ -15,6 +16,10 @@ UAirSmokeMinimapWidget::UAirSmokeMinimapWidget(const FObjectInitializer& ObjectI
 	if (tempSovaMinimapClickSound.Succeeded())
 	{
 		SovaMinimapClickSound = tempSovaMinimapClickSound.Object;
+	}
+	ConstructorHelpers::FClassFinder<USB_AirSmokeMarker> tempAirSmokeMarkerFactory(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SB/UMG/WB_AirSmokeMarker.WB_AirSmokeMarker_C'"));
+	if (tempAirSmokeMarkerFactory.Succeeded()) {
+		AirSmokeMarkerFactory = tempAirSmokeMarkerFactory.Class;
 	}
 }
 
@@ -27,6 +32,10 @@ FReply UAirSmokeMinimapWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 		if (auto MyPawn = GetWorld()->GetFirstPlayerController()->GetPawn()) {
 			if (auto Sova = Cast<ASB_Sova>(MyPawn)) {
 				if (Sova->airSmokeMaxCount > Sova->airSmokeCurrCount) {
+					Sova->AirSmokeMarkerRef = CreateWidget<USB_AirSmokeMarker>(GetWorld(), AirSmokeMarkerFactory);
+					if (Sova->AirSmokeMarkerRef) {
+						Sova->AirSmokeMarkerRef->AddToViewport();
+					}
 					Sova->airSmokeCurrCount++;
 					UGameplayStatics::PlaySound2D(GetWorld(), SovaMinimapClickSound);
 					if (APlayerController* Player = GetOwningPlayer()) {

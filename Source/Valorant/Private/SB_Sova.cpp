@@ -236,7 +236,6 @@ void ASB_Sova::MouseLeftReleasedAction()
 		else {
 			Server_SetBoolScoutingArrow(false);
 		}
-		//bScoutingArrow = false;
 		gaugeCurrTime = 0;
 		if (ui_SB_ScoutingArrowInstance) {
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
@@ -577,7 +576,7 @@ void ASB_Sova::DeactiveAirSmoke()
 
 void ASB_Sova::AirSmokeLogic()
 {
-	AirSmokeVoice();
+	AirSmokeVoice(); // 소바 스킬 시전 효과음 : "시야를 차단해"
 	if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
 		for (auto& SpawnSmokePosVal : SmokeSkillUI->SpawnSmokePos)
 		{
@@ -585,17 +584,16 @@ void ASB_Sova::AirSmokeLogic()
 			FVector EndLoc = FVector(SpawnSmokePosVal.X, SpawnSmokePosVal.Y, -5000);
 			FHitResult HitResult;
 			FCollisionQueryParams param;
-			param.AddIgnoredActor(GetOwner());
+			param.AddIgnoredActor(GetOwner()); // 라인트레이스가 물체와 충돌하면 충돌한 위치에 액터 스폰
 			bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECC_GameTraceChannel7, param);
-			if (IsHit) {
-				if (HasAuthority()) {
+			if (IsHit) { // 서버 RPC함수에 스폰할 위치를 인자값으로 넘겨주고, 서버에서 공중연막 액터 스폰
+				if (HasAuthority()) { 
 					ServerSpawnSmokeObj_Implementation(HitResult.ImpactPoint);
 				}
 				else {
 					ServerSpawnSmokeObj(HitResult.ImpactPoint);
 				}
 			}
-			//GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Server Spawn AirSmoke"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 		}
 		SmokeSkillUI->SpawnSmokePos.Empty();
 		DeactiveAirSmoke();
@@ -624,7 +622,6 @@ void ASB_Sova::ServerSpawnSmokeObj_Implementation(FVector SpawnPos)
 {
 	FRotator Rot;
 	GetWorld()->SpawnActor<AActor>(SmokeObjFactory, SpawnPos, Rot);
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Serer Spawn SmokeObj"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 }
 
 void ASB_Sova::Server_SetLocation_Implementation(FVector pos)

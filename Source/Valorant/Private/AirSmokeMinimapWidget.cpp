@@ -31,10 +31,11 @@ FReply UAirSmokeMinimapWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 		if (auto MyPawn = GetWorld()->GetFirstPlayerController()->GetPawn()) {
 			if (auto Sova = Cast<ASB_Sova>(MyPawn)) {
 				if (Sova->airSmokeMaxCount > Sova->airSmokeCurrCount) {
+					// 클릭 지점 UI로 표시 
 					Sova->AirSmokeMarkerRef = CreateWidget<USB_AirSmokeMarker>(GetWorld(), AirSmokeMarkerFactory);
 					if (Sova->AirSmokeMarkerRef) {
 						Sova->AirSmokeMarkerRef->AddToViewport();
-					}
+					} 
 					Sova->airSmokeCurrCount++;
 					UGameplayStatics::PlaySound2D(GetWorld(), SovaMinimapClickSound);
 					if (APlayerController* Player = GetOwningPlayer()) {

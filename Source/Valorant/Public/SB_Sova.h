@@ -15,7 +15,8 @@ enum class ESovaState :uint8
 	Grenade,
 	MinhaTeleport,
 };
-DECLARE_DELEGATE(FRemoveSmokeMarkerUI);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRemoveSmokeMarkerUI);
 UCLASS()
 class VALORANT_API ASB_Sova : public ABaseCharacter
 {
@@ -139,12 +140,17 @@ public:
 
 	FRemoveSmokeMarkerUI OnRemoveSmokerUI;
 	UPROPERTY(BlueprintReadWrite)
-	class UUserWidget* AirSmokeMarkerRef;
+	class USB_AirSmokeMarker* AirSmokeMarkerRef;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> SmokeObjFactory;
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class USB_AirSmokeMarker> AirSmokeMarkerFactory;
+
+	UPROPERTY(BlueprintReadWrite)
+	class APlayerController* PlayerRef;
+	UFUNCTION()
 	void ActiveAirSmoke();
 	UFUNCTION(BlueprintCallable)
 	void DeactiveAirSmoke();

@@ -28,7 +28,6 @@ FReply UAirSmokeMinimapWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 	Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 
 	if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton)) {
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> MinimapClick"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 		if (auto MyPawn = GetWorld()->GetFirstPlayerController()->GetPawn()) {
 			if (auto Sova = Cast<ASB_Sova>(MyPawn)) {
 				if (Sova->airSmokeMaxCount > Sova->airSmokeCurrCount) {
@@ -58,13 +57,11 @@ FReply UAirSmokeMinimapWidget::NativeOnMouseButtonDown(const FGeometry& InGeomet
 							FVector2D ScaleFitCanvasSize = FVector2D(CanvasSize.X * ViewportScaleRatio, CanvasSize.Y * ViewportScaleRatio);
 							FVector2D AirSmokeSpawnPos = MouseCoordinate * (WorldScale / ScaleFitCanvasSize);
 							SpawnSmokePos.Add(FVector(AirSmokeSpawnPos.X, AirSmokeSpawnPos.Y, 0));
-							GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Add Spawn Smoke Pos"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 						}
-
 					}
 				}
 			}
 		}
 	}
-	return FReply::Handled();
+	return FReply::Unhandled();
 }

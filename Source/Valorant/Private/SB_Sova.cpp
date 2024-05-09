@@ -24,6 +24,7 @@
 #include <Sound/SoundBase.h>
 #include "Kismet/KismetMathLibrary.h"
 #include <AirSmokeMinimapWidget.h>
+#include "SB_AirSmokeMarker.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -108,7 +109,10 @@ ASB_Sova::ASB_Sova()
 	if (tempSovaAirSmokeVoice2.Succeeded()) {
 		SovaAirSmokeVoice2 = tempSovaAirSmokeVoice2.Object;
 	}
-
+	ConstructorHelpers::FClassFinder<USB_AirSmokeMarker> tempAirSmokeMarkerFactory(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SB/UMG/WB_AirSmokeMarker.WB_AirSmokeMarker_C'"));
+	if (tempAirSmokeMarkerFactory.Succeeded()) {
+		AirSmokeMarkerFactory = tempAirSmokeMarkerFactory.Class;
+	}
 	bReplicates = true;
 }
 
@@ -209,7 +213,7 @@ void ASB_Sova::MouseLeftAction()
 			}
 		}
 	}
-								  break;
+		break;
 	default:
 		break;
 	}
@@ -265,6 +269,8 @@ void ASB_Sova::MouseRightAction()
 		IncreaseBounceCount();
 		break;
 	case ESovaState::AirSmoke:
+		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Mouse RightAction"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+		AirSmokeLogic();
 		break;
 	case ESovaState::Grenade:
 		break;
@@ -533,6 +539,22 @@ void ASB_Sova::IncreaseBounceCount()
 
 }
 
+void ASB_Sova::ActiveAirSmoke()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> ActiveAirSmoke"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	if (smokeSkillUIinstance) {
+		smokeSkillUIinstance->SetVisibility(ESlateVisibility::Visible);
+		if (auto Pc = GetWorld()->GetFirstPlayerController()) {
+			Pc->SetShowMouseCursor(true);
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(Pc, smokeSkillUIinstance);
+			PlayerRef = Pc;
+			AirSmokeMarkerRef = CreateWidget<USB_AirSmokeMarker>(GetWorld(), AirSmokeMarkerFactory);
+			if (AirSmokeMarkerRef) {
+				AirSmokeMarkerRef->AddToViewport();
+			}
+		}
+	}
+}
 void ASB_Sova::DeactiveAirSmoke()
 {
 	if (smokeSkillUIinstance) {
@@ -540,9 +562,11 @@ void ASB_Sova::DeactiveAirSmoke()
 		if (auto PC = GetWorld()->GetFirstPlayerController()) {
 			PC->SetShowMouseCursor(false);
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC);
-			AirSmokeMarkerRef->SetVisibility(ESlateVisibility::Hidden);
+			if (AirSmokeMarkerRef) {
+				AirSmokeMarkerRef->SetVisibility(ESlateVisibility::Hidden);
+			}
 			airSmokeCurrCount = 0;
-			OnRemoveSmokerUI.ExecuteIfBound();
+			OnRemoveSmokerUI.Broadcast();
 			if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
 				SmokeSkillUI->SpawnSmokePos.Empty();
 				currState = ESovaState::DefaultAtk;
@@ -571,8 +595,10 @@ void ASB_Sova::AirSmokeLogic()
 					ServerSpawnSmokeObj(HitResult.ImpactPoint);
 				}
 			}
+			//GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Server Spawn AirSmoke"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 		}
 		SmokeSkillUI->SpawnSmokePos.Empty();
+		DeactiveAirSmoke();
 	}
 }
 
@@ -598,6 +624,7 @@ void ASB_Sova::ServerSpawnSmokeObj_Implementation(FVector SpawnPos)
 {
 	FRotator Rot;
 	GetWorld()->SpawnActor<AActor>(SmokeObjFactory, SpawnPos, Rot);
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Serer Spawn SmokeObj"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 }
 
 void ASB_Sova::Server_SetLocation_Implementation(FVector pos)

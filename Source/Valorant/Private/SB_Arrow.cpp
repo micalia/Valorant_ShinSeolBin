@@ -4,6 +4,11 @@
 #include "SB_Arrow.h"
 #include <GameFramework/ProjectileMovementComponent.h>
 #include "Net/UnrealNetwork.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+
 
 // Sets default values
 ASB_Arrow::ASB_Arrow()
@@ -12,9 +17,36 @@ ASB_Arrow::ASB_Arrow()
 	PrimaryActorTick.bCanEverTick = true;
 
 	projectileComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("projectileComp"));
+	ArrowHeadColl = CreateDefaultSubobject<USphereComponent>(TEXT("ArrowHeadColl"));
+	SetRootComponent(ArrowHeadColl);
+
+	static ConstructorHelpers::FObjectFinder<UPhysicalMaterial> tempPMBounceArrow(TEXT("/Script/PhysicsCore.PhysicalMaterial'/Game/SB/Materials/BallDropPhys.BallDropPhys'"));
+	if (tempPMBounceArrow.Succeeded()) {
+		ArrowHeadColl->SetPhysMaterialOverride(tempPMBounceArrow.Object);
+	}
+
+	ArrowHeadColl->SetCollisionProfileName(TEXT("ScoutingArrow"));
+	ArrowHeadColl->SetSphereRadius(55);
+	ArrowHeadColl->SetSimulatePhysics(true);
+	ArrowHeadColl->SetNotifyRigidBodyCollision(true);
+	ArrowHeadColl->BodyInstance.bLockXRotation = true;
+	ArrowHeadColl->BodyInstance.bLockYRotation = true;
+	ArrowHeadColl->BodyInstance.bLockZRotation = true;
+
+	SMSovaArrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMSovaArrow"));
+	SMSovaArrow->SetupAttachment(RootComponent);
+	SMSovaArrow->SetRelativeScale3D(FVector(2));
+	SMSovaArrow->SetRelativeLocation(FVector(-111, 0, 0));
+	SMSovaArrow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempArrowMesh(TEXT("/Script/Engine.StaticMesh'/Game/SB/Models/arrow/RegacyArrow/sovaArrow.sovaArrow'"));
+	if (tempArrowMesh.Succeeded()) {
+		SMSovaArrow->SetStaticMesh(tempArrowMesh.Object);
+	}
 
 	bReplicates = true;
 	SetReplicateMovement(true);
+	projectileComp->SetIsReplicated(true);
 }
 
 void ASB_Arrow::PreInitializeComponents()
@@ -29,14 +61,15 @@ void ASB_Arrow::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-		UE_LOG(LogTemp, Warning, TEXT("PostInitializeComponents : %f"), projectileComp->InitialSpeed)
 }
 
 // Called when the game starts or when spawned
 void ASB_Arrow::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("BeginPlay : %f"), projectileComp->InitialSpeed)
+	UE_LOG(LogTemp, Warning, TEXT("PostInitializeComponents : %f"), projectileComp->InitialSpeed)
+	projectileComp->SetUpdatedComponent(ArrowHeadColl);
+	ArrowHeadColl->OnComponentHit.AddDynamic(this, &ASB_Arrow::ArrowHeadHit);
 }
 
 // Called every frame
@@ -44,6 +77,40 @@ void ASB_Arrow::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (HasAuthority()) {
+		if (!bBounceEnd) {
+			FRotator Rot = UKismetMathLibrary::MakeRotationFromAxes(GetVelocity().GetSafeNormal(), FVector(0), FVector(0));
+			SMSovaArrow->SetWorldRotation(Rot);
+		}
+		if (bHit) {
+			currTime+=DeltaTime;
+			if (currTime > DelayTime) {
+				bHit = false;
+			}
+		}
+		else {
+			currTime = 0;
+		}
+	}
+}
+
+void ASB_Arrow::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (HasAuthority()) {
+		if (!bHit) {
+			bHit = true;
+			currBounceCount++;
+			FString HitName = OtherActor->GetName();
+			FString HitComp = OtherComp->GetName();
+
+			if (currBounceCount > maxBounceCount) {
+				bBounceEnd = true;
+				projectileComp->ProjectileGravityScale = 0;
+				ArrowHeadColl->SetEnableGravity(false);
+				ArrowHeadColl->SetSimulatePhysics(false);
+			}
+		}
+	}
 }
 
 void ASB_Arrow::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

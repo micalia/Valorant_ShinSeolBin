@@ -21,14 +21,21 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	/*UFUNCTION(BlueprintCallable, Server, Reliable)
-	void Server_SpawnScanObj(FTransform transform);
-	UFUNCTION(NetMultiCast, Reliable)
-	void Server_SpawnScanObj(FTransform transform);*/
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* ArrowHeadColl;
+
+	UFUNCTION()
+	void ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* SMSovaArrow;
+
+	/*UPROPERTY(EditAnywhere)
+	class UPhysicalMaterial* PMBounceArrow;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UProjectileMovementComponent* projectileComp;
@@ -41,5 +48,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	int32 currBounceCount;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bHit;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float currTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DelayTime = 0.1;
+private:
+	bool bBounceEnd;
 };

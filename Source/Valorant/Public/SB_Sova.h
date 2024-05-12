@@ -89,7 +89,7 @@ public:
 	void Fire();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void Server_SpawnArrow(FTransform transform, int32 bounceCount);
+	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount);
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void MultiCast_SpawnArrow(FTransform transform, int32 bounceCount);
 

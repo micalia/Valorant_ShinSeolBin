@@ -25,6 +25,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include <AirSmokeMinimapWidget.h>
 #include "SB_AirSmokeMarker.h"
+#include "GameFramework/PlayerController.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -51,12 +52,10 @@ ASB_Sova::ASB_Sova()
 	GetMesh()->SetRelativeLocation(FVector(0.854105, 0, -106.501848));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> tempSK(TEXT("/Script/Engine.SkeletalMesh'/Game/SB/Models/Sova/TPS/sovaComplex.sovaComplex'"));
 	if (tempSK.Succeeded()) {
 		GetMesh()->SetSkeletalMesh(tempSK.Object);
 	}
-
 
 	static ConstructorHelpers::FClassFinder<USB_SovaAnim> tempAnimTPS(TEXT("/Script/Engine.AnimBlueprint'/Game/SB/Blueprints/ABP_SovaTPS.ABP_SovaTPS_C'"));
 	if (tempAnimTPS.Succeeded())
@@ -178,7 +177,6 @@ void ASB_Sova::Tick(float DeltaTime)
 void ASB_Sova::MouseLeftAction()
 {
 	if (IsLocallyControlled() == false) return;
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> MouseLeftAction"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	mouseLeftClick = true;
 	switch (currState)
 	{
@@ -268,7 +266,6 @@ void ASB_Sova::MouseRightAction()
 		IncreaseBounceCount();
 		break;
 	case ESovaState::AirSmoke:
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Mouse RightAction"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 		AirSmokeLogic();
 		break;
 	case ESovaState::Grenade:
@@ -416,7 +413,7 @@ void ASB_Sova::Server_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
 }
 
 void ASB_Sova::Mulitcast_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
-{
+{ // 스킬 활성화 상태가 아니라면 화살을 숨김
 	bScoutingArrow = bScoutingChk;
 	if (bScoutingChk) {
 		if (!arrowMesh->GetVisibleFlag()) {
@@ -439,18 +436,14 @@ void ASB_Sova::InitScoutingArrow()
 	ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 }
 
-void ASB_Sova::Server_SpawnArrow_Implementation(FTransform transform, int32 bounceCount)
-{
-	MultiCast_SpawnArrow_Implementation(transform, bounceCount);
-}
-
-void ASB_Sova::MultiCast_SpawnArrow_Implementation(FTransform transform, int32 bounceCount)
+void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount)
 {
 	FActorSpawnParameters spawnConfig;
 	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+	spawnConfig.Owner = MyPlayer;
 	float customSpeed = scoutingArrowSpeed;
-	auto doFunc = [customSpeed](AActor* ObjectToModify)
+	auto doFunc = [customSpeed, MyPlayer](AActor* ObjectToModify)
 		{
 			ASB_Arrow* arrowToModify = Cast<ASB_Arrow>(ObjectToModify);
 			if (arrowToModify)
@@ -463,9 +456,14 @@ void ASB_Sova::MultiCast_SpawnArrow_Implementation(FTransform transform, int32 b
 
 	ASB_Arrow* arrow = GetWorld()->SpawnActor<ASB_Arrow>(arrowFactory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
 	if (arrow) {
-		arrow->SetOwner(this);
 		arrow->maxBounceCount = bounceCount;
 	}
+	
+	//MultiCast_SpawnArrow_Implementation(transform, bounceCount);
+}
+
+void ASB_Sova::MultiCast_SpawnArrow_Implementation(FTransform transform, int32 bounceCount)
+{
 }
 
 void ASB_Sova::ArrowPowerGaugeUp()

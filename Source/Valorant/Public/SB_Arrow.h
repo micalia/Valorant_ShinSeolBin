@@ -54,6 +54,13 @@ public:
 	float currTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DelayTime = 0.1;
-private:
+
+	UFUNCTION(Server, Reliable)
+	void ServerSpawnScanObj(AActor* ScanObjOwner);
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AScanObj> ScanObjFactory;
+
+	UPROPERTY(Replicated)
 	bool bBounceEnd;
 };

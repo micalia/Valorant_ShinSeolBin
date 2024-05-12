@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SB_Arrow.h"
 #include <GameFramework/ProjectileMovementComponent.h>
 #include "Net/UnrealNetwork.h"
@@ -8,7 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
-
+#include "ScanObj.h"
 
 // Sets default values
 ASB_Arrow::ASB_Arrow()
@@ -32,12 +31,14 @@ ASB_Arrow::ASB_Arrow()
 	ArrowHeadColl->BodyInstance.bLockXRotation = true;
 	ArrowHeadColl->BodyInstance.bLockYRotation = true;
 	ArrowHeadColl->BodyInstance.bLockZRotation = true;
+	ArrowHeadColl->SetIsReplicated(true);
 
 	SMSovaArrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMSovaArrow"));
 	SMSovaArrow->SetupAttachment(RootComponent);
 	SMSovaArrow->SetRelativeScale3D(FVector(2));
 	SMSovaArrow->SetRelativeLocation(FVector(-111, 0, 0));
 	SMSovaArrow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SMSovaArrow->SetIsReplicated(true);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempArrowMesh(TEXT("/Script/Engine.StaticMesh'/Game/SB/Models/arrow/RegacyArrow/sovaArrow.sovaArrow'"));
 	if (tempArrowMesh.Succeeded()) {
@@ -47,6 +48,12 @@ ASB_Arrow::ASB_Arrow()
 	bReplicates = true;
 	SetReplicateMovement(true);
 	projectileComp->SetIsReplicated(true);
+
+	static ConstructorHelpers::FClassFinder<AScanObj> tempScanObjFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_ScanObj.BP_ScanObj_C'"));
+	if (tempScanObjFactory.Succeeded()) {
+		ScanObjFactory = tempScanObjFactory.Class;
+	}
+	
 }
 
 void ASB_Arrow::PreInitializeComponents()
@@ -108,9 +115,30 @@ void ASB_Arrow::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherAct
 				projectileComp->ProjectileGravityScale = 0;
 				ArrowHeadColl->SetEnableGravity(false);
 				ArrowHeadColl->SetSimulatePhysics(false);
+				ServerSpawnScanObj_Implementation(GetOwner());
 			}
 		}
 	}
+}
+
+void ASB_Arrow::ServerSpawnScanObj_Implementation(AActor* ScanObjOwner)
+{
+	FActorSpawnParameters spawnConfig;
+	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+	spawnConfig.Owner = ScanObjOwner;
+	auto doFunc = [this](AActor* ObjectToModify)
+		{
+			AScanObj* ScanObjModify = Cast<AScanObj>(ObjectToModify);
+			if (ScanObjModify)
+			{
+				ScanObjModify->ScanArrow = this;
+		}
+	};
+
+	spawnConfig.CustomPreSpawnInitalization = doFunc;
+
+	AScanObj* ScanObj = GetWorld()->SpawnActor<AScanObj>(ScanObjFactory, GetActorTransform(), spawnConfig);
 }
 
 void ASB_Arrow::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -118,4 +146,5 @@ void ASB_Arrow::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASB_Arrow, currBounceCount);
+	DOREPLIFETIME(ASB_Arrow, bBounceEnd);
 }

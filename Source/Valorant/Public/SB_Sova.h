@@ -121,14 +121,43 @@ public:
 	class UUI_SB_ScoutingArrow* ui_SB_ScoutingArrowInstance;
 
 	//********수류탄********//
-	UFUNCTION(BlueprintImplementableEvent)
-	void GrenadeThrowReady();
+	//몽타주
+	UPROPERTY()
+	class UAnimMontage* SovaGrenadeMongtage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
+	class UMaterialInterface* DefaultMaterial;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
+	class UStaticMesh* DefalutMesh;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<class USplineMeshComponent*> SplineMeshComponents;
+	UPROPERTY(BlueprintReadWrite)
+	bool bThrowing;
+	UFUNCTION(Server, Reliable)
+	void ServerGrenadeThrowAction();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastGrenadeThrowAction();
+
+	// 던질 준비
+	UFUNCTION(Server, Reliable)
+	void ServerGrenadeThrowReady(APlayerController* MyPlayerController);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastGrenadeThrowReady(APlayerController* MyPlayerController);
+	void ShowProjectilePath();
+	FVector GetThrowVelocity();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void GrenadeThrowAction();
 	UFUNCTION(BlueprintImplementableEvent)
 	void ClearPath();
 	UFUNCTION(BlueprintImplementableEvent)
 	void CancelGrenade();
+
+	// 수류탄 생성
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AGrenade> GrenadeFactory;
+	AGrenade* MyGrenade;
+	UFUNCTION(Server, Reliable)
+	void ServerSpawnGrenade(APlayerController* MyPlayerController);
 
 	//********공중연막********//
 	UPROPERTY()
@@ -216,4 +245,6 @@ public:
 
 	virtual void NotifyRestarted() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void DebugSphere();
 };

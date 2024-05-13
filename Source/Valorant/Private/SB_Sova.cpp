@@ -26,6 +26,8 @@
 #include <AirSmokeMinimapWidget.h>
 #include "SB_AirSmokeMarker.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/SplineMeshComponent.h"
+#include "Grenade.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -37,6 +39,11 @@ ASB_Sova::ASB_Sova()
 	static ConstructorHelpers::FClassFinder<ASB_Arrow> tempArrowFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_Arrow.BP_Arrow_C'"));
 	if (tempArrowFactory.Succeeded()) {
 		arrowFactory = tempArrowFactory.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<AGrenade> tempGrenadeFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_Grenade.BP_Grenade_C'"));
+	if (tempGrenadeFactory.Succeeded()) {
+		GrenadeFactory = tempGrenadeFactory.Class;
 	}
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(105.0f);
@@ -112,6 +119,12 @@ ASB_Sova::ASB_Sova()
 	if (tempAirSmokeMarkerFactory.Succeeded()) {
 		AirSmokeMarkerFactory = tempAirSmokeMarkerFactory.Class;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempSovaGrenadeMongtage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Grenade/AN_SovaGrenade.AN_SovaGrenade'"));
+	if (tempSovaGrenadeMongtage.Succeeded()) {
+		SovaGrenadeMongtage = tempSovaGrenadeMongtage.Object;
+	}
+
 	bReplicates = true;
 }
 
@@ -172,6 +185,8 @@ void ASB_Sova::Tick(float DeltaTime)
 			//DrawDebugLine(GetWorld(), start, end, FColor::Orange, false, 2.0f);
 		}
 	}
+
+	if(bThrowing) ShowProjectilePath();
 }
 
 void ASB_Sova::MouseLeftAction()
@@ -312,13 +327,15 @@ void ASB_Sova::KeyQ()
 	if (IsLocallyControlled() == false) return;
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::Grenade;
+		APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 		if (HasAuthority()) {
 			Server_SetCurrState_Implementation(currState);
+			ServerGrenadeThrowReady_Implementation(MyController);
 		}
 		else {
 			Server_SetCurrState(currState);
+			ServerGrenadeThrowReady(MyController);
 		}
-		GrenadeThrowReady();
 	}
 	else if (currState == ESovaState::Grenade) {
 		currState = ESovaState::DefaultAtk;
@@ -533,6 +550,133 @@ void ASB_Sova::IncreaseBounceCount()
 		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 	}
+
+}
+
+void ASB_Sova::ServerGrenadeThrowReady_Implementation(APlayerController* MyPlayerController) {
+	MulticastGrenadeThrowReady(MyPlayerController);
+}
+
+
+void ASB_Sova::MulticastGrenadeThrowReady_Implementation(APlayerController* MyPlayerController)
+{
+	auto FpsAnim = fpsMesh->GetAnimInstance();
+	FpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
+	auto TpsAnim = GetMesh()->GetAnimInstance();
+	TpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
+
+	if (HasAuthority()) {
+		ServerSpawnGrenade_Implementation(MyPlayerController);
+	}
+}
+
+void ASB_Sova::ShowProjectilePath()
+{
+	if (bThrowing) {
+		//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("%s >> ShowProjectilePath"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+#pragma region SB Logic
+		//전에 저장되있는데 스프라인 포인트를 다 지움//
+		projectilePath->ClearSplinePoints(true);
+		if (SplineMeshComponents.Num() > 0)
+		{
+			for (int32 i = 0; i < SplineMeshComponents.Num(); i++)
+			{
+				if (SplineMeshComponents[i])
+				{
+					//저장된 배열의 메시컴포넌트를 삭제하여 계속 지속시킴//
+					//Spline_Meshs[i]->DetachFromParent();
+					SplineMeshComponents[i]->DestroyComponent();
+				}
+			}
+			//배열을 삭제함//
+			SplineMeshComponents.Empty();
+		}
+
+		FVector StartPos = projectileComp->GetComponentLocation();
+		FVector ThrowVelocity = GetThrowVelocity();
+		FHitResult HitResult;
+		TArray<FVector> OutPathPositions;
+		FVector OutLastTraceDest;
+		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(this);
+		UGameplayStatics::Blueprint_PredictProjectilePath_ByTraceChannel(GetWorld(), HitResult, OutPathPositions,OutLastTraceDest, StartPos, ThrowVelocity, true, 0, ECC_Camera, false, ActorsToIgnore, EDrawDebugTrace::None, 0, 15, 3,0);
+		for (int i = 0; i < OutPathPositions.Num(); i++)
+		{
+			projectilePath->AddSplinePointAtIndex(OutPathPositions[i], i, ESplineCoordinateSpace::Local, true);
+		}
+		int32 LastIndex = projectilePath->GetNumberOfSplinePoints() - 2;
+		for (int j = 0; j < LastIndex; j++)
+		{
+			USplineMeshComponent* SplineMeshComponent = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass());
+			SplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
+			SplineMeshComponent->SetStaticMesh(DefalutMesh);
+			//정적 움직임//
+			SplineMeshComponent->SetMobility(EComponentMobility::Movable);
+			SplineMeshComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+			//월드에 등록해줌//
+			SplineMeshComponent->RegisterComponentWithWorld(GetWorld());
+			//스플라인 컴포넌트에 컴포넌트에 따라 크기 위치를 변경함//
+			SplineMeshComponent->AttachToComponent(projectilePath, FAttachmentTransformRules::KeepWorldTransform);
+			SplineMeshComponent->SetStartScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f),UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
+			SplineMeshComponent->SetEndScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f),UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
+
+			//시작지점//
+			const FVector StartPoint = projectilePath->GetLocationAtSplinePoint(j, ESplineCoordinateSpace::Local);
+			const FVector StartTangent = projectilePath->GetTangentAtSplinePoint(j, ESplineCoordinateSpace::Local);
+			const FVector EndPoint = projectilePath->GetLocationAtSplinePoint(j + 1, ESplineCoordinateSpace::Local);
+			const FVector EndTangent = projectilePath->GetTangentAtSplinePoint(j + 1, ESplineCoordinateSpace::Local);
+			SplineMeshComponent->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent, true);
+
+			//메쉬에 충돌할것인지 아닌지확인함(일단은 안함)//
+			SplineMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//메쉬는 꼭아래에다 해줘야한다.//
+			if (DefaultMaterial)
+			{
+				SplineMeshComponent->SetMaterial(0, DefaultMaterial);
+			}
+			////////////////////////////////
+
+			//메쉬의 위치를 저장해줌//
+			SplineMeshComponents.Add(SplineMeshComponent);
+		}
+#pragma endregion
+
+
+	}
+}
+
+FVector ASB_Sova::GetThrowVelocity()
+{
+	FRotator ControlRotation = GetControlRotation();
+	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(ControlRotation);
+	FVector ThrowVelocity = (ForwardVector + FVector(0, 0, 0.4)) * 1500;
+	return ThrowVelocity;
+}
+
+void ASB_Sova::ServerSpawnGrenade_Implementation(APlayerController* MyPlayerController)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> ServerGrenadeSpawn!!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	FActorSpawnParameters spawnConfig;
+	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ASB_Sova* MySova = Cast<ASB_Sova>(MyPlayerController->GetPawn());
+	spawnConfig.Owner = MySova;
+	
+	MyGrenade = GetWorld()->SpawnActor<AGrenade>(GrenadeFactory, MySova->fpsMesh->GetSocketLocation(TEXT("Grenade")), FRotator(0), spawnConfig);
+}
+
+void ASB_Sova::ServerGrenadeThrowAction_Implementation()
+{
+	if (bThrowing) {
+		MulticastGrenadeThrowAction();
+		bThrowing = false;
+	}
+	else {
+		
+	}
+}
+
+void ASB_Sova::MulticastGrenadeThrowAction_Implementation()
+{
 
 }
 

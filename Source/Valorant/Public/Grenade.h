@@ -31,4 +31,23 @@ public:
 	class UProjectileMovementComponent* ProjectileComp;
 
 	class ASB_Sova* SovaOwner;
+	
+	FVector MyVelocity;
+	void Throw(FVector Velocity);
+
+	UPROPERTY(Replicated)
+	bool bHitCheck;
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, 
+				AActor* OtherActor, 
+				UPrimitiveComponent* OtherComp, 
+				FVector NormalImpulse, 
+				const FHitResult& Hit);
+	
+	UPROPERTY()
+	class UParticleSystem* ExplosionEffect;
+	UFUNCTION(Server, Reliable)
+	void ServerExplosion();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastExplosion();
 };

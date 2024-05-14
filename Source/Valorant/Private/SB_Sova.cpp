@@ -50,7 +50,7 @@ ASB_Sova::ASB_Sova()
 
 	projectileComp = CreateDefaultSubobject<USceneComponent>(TEXT("projectileComp"));
 	projectileComp->SetupAttachment(RootComponent);
-	projectileComp->SetRelativeLocation(FVector(42.765113, 54.495774, 64.635261));
+	projectileComp->SetRelativeLocation(FVector(24, 56, 132));
 
 	projectilePath = CreateDefaultSubobject<USplineComponent>(TEXT("projectilePath"));
 	projectilePath->SetupAttachment(RootComponent);
@@ -125,6 +125,16 @@ ASB_Sova::ASB_Sova()
 		SovaGrenadeMongtage = tempSovaGrenadeMongtage.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempGrenadeSound1(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/Grenade/sova_Grenade0.sova_Grenade0'"));
+	if (tempGrenadeSound1.Succeeded()) {
+		GrenadeSound1 = tempGrenadeSound1.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempGrenadeSound2(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/Grenade/sova_Grenade1.sova_Grenade1'"));
+	if (tempGrenadeSound2.Succeeded()) {
+		GrenadeSound2 = tempGrenadeSound2.Object;
+	}
+
 	bReplicates = true;
 }
 
@@ -186,7 +196,7 @@ void ASB_Sova::Tick(float DeltaTime)
 		}
 	}
 
-	if(bThrowing) ShowProjectilePath();
+	if (bThrowing) ShowProjectilePath();
 }
 
 void ASB_Sova::MouseLeftAction()
@@ -203,7 +213,13 @@ void ASB_Sova::MouseLeftAction()
 	case ESovaState::AirSmoke:
 		break;
 	case ESovaState::Grenade:
-		GrenadeThrowAction();
+		if (HasAuthority()) {
+			ServerGrenadeThrowAction_Implementation();
+		}
+		else {
+			ServerGrenadeThrowAction();
+		}
+		//GrenadeThrowAction();
 		break;
 	case ESovaState::MinhaTeleport: {
 		if (Impacted)
@@ -226,7 +242,7 @@ void ASB_Sova::MouseLeftAction()
 			}
 		}
 	}
-		break;
+								  break;
 	default:
 		break;
 	}
@@ -341,12 +357,14 @@ void ASB_Sova::KeyQ()
 		currState = ESovaState::DefaultAtk;
 		if (HasAuthority()) {
 			Server_SetCurrState_Implementation(currState);
+			ServerCancelGrenade_Implementation();
 		}
 		else {
 			Server_SetCurrState(currState);
+			ServerCancelGrenade();
 		}
 		ClearPath();
-		CancelGrenade();
+		bThrowing = false;
 	}
 }
 
@@ -475,7 +493,7 @@ void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTr
 	if (arrow) {
 		arrow->maxBounceCount = bounceCount;
 	}
-	
+
 	//MultiCast_SpawnArrow_Implementation(transform, bounceCount);
 }
 
@@ -576,21 +594,7 @@ void ASB_Sova::ShowProjectilePath()
 		//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("%s >> ShowProjectilePath"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 #pragma region SB Logic
 		//전에 저장되있는데 스프라인 포인트를 다 지움//
-		projectilePath->ClearSplinePoints(true);
-		if (SplineMeshComponents.Num() > 0)
-		{
-			for (int32 i = 0; i < SplineMeshComponents.Num(); i++)
-			{
-				if (SplineMeshComponents[i])
-				{
-					//저장된 배열의 메시컴포넌트를 삭제하여 계속 지속시킴//
-					//Spline_Meshs[i]->DetachFromParent();
-					SplineMeshComponents[i]->DestroyComponent();
-				}
-			}
-			//배열을 삭제함//
-			SplineMeshComponents.Empty();
-		}
+		ClearPath();
 
 		FVector StartPos = projectileComp->GetComponentLocation();
 		FVector ThrowVelocity = GetThrowVelocity();
@@ -599,7 +603,7 @@ void ASB_Sova::ShowProjectilePath()
 		FVector OutLastTraceDest;
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
-		UGameplayStatics::Blueprint_PredictProjectilePath_ByTraceChannel(GetWorld(), HitResult, OutPathPositions,OutLastTraceDest, StartPos, ThrowVelocity, true, 0, ECC_Camera, false, ActorsToIgnore, EDrawDebugTrace::None, 0, 15, 3,0);
+		UGameplayStatics::Blueprint_PredictProjectilePath_ByTraceChannel(GetWorld(), HitResult, OutPathPositions, OutLastTraceDest, StartPos, ThrowVelocity, true, 0, ECC_Camera, false, ActorsToIgnore, EDrawDebugTrace::None, 0, 15, 3, 0);
 		for (int i = 0; i < OutPathPositions.Num(); i++)
 		{
 			projectilePath->AddSplinePointAtIndex(OutPathPositions[i], i, ESplineCoordinateSpace::Local, true);
@@ -617,8 +621,8 @@ void ASB_Sova::ShowProjectilePath()
 			SplineMeshComponent->RegisterComponentWithWorld(GetWorld());
 			//스플라인 컴포넌트에 컴포넌트에 따라 크기 위치를 변경함//
 			SplineMeshComponent->AttachToComponent(projectilePath, FAttachmentTransformRules::KeepWorldTransform);
-			SplineMeshComponent->SetStartScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f),UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
-			SplineMeshComponent->SetEndScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f),UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
+			SplineMeshComponent->SetStartScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f), UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
+			SplineMeshComponent->SetEndScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f), UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
 
 			//시작지점//
 			const FVector StartPoint = projectilePath->GetLocationAtSplinePoint(j, ESplineCoordinateSpace::Local);
@@ -640,8 +644,6 @@ void ASB_Sova::ShowProjectilePath()
 			SplineMeshComponents.Add(SplineMeshComponent);
 		}
 #pragma endregion
-
-
 	}
 }
 
@@ -653,6 +655,31 @@ FVector ASB_Sova::GetThrowVelocity()
 	return ThrowVelocity;
 }
 
+void ASB_Sova::ClearPath() {
+	projectilePath->ClearSplinePoints(true);
+	if (SplineMeshComponents.Num() > 0)
+	{
+		for (int32 i = 0; i < SplineMeshComponents.Num(); i++)
+		{
+			if (SplineMeshComponents[i])
+			{
+				//저장된 배열의 메시컴포넌트를 삭제하여 계속 지속시킴//
+				//Spline_Meshs[i]->DetachFromParent();
+				SplineMeshComponents[i]->DestroyComponent();
+			}
+		}
+		//배열을 삭제함//
+		SplineMeshComponents.Empty();
+	}
+}
+
+void ASB_Sova::ServerCancelGrenade_Implementation()
+{
+	if (MyGrenade) {
+		MyGrenade->Destroy();
+	}
+}
+
 void ASB_Sova::ServerSpawnGrenade_Implementation(APlayerController* MyPlayerController)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> ServerGrenadeSpawn!!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
@@ -660,7 +687,7 @@ void ASB_Sova::ServerSpawnGrenade_Implementation(APlayerController* MyPlayerCont
 	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	ASB_Sova* MySova = Cast<ASB_Sova>(MyPlayerController->GetPawn());
 	spawnConfig.Owner = MySova;
-	
+
 	MyGrenade = GetWorld()->SpawnActor<AGrenade>(GrenadeFactory, MySova->fpsMesh->GetSocketLocation(TEXT("Grenade")), FRotator(0), spawnConfig);
 }
 
@@ -669,15 +696,47 @@ void ASB_Sova::ServerGrenadeThrowAction_Implementation()
 	if (bThrowing) {
 		MulticastGrenadeThrowAction();
 		bThrowing = false;
+		if (MyGrenade) {
+			if (HasAuthority()) {
+				FTimerHandle DelayHandle;
+				GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]()->void {
+					MyGrenade->Throw(GetThrowVelocity());
+				}), 0.1f, false);
+			}
+		}
 	}
 	else {
-		
+		if (MyGrenade) {
+			MyGrenade->Destroy();
+		}
 	}
 }
 
 void ASB_Sova::MulticastGrenadeThrowAction_Implementation()
 {
+	auto FpsAnim = fpsMesh->GetAnimInstance();
+	FpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
+	FpsAnim->Montage_JumpToSection(TEXT("End"), SovaGrenadeMongtage);
 
+	auto TpsAnim = GetMesh()->GetAnimInstance();
+	TpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
+	TpsAnim->Montage_JumpToSection(TEXT("End"), SovaGrenadeMongtage);
+
+
+	int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+	switch (RanVal)
+	{
+	case 0:
+		UGameplayStatics::PlaySound2D(GetWorld(), GrenadeSound1);
+		break;
+	case 1:
+		UGameplayStatics::PlaySound2D(GetWorld(), GrenadeSound2);
+		break;
+	}
+	if (IsLocallyControlled()) {
+		ClearPath();
+		bThrowing = false;
+	}
 }
 
 void ASB_Sova::ActiveAirSmoke()
@@ -729,7 +788,7 @@ void ASB_Sova::AirSmokeLogic()
 			param.AddIgnoredActor(GetOwner()); // 라인트레이스가 물체와 충돌하면 충돌한 위치에 액터 스폰
 			bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECC_GameTraceChannel7, param);
 			if (IsHit) { // 서버 RPC함수에 스폰할 위치를 인자값으로 넘겨주고, 서버에서 공중연막 액터 스폰
-				if (HasAuthority()) { 
+				if (HasAuthority()) {
 					ServerSpawnSmokeObj_Implementation(HitResult.ImpactPoint);
 				}
 				else {
@@ -830,5 +889,6 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, isGun);
 	DOREPLIFETIME(ASB_Sova, currState);
 	DOREPLIFETIME(ASB_Sova, airSmokeCurrCount);
+	DOREPLIFETIME(ASB_Sova, bThrowing);
 }
 

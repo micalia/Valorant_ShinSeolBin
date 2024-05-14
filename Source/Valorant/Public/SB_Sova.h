@@ -130,7 +130,7 @@ public:
 	class UStaticMesh* DefalutMesh;
 	UPROPERTY(BlueprintReadWrite)
 	TArray<class USplineMeshComponent*> SplineMeshComponents;
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, Replicated)
 	bool bThrowing;
 	UFUNCTION(Server, Reliable)
 	void ServerGrenadeThrowAction();
@@ -147,10 +147,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void GrenadeThrowAction();
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION()
 	void ClearPath();
-	UFUNCTION(BlueprintImplementableEvent)
-	void CancelGrenade();
+	UFUNCTION(Server,Reliable)
+	void ServerCancelGrenade();
 
 	// 수류탄 생성
 	UPROPERTY(EditAnywhere)
@@ -158,6 +158,11 @@ public:
 	AGrenade* MyGrenade;
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnGrenade(APlayerController* MyPlayerController);
+
+	UPROPERTY(EditAnywhere)
+	class USoundBase* GrenadeSound1;
+	UPROPERTY(EditAnywhere)
+	class USoundBase* GrenadeSound2;
 
 	//********공중연막********//
 	UPROPERTY()

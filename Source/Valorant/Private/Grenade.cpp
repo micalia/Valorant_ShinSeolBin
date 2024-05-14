@@ -7,6 +7,10 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "../Public/SB_Sova.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
 
 // Sets default values
 AGrenade::AGrenade()
@@ -18,6 +22,7 @@ AGrenade::AGrenade()
 	SetRootComponent(RootComp);
 	RootComp->SetSphereRadius(15);
 	RootComp->SetWorldScale3D(FVector(1.5));
+	RootComp->SetCollisionProfileName(TEXT("NoCollision"));
 	RootComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RootComp->SetIsReplicated(true);	
 
@@ -29,6 +34,11 @@ AGrenade::AGrenade()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> tempGrenadeMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SB/Models/cluster-grenade/source/grenade_skined.grenade_skined'"));
 	if (tempGrenadeMesh.Succeeded()) {
 		GrenadeMeshComp->SetSkeletalMesh(tempGrenadeMesh.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempExplosionEffect(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Explosion.P_Explosion'"));
+	if (tempExplosionEffect.Succeeded()) {
+		ExplosionEffect = tempExplosionEffect.Object;
 	}
 
 	ProjectileComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
@@ -54,6 +64,8 @@ void AGrenade::BeginPlay()
 			AttachToComponent(SovaOwner->GetMesh(), AttachRule, TEXT("Grenade"));
 		}
 	}
+
+	RootComp->OnComponentHit.AddDynamic(this, &AGrenade::OnHit);
 }
 
 // Called every frame
@@ -63,3 +75,59 @@ void AGrenade::Tick(float DeltaTime)
 
 }
 
+void AGrenade::Throw(FVector Velocity)
+{
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	ProjectileComp->Velocity = Velocity;
+	ProjectileComp->Activate(false);
+	FTimerHandle DelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]()->void {
+		#pragma region SimulatePhysics
+			RootComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			MyVelocity = GetVelocity();
+			if (HasAuthority()) {
+				RootComp->SetSimulatePhysics(true);
+				RootComp->SetPhysicsLinearVelocity(MyVelocity, false);
+			}
+		#pragma endregion
+
+		}), 0.3f, false);
+
+	FRotator RanRot = UKismetMathLibrary::RandomRotator(false);
+	FLatentActionInfo LatentInfo;
+	UKismetSystemLibrary::MoveComponentTo(RootComp, FVector(0), RanRot, false, false, 0.5f, false, EMoveComponentAction::Move, LatentInfo);
+}
+
+void AGrenade::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (!bHitCheck) {
+		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> HIT"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+		bHitCheck = true;
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]()->void {
+			if (HasAuthority()) {
+				ServerExplosion_Implementation();
+			}
+		}), 0.7f, false);
+	}
+}
+
+void AGrenade::ServerExplosion_Implementation()
+{
+	MulticastExplosion();
+}
+
+void AGrenade::MulticastExplosion_Implementation()
+{
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), GetActorRotation());
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Boom!!!!!CPP"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	GrenadeMeshComp->SetHiddenInGame(true);
+	SetLifeSpan(3);
+}
+
+void AGrenade::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGrenade, bHitCheck);
+}

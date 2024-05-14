@@ -34,7 +34,7 @@ void AScanObj::BeginPlay()
 	auto CurrPos = GetActorLocation();
 	FLinearColor SpawnPos = FLinearColor(CurrPos.X, CurrPos.Y, CurrPos.Z, 1);
 
-	if (GetOwner() == MyPlayer) {
+	if (MyPlayer == GetOwner()) {
 		UKismetMaterialLibrary::SetVectorParameterValue(GetWorld(), MPCScanPos, TEXT("ScanPos"), SpawnPos);
 	}
 	else {
@@ -51,10 +51,9 @@ void AScanObj::Tick(float DeltaTime)
 		if (ScanCurrTime < ScanTime) {
 			float alpha = ScanCurrTime / ScanTime;
 			alpha *= 7;
-			if (GetOwner() == MyPlayer) {
+			if (MyPlayer == GetOwner()) {
 				UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), MPCScanObjRadius, TEXT("Radius"), alpha);
-
-			}
+ 			}
 			else {
 				UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), MPCScanObjRadius, TEXT("EnemyRadius"), alpha);
 			}

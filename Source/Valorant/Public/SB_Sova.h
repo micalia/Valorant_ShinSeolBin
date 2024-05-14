@@ -74,6 +74,14 @@ public:
 	bool mouseLeftClick;
 
 	//********Á¤Âû¿ëÈ­»ì********//
+	UPROPERTY()
+	class USoundBase* ScoutingArrowVoice1;
+	UPROPERTY()
+	class USoundBase* ScoutingArrowVoice2;
+	UPROPERTY()
+	class USoundBase* ScoutingArrowVoice3;
+	UPROPERTY(EditAnywhere)
+	class USceneComponent* ArrowFirePos;
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	bool bScoutingArrow;
 	UFUNCTION(Server, Reliable)
@@ -87,6 +95,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void Fire();
+	void ScoutingArrowShot();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
 	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount);

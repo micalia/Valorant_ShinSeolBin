@@ -84,6 +84,24 @@ ASB_Sova::ASB_Sova()
 	arrowMesh->SetupAttachment(fpsMesh, TEXT("ArrowSocket"));
 	arrowMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	ArrowFirePos = CreateDefaultSubobject<USceneComponent>(TEXT("ArrowFirePos"));
+	ArrowFirePos->SetupAttachment(RootComponent);
+	ArrowFirePos->SetRelativeLocation(FVector(64, 30, 34));
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempScoutingArrowVoice1(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/ScoutingArrow/sova_ScoutingArrow0.sova_ScoutingArrow0'"));
+	if (tempScoutingArrowVoice1.Succeeded()) {
+		ScoutingArrowVoice1 = tempScoutingArrowVoice1.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempScoutingArrowVoice2(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/ScoutingArrow/sova_ScoutingArrow0.sova_ScoutingArrow0'"));
+	if (tempScoutingArrowVoice2.Succeeded()) {
+		ScoutingArrowVoice2 = tempScoutingArrowVoice2.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempScoutingArrowVoice3(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/ScoutingArrow/sova_ScoutingArrow0.sova_ScoutingArrow0'"));
+	if (tempScoutingArrowVoice3.Succeeded()) {
+		ScoutingArrowVoice3 = tempScoutingArrowVoice3.Object;
+	}
+	
+
 	static ConstructorHelpers::FClassFinder<USkillWidget> tempSovaSkillUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SB/UMG/WB_Sova_Skill.WB_Sova_Skill_C'"));
 	if (tempSovaSkillUI.Succeeded()) {
 		SkillWidgetFactory = tempSovaSkillUI.Class;
@@ -269,7 +287,8 @@ void ASB_Sova::MouseLeftReleasedAction()
 		if (ui_SB_ScoutingArrowInstance) {
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
 		}
-		Fire();
+		//Fire(); // bp 정찰용화살
+		ScoutingArrowShot();
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
 		InitScoutingArrow();
 		currState = ESovaState::DefaultAtk;
@@ -469,6 +488,48 @@ void ASB_Sova::InitScoutingArrow()
 	skillBounceCount = 0;
 	ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 	ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
+}
+
+void ASB_Sova::ScoutingArrowShot()
+{
+	if (auto PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)) {
+		FVector TraceStartLoc = PlayerCam->GetCameraLocation();
+		FVector TraceEndLoc = TraceStartLoc + (PlayerCam->GetActorForwardVector() * 15000);
+
+		FHitResult HitResult;
+		FCollisionQueryParams param;
+		param.AddIgnoredActor(GetOwner()); // 라인트레이스가 물체와 충돌하면 충돌한 위치에 액터 스폰
+		bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLoc, TraceEndLoc, ECC_Visibility, param);
+		if (IsHit) {
+			TraceEndLoc = HitResult.ImpactPoint;
+			FVector ArrowSpawnLoc = ArrowFirePos->GetComponentLocation();
+			FRotator ArrowSpawnRotator = UKismetMathLibrary::MakeRotFromX(TraceEndLoc - TraceStartLoc);
+			if (auto MyController = GetWorld()->GetFirstPlayerController()) {
+				FTransform ArrowTransform = FTransform(ArrowSpawnRotator.Quaternion(), ArrowSpawnLoc, FVector(1));
+				if (HasAuthority()) {
+					Server_SpawnArrow_Implementation(MyController, ArrowTransform, skillBounceCount);
+				}
+				else {
+					Server_SpawnArrow(MyController, ArrowTransform, skillBounceCount);
+				}
+				int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 2);
+				switch (RanVal)
+				{
+				case 0:
+					UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice1);
+					break;
+				case 1:
+					UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice2);
+					break;
+				case 2:
+					UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice3);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	}
 }
 
 void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount)
@@ -701,7 +762,7 @@ void ASB_Sova::ServerGrenadeThrowAction_Implementation()
 				FTimerHandle DelayHandle;
 				GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]()->void {
 					MyGrenade->Throw(GetThrowVelocity());
-				}), 0.1f, false);
+					}), 0.1f, false);
 			}
 		}
 	}

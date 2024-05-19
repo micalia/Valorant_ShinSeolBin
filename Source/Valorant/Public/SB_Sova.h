@@ -90,6 +90,7 @@ public:
 	void Mulitcast_SetBoolScoutingArrow(bool bScoutingChk);
 
 	TSubclassOf<class ASB_Arrow> arrowFactory;
+	TSubclassOf<class ASB_ArrowVersion2> ArrowVer2Factory;
 
 	void InitScoutingArrow();
 
@@ -98,7 +99,7 @@ public:
 	void ScoutingArrowShot();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount);
+	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec);
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
 	void MultiCast_SpawnArrow(FTransform transform, int32 bounceCount);
 
@@ -111,9 +112,9 @@ public:
 	void ArrowPowerGaugeUp();
 
 	UPROPERTY(EditAnywhere, Category = "ScoutingArrow")
-	float minScoutingArrowSpeed = 2500;
+	float minScoutingArrowSpeed = 2150;
 	UPROPERTY(EditAnywhere, Category = "ScoutingArrow")
-	float maxScoutingArrowSpeed = 8500;
+	float maxScoutingArrowSpeed = 3100;
 	UPROPERTY(BlueprintReadOnly, Category = "ScoutingArrow", Replicated)
 	float scoutingArrowSpeed;
 	UFUNCTION(Server, Reliable)

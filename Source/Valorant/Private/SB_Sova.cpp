@@ -28,6 +28,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/SplineMeshComponent.h"
 #include "Grenade.h"
+#include "SB_ArrowVersion2.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -39,6 +40,10 @@ ASB_Sova::ASB_Sova()
 	static ConstructorHelpers::FClassFinder<ASB_Arrow> tempArrowFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_Arrow.BP_Arrow_C'"));
 	if (tempArrowFactory.Succeeded()) {
 		arrowFactory = tempArrowFactory.Class;
+	}
+	static ConstructorHelpers::FClassFinder<ASB_ArrowVersion2> tempArrowVer2Factory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_ArrowVersion2.BP_ArrowVersion2_C'"));
+	if (tempArrowVer2Factory.Succeeded()) {
+		ArrowVer2Factory = tempArrowVer2Factory.Class;
 	}
 
 	static ConstructorHelpers::FClassFinder<AGrenade> tempGrenadeFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_Grenade.BP_Grenade_C'"));
@@ -493,24 +498,40 @@ void ASB_Sova::InitScoutingArrow()
 void ASB_Sova::ScoutingArrowShot()
 {
 	if (auto PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)) {
-		FVector TraceStartLoc = PlayerCam->GetCameraLocation();
-		FVector TraceEndLoc = TraceStartLoc + (PlayerCam->GetActorForwardVector() * 15000);
+		/*FVector TraceStartLoc = PlayerCam->GetCameraLocation();
+		FVector TraceEndLoc = TraceStartLoc + (PlayerCam->GetActorForwardVector() * 5000);*/
+
+		FVector TraceStartLoc =FollowCamera->GetComponentLocation();
+		FVector TraceEndLoc = TraceStartLoc + FollowCamera->GetForwardVector() * 5000;
 
 		FHitResult HitResult;
 		FCollisionQueryParams param;
 		param.AddIgnoredActor(GetOwner()); // 라인트레이스가 물체와 충돌하면 충돌한 위치에 액터 스폰
-		bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLoc, TraceEndLoc, ECC_Visibility, param);
-		if (IsHit) {
+		GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLoc, TraceEndLoc, ECC_GameTraceChannel4, param);
+
+		if (HitResult.bBlockingHit) {
 			TraceEndLoc = HitResult.ImpactPoint;
+			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Hit"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> NotHit"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+		}
 			FVector ArrowSpawnLoc = ArrowFirePos->GetComponentLocation();
-			FRotator ArrowSpawnRotator = UKismetMathLibrary::MakeRotFromX(TraceEndLoc - TraceStartLoc);
+			//FRotator ArrowSpawnRotator = UKismetMathLibrary::MakeRotFromX(TraceEndLoc - TraceStartLoc);
+			FVector ArrowDir = TraceEndLoc - ArrowSpawnLoc;
+			DrawDebugSphere(GetWorld(), TraceEndLoc, 4 , 10, FColor::Red, true, 999, 2, 2);
+			FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
+			//FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
+			FVector InDirVec = ArrowDir.GetSafeNormal();
+			//auto CamManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+			//ArrowSpawnRotator = CamManager->GetCameraRotation();
 			if (auto MyController = GetWorld()->GetFirstPlayerController()) {
 				FTransform ArrowTransform = FTransform(ArrowSpawnRotator.Quaternion(), ArrowSpawnLoc, FVector(1));
 				if (HasAuthority()) {
-					Server_SpawnArrow_Implementation(MyController, ArrowTransform, skillBounceCount);
+					Server_SpawnArrow_Implementation(MyController, ArrowTransform, skillBounceCount, InDirVec);
 				}
 				else {
-					Server_SpawnArrow(MyController, ArrowTransform, skillBounceCount);
+					Server_SpawnArrow(MyController, ArrowTransform, skillBounceCount, InDirVec);
 				}
 				int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 2);
 				switch (RanVal)
@@ -528,29 +549,35 @@ void ASB_Sova::ScoutingArrowShot()
 					break;
 				}
 			}
-		}
+		//}
 	}
 }
 
-void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount)
+void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec)
 {
 	FActorSpawnParameters spawnConfig;
 	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 	spawnConfig.Owner = MyPlayer;
 	float customSpeed = scoutingArrowSpeed;
-	auto doFunc = [customSpeed, MyPlayer](AActor* ObjectToModify)
+	//FRotator Rot = transform.Rotator();
+	auto doFunc = [customSpeed, InDirVec](AActor* ObjectToModify)
 		{
-			ASB_Arrow* arrowToModify = Cast<ASB_Arrow>(ObjectToModify);
+			ASB_ArrowVersion2* arrowToModify = Cast<ASB_ArrowVersion2>(ObjectToModify);
 			if (arrowToModify)
 			{
-				arrowToModify->initSpeed = customSpeed;
+				arrowToModify->InitSpeed = customSpeed;
+				arrowToModify->InitDirVector = InDirVec;
 			}
 		};
 
 	spawnConfig.CustomPreSpawnInitalization = doFunc;
 
-	ASB_Arrow* arrow = GetWorld()->SpawnActor<ASB_Arrow>(arrowFactory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
+	// Physics 머테리얼을 활용한 화살 버전
+	//ASB_Arrow* arrow = GetWorld()->SpawnActor<ASB_Arrow>(arrowFactory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
+	
+	// 반사각 공식과 등가속도 공식으로 중력을 직접 계산한 버전
+	ASB_ArrowVersion2* arrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
 	if (arrow) {
 		arrow->maxBounceCount = bounceCount;
 	}

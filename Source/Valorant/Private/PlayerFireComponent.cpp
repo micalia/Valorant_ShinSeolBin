@@ -208,7 +208,6 @@ void UPlayerFireComponent::ServerFire_Implementation()
 		FVector StartTl = SocketTransform.GetLocation();
 
 
-		ServerFireEffect(FireSocket,SocketTransform.GetLocation(),hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(),endLoc,hitInfo.bBlockingHit);
 
 		//        
 		if (GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility, params))
@@ -225,6 +224,7 @@ void UPlayerFireComponent::ServerFire_Implementation()
 			}
 
 		}	
+		ServerFireEffect(FireSocket, SocketTransform.GetLocation(), hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(), endLoc, hitInfo.bBlockingHit);
 		//          
 		if (me->HasAuthority()) {
 			me->GetWorldTimerManager().ClearTimer(fireDelay);
@@ -286,24 +286,20 @@ void UPlayerFireComponent::MulticastFireEffect_Implementation(FVector p1, FVecto
 {
 	if (ImpactParticles)
 	{
-		/*//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, TEXT("2222222222222"), true, FVector2D(1, 1));*/
 		UGameplayStatics::SpawnEmitterAtLocation(
 			GetWorld(),
 			ImpactParticles,
 			p2,
 			p3
 		);
-		//UE_LOG(LogTemp, Warning, TEXT("impact"));
 	}
 	if (MuzzleFlash)
 	{
-		/*//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, TEXT("333333333333333"), true, FVector2D(1, 1));*/
 		UGameplayStatics::SpawnEmitterAtLocation(
 			GetWorld(),
 			MuzzleFlash,
 			p1
 		);
-		//UE_LOG(LogTemp, Warning, TEXT("flash"));
 	}
 	//    
 	UWorld* World = GetWorld();

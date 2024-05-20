@@ -679,11 +679,9 @@ void ASB_Sova::MulticastGrenadeThrowReady_Implementation(APlayerController* MyPl
 void ASB_Sova::ShowProjectilePath()
 {
 	if (bThrowing) {
-		//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("%s >> ShowProjectilePath"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-#pragma region SB Logic
-		//전에 저장되있는데 스프라인 포인트를 다 지움//
+		// 이전 프레임에서 생성한 궤적 제거
 		ClearPath();
-
+		
 		FVector StartPos = projectileComp->GetComponentLocation();
 		FVector ThrowVelocity = GetThrowVelocity();
 		FHitResult HitResult;
@@ -691,47 +689,48 @@ void ASB_Sova::ShowProjectilePath()
 		FVector OutLastTraceDest;
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
+		// 수류탄을 던지는 속력에 따른 예측 궤적의 위치값들을 배열에 저장
 		UGameplayStatics::Blueprint_PredictProjectilePath_ByTraceChannel(GetWorld(), HitResult, OutPathPositions, OutLastTraceDest, StartPos, ThrowVelocity, true, 0, ECC_Camera, false, ActorsToIgnore, EDrawDebugTrace::None, 0, 15, 3, 0);
+
 		for (int i = 0; i < OutPathPositions.Num(); i++)
 		{
 			projectilePath->AddSplinePointAtIndex(OutPathPositions[i], i, ESplineCoordinateSpace::Local, true);
 		}
-		int32 LastIndex = projectilePath->GetNumberOfSplinePoints() - 2;
+
+		//스플라인의 선분(Segment) 갯수에서 스플라인 메쉬의 겹침 문제를 없애기 위해 1을 빼줌
+		int32 LastIndex = projectilePath->GetNumberOfSplineSegments() - 1;
 		for (int j = 0; j < LastIndex; j++)
 		{
 			USplineMeshComponent* SplineMeshComponent = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass());
+			//실린더 메쉬를 사용할떄 곡면이 있는 부분이 X축 정면일때, 평평한 윗면 Z축을 정면으로 변경
 			SplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
 			SplineMeshComponent->SetStaticMesh(DefalutMesh);
-			//정적 움직임//
+			// 메쉬 움직일 수 있도록 설정
 			SplineMeshComponent->SetMobility(EComponentMobility::Movable);
-			SplineMeshComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-			//월드에 등록해줌//
+			//월드에 등록
 			SplineMeshComponent->RegisterComponentWithWorld(GetWorld());
-			//스플라인 컴포넌트에 컴포넌트에 따라 크기 위치를 변경함//
+			//궤적 시작 위치부터 스플라인 메쉬를 추가
 			SplineMeshComponent->AttachToComponent(projectilePath, FAttachmentTransformRules::KeepWorldTransform);
+			//메쉬 스케일 조절
 			SplineMeshComponent->SetStartScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f), UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
 			SplineMeshComponent->SetEndScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f), UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
 
-			//시작지점//
+			//시작과 끝지점의 위치값과 탄젠트값을 구하여 부드러운 곡선을 만듦
 			const FVector StartPoint = projectilePath->GetLocationAtSplinePoint(j, ESplineCoordinateSpace::Local);
 			const FVector StartTangent = projectilePath->GetTangentAtSplinePoint(j, ESplineCoordinateSpace::Local);
 			const FVector EndPoint = projectilePath->GetLocationAtSplinePoint(j + 1, ESplineCoordinateSpace::Local);
 			const FVector EndTangent = projectilePath->GetTangentAtSplinePoint(j + 1, ESplineCoordinateSpace::Local);
 			SplineMeshComponent->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent, true);
-
-			//메쉬에 충돌할것인지 아닌지확인함(일단은 안함)//
 			SplineMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			//메쉬는 꼭아래에다 해줘야한다.//
+
 			if (DefaultMaterial)
-			{
+			{ // 머테리얼 할당
 				SplineMeshComponent->SetMaterial(0, DefaultMaterial);
 			}
-			////////////////////////////////
-
-			//메쉬의 위치를 저장해줌//
+			// 궤적 메쉬를 매프레임마다 생성하기 때문에 
+			// 이전 프레임에서 생성한 궤적을 지우기 위해 메쉬 컴포넌트 포인터 배열 저장
 			SplineMeshComponents.Add(SplineMeshComponent);
 		}
-#pragma endregion
 	}
 }
 
@@ -751,12 +750,9 @@ void ASB_Sova::ClearPath() {
 		{
 			if (SplineMeshComponents[i])
 			{
-				//저장된 배열의 메시컴포넌트를 삭제하여 계속 지속시킴//
-				//Spline_Meshs[i]->DetachFromParent();
 				SplineMeshComponents[i]->DestroyComponent();
 			}
 		}
-		//배열을 삭제함//
 		SplineMeshComponents.Empty();
 	}
 }

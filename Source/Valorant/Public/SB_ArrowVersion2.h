@@ -55,6 +55,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float CustomGravity = -450.0;
 	float zVelocity = 0;
+	
+	bool bMove = true;
 
 	UFUNCTION()
 	void ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

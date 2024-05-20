@@ -14,18 +14,9 @@ ASB_ArrowVersion2::ASB_ArrowVersion2()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	/*RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
-	SetRootComponent(RootComp);
-
-	CollTransformComp = CreateDefaultSubobject<USceneComponent>(TEXT("CollTransformComp"));*/
-
 	SphereCollComp = CreateDefaultSubobject<USphereComponent>(TEXT("CapsuleCollComp"));
 	SphereCollComp->SetupAttachment(RootComponent);
 	SphereCollComp->SetupAttachment(CollTransformComp);
-	//SphereCollComp->SetRelativeLocation(FVector(-29, 0, 0));
-	//SphereCollComp->SetRelativeRotation(FRotator(90, 0, 0));
-	//SphereCollComp->SetCapsuleHalfHeight(25);
-	//SphereCollComp->SetCapsuleRadius(3.5);
 	SphereCollComp->SetSphereRadius(3.5);
 	SphereCollComp->SetCollisionProfileName(TEXT("ScoutingArrow"));
 
@@ -61,7 +52,7 @@ void ASB_ArrowVersion2::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if (currBounceCount < maxBounceCount) {
+	if (bMove) {
 		// v = v0 + at  >> 현재 속력에 중력 가속도를 더함
 		Velocity = InitDirVector * InitSpeed;
 		zVelocity += CustomGravity * DeltaTime;
@@ -92,6 +83,11 @@ void ASB_ArrowVersion2::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* 
 		FVector ReflectionVec = ShootDir + 2 * Hit.ImpactNormal * Projection;
 
 		InitDirVector = ReflectionVec;
+	}
+	else {
+		bMove = false;
+		SphereCollComp->SetSimulatePhysics(false);
+		SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 

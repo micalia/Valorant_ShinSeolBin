@@ -273,14 +273,14 @@ void ABaseCharacter::Multicast_Lose_Implementation()
 void ABaseCharacter::DefaultShootPress()
 {
 	if (fireComp) {
-//		fireComp->isFire = true;
+		fireComp->isFire = true;
 	}
 }
 
 void ABaseCharacter::DefaultShootRelease()
 {
 	if (fireComp) {
-		//fireComp->StopFire();
+		fireComp->StopFire();
 	}
 }
 

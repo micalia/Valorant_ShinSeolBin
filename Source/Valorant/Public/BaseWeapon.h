@@ -12,7 +12,7 @@ class VALORANT_API ABaseWeapon : public AActor
 	GENERATED_BODY()
 	
 public:	
-	/*	// Sets default values for this actor's properties
+	// Sets default values for this actor's properties
 	ABaseWeapon();
 
 
@@ -62,5 +62,5 @@ private:
 		int32 attackPower = 20;
 		int32 magazine = 3;
 		float fireInterval = 0.1f;
-		*/
+
 };

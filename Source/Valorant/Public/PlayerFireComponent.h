@@ -12,7 +12,7 @@ class VALORANT_API UPlayerFireComponent : public UPlayerBaseComponent
 	GENERATED_BODY()
 	
 public:
-/*
+
 	UPlayerFireComponent();
 	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
@@ -41,10 +41,10 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 
 	//애니메이션
 	UPROPERTY(EditAnywhere,Category = Anim)
-	class UAnimMontage* fireMontage;
+	class UAnimMontage* FireMontage;
 
-	UPROPERTY()
-	class USH_Neon_AnimInstance* anim;
+	/*UPROPERTY()
+	class USH_Neon_AnimInstance* anim;*/
 
 	UPROPERTY(EditDefaultsOnly, Category= MySettings)
 	TSubclassOf<class UCameraShakeBase> FireShake;
@@ -140,5 +140,5 @@ private:
 	enum ENetRole myRemoteRole;
 
 	APlayerController* playerController;
-	*/
+
 };

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-/*
+
 #include "BaseWeapon.h"
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
@@ -84,4 +84,4 @@ void ABaseWeapon::GrabWeapon(ABaseCharacter* player)
 		}
 
 	}
-}*/
+}

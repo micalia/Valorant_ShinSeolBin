@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-/*
+
 #include "PlayerFireComponent.h"
 #include "BaseCharacter.h"
 #include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
@@ -24,12 +24,38 @@
 #include <Components/SkeletalMeshComponent.h>
 #include <GameFramework/PlayerState.h>
 #include "SB_Sova.h"
+#include "Sound/SoundCue.h"
 
 UPlayerFireComponent::UPlayerFireComponent()
 {
 	static ConstructorHelpers::FClassFinder<UFireUserWidget> tempFireWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/PSH/UI/WBP_Fire.WBP_Fire_C'"));
 	if (tempFireWidget.Succeeded()) {
 		fireWidget = tempFireWidget.Class;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempFireMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Gun/AM_MainFire.AM_MainFire'"));
+	if (tempFireMontage.Succeeded()) {
+		FireMontage = tempFireMontage.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempImpactParticles(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_AssaultRifle_MuzzleFlash.P_AssaultRifle_MuzzleFlash'"));
+	if (tempImpactParticles.Succeeded()) {
+		ImpactParticles = tempImpactParticles.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempMuzzleFlash(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_AssaultRifle_MuzzleFlash.P_AssaultRifle_MuzzleFlash'"));
+	if (tempMuzzleFlash.Succeeded()) {
+		MuzzleFlash = tempMuzzleFlash.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> tempFireSound(TEXT("/Script/Engine.SoundCue'/Game/PSH/SMG/SMG_Cue.SMG_Cue'"));
+	if (tempFireSound.Succeeded()) {
+		FireSound = tempFireSound.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempBeamParticles(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/TrilFX/SmokeBeam/P_SmokeTrail.P_SmokeTrail'"));
+	if (tempBeamParticles.Succeeded()) {
+		BeamParticles = tempBeamParticles.Object;
 	}
 
 	bWantsInitializeComponent = true;
@@ -41,7 +67,6 @@ void UPlayerFireComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	
 }
 
 void UPlayerFireComponent::BeginPlay()
@@ -144,6 +169,8 @@ void UPlayerFireComponent::ServerFire_Implementation()
 		}	
 		ServerFireEffect(FireSocket, SocketTransform.GetLocation(), hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(), endLoc, hitInfo.bBlockingHit);
 		//          
+		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Fire"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+
 		if (me->HasAuthority()) {
 			me->GetWorldTimerManager().ClearTimer(fireDelay);
 			me->GetWorldTimerManager().SetTimer(fireDelay, FTimerDelegate::CreateLambda([&]() {
@@ -161,10 +188,9 @@ bool UPlayerFireComponent::ServerFire_Validate()
 
 void UPlayerFireComponent::MulticastFire_Implementation()
 {
-	// ִϸ  ̼ 
-	if (fireMontage)
+	if (FireMontage)
 	{	
-		me->PlayAnimMontage(fireMontage);
+		me->PlayAnimMontage(FireMontage);
 		me->PlayFpsMontage();
 	}
 
@@ -257,29 +283,29 @@ void UPlayerFireComponent::StopFire()
 
 	}
 
-	ASH_Neon* neon = Cast<ASH_Neon>(me);
-	if (neon) {
-		if (neon->fire_UI) {
-			//  ݵ  ó          ư   
-			if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController()) {
-				isFire = false;
+	//ASH_Neon* neon = Cast<ASH_Neon>(me);
+	//if (neon) {
+	//	if (neon->fire_UI) {
+	//		//  ݵ  ó          ư   
+	//		if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController()) {
+	//			isFire = false;
 
-				//UI cross hair
-				neon->fire_UI->isFire = false;
-			}
-		}
-	}
-	if (neon)
-	{
-		if (neon->fire_UI != nullptr) {
-			//  ݵ  ó          ư   
-			if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController())
-				isFire = false;
+	//			//UI cross hair
+	//			neon->fire_UI->isFire = false;
+	//		}
+	//	}
+	//}
+	//if (neon)
+	//{
+	//	if (neon->fire_UI != nullptr) {
+	//		//  ݵ  ó          ư   
+	//		if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController())
+	//			isFire = false;
 
-			//UI cross hair
-			neon->fire_UI->isFire = false;
-		}
-	}
+	//		//UI cross hair
+	//		neon->fire_UI->isFire = false;
+	//	}
+	//}
 	
 	if (playerController)
 	{
@@ -312,4 +338,3 @@ void UPlayerFireComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UPlayerFireComponent, attackPower);
 	DOREPLIFETIME(UPlayerFireComponent, fireInterval);
 }
-*/

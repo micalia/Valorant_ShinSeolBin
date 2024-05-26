@@ -43,7 +43,7 @@ UPlayerFireComponent::UPlayerFireComponent()
 		ImpactParticles = tempImpactParticles.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempMuzzleFlash(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_AssaultRifle_MuzzleFlash.P_AssaultRifle_MuzzleFlash'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempMuzzleFlash(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_Pistol_MuzzleFlash_01.P_Pistol_MuzzleFlash_01'"));
 	if (tempMuzzleFlash.Succeeded()) {
 		MuzzleFlash = tempMuzzleFlash.Object;
 	}

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+/*
 #include "BaseWeapon.h"
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
@@ -46,8 +46,6 @@ void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//boxComp->OnComponentBeginOverlap.AddDynamic(this, &ABaseWeapon::OnOverlap);
-	
 	playerInstance = Cast<ABaseCharacter>(GetAttachParentActor());
 	if (playerInstance) {
 		fireComp = Cast<UPlayerFireComponent>(playerInstance->GetComponentByClass(UPlayerFireComponent::StaticClass()));
@@ -80,26 +78,12 @@ void ABaseWeapon::GrabWeapon(ABaseCharacter* player)
 
 		if (player != nullptr)
 		{
-			//AttachToComponent(player->GetMesh(), rules, FName("WeaponLoc"));
 			//// 발사 Fire Location
 			boxComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 			boxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-			// 애니메이션 변경하기
-			/*UPlayerAnimInstance* anim = Cast<UPlayerAnimInstance>(player->GetMesh()->GetAnimInstance());*/
-
-	// 		if (anim != nullptr)
-	// 		{
-	// 			anim->bHasPistol = true;
-	// 		}
 		}
 
 	}
 }
-
-//void ABaseWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-//{
-//	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-//
-//	//DOREPLIFETIME(ABaseWeapon, ammo);
-//}
+*/

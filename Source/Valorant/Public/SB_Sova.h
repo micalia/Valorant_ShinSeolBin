@@ -34,9 +34,6 @@ public:
 	virtual void KeyQ() override; // 수류탄
 	virtual void KeyC() override; // 공중 연막
 public:
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class ASH_Neon> neonFactory;
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool isGun = true;
 

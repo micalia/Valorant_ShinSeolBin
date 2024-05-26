@@ -19,7 +19,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "FireUserWidget.h"
-#include "SH_Neon.h"
 #include <UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
 #include <Sound/SoundBase.h>
 #include "Kismet/KismetMathLibrary.h"

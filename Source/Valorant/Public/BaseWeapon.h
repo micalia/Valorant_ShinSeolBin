@@ -12,6 +12,7 @@ class VALORANT_API ABaseWeapon : public AActor
 	GENERATED_BODY()
 	
 public:	
+/*
 	// Sets default values for this actor's properties
 	ABaseWeapon();
 
@@ -31,23 +32,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=MySettings)
 	class UBoxComponent* boxComp;
 
-	/** ¾×ÅÍÀÇ ½ºÄÌ·¹Åæ ¸Å½Ã*/
+	//¾×ÅÍÀÇ ½ºÄÌ·¹Åæ ¸Å½Ã
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* meshComp;
-
-	//UFUNCTION()
-	//void ReleaseWeapon(class ABaseCharacter* player);
-
-	//void Reloading(class ABaseCharacter* player);
-	
-	//UFUNCTION(Server, Unreliable)
-	//	void ServerFire(FHitResult FireHit, const FVector& Start, const FVector& End);
-
-	//UFUNCTION(Server, Unreliable)
-	//void ServerFireEffect(const FHitResult& FireHit, const FVector& Start, const FVector& End);
-
-	//UFUNCTION(NetMulticast, Unreliable)
-	//void MulticastFireEffect();
 
 	// ÆÄÆ¼Å¬
 	UPROPERTY(EditAnywhere)
@@ -69,15 +56,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-
-	/*UFUNCTION()
-	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);*/
-
 	UFUNCTION()
 	void GrabWeapon(class ABaseCharacter* player);
 		int32 ammo = 30;
 		int32 attackPower = 20;
 		int32 magazine = 3;
 		float fireInterval = 0.1f;
-	// ÅºÃ¢
+		*/
 };

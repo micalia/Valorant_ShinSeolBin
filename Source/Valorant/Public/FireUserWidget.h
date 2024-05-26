@@ -13,7 +13,7 @@ UCLASS()
 class VALORANT_API UFireUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+	/*
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = MySettings)
 	class UTextBlock* text_Ammo = 0;
 
@@ -42,8 +42,6 @@ protected:
 	UPROPERTY(EditAnywhere,Category = crosshair)
 	float UpdatePerSecond;
 
-	
-
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn))
 	APawn* owningPawn;
 
@@ -61,6 +59,5 @@ public:
 		class ABaseCharacter* player;
 	UPROPERTY()
 	class UPlayerFireComponent* fireComp;
-
-private:
+*/
 };

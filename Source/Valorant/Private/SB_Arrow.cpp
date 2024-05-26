@@ -19,10 +19,10 @@ ASB_Arrow::ASB_Arrow()
 	ArrowHeadColl = CreateDefaultSubobject<USphereComponent>(TEXT("ArrowHeadColl"));
 	SetRootComponent(ArrowHeadColl);
 
-	/*static ConstructorHelpers::FObjectFinder<UPhysicalMaterial> tempPMBounceArrow(TEXT("/Script/PhysicsCore.PhysicalMaterial'/Game/SB/Materials/BallDropPhys.BallDropPhys'"));
+	static ConstructorHelpers::FObjectFinder<UPhysicalMaterial> tempPMBounceArrow(TEXT("/Script/PhysicsCore.PhysicalMaterial'/Game/SB/Materials/BallDropPhys.BallDropPhys'"));
 	if (tempPMBounceArrow.Succeeded()) {
 		ArrowHeadColl->SetPhysMaterialOverride(tempPMBounceArrow.Object);
-	}*/
+	}
 
 	ArrowHeadColl->SetCollisionProfileName(TEXT("ScoutingArrow"));
 	ArrowHeadColl->SetSphereRadius(55);

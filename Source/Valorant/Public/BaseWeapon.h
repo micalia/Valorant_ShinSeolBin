@@ -12,8 +12,7 @@ class VALORANT_API ABaseWeapon : public AActor
 	GENERATED_BODY()
 	
 public:	
-/*
-	// Sets default values for this actor's properties
+	/*	// Sets default values for this actor's properties
 	ABaseWeapon();
 
 
@@ -32,7 +31,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=MySettings)
 	class UBoxComponent* boxComp;
 
-	//¾×ÅÍÀÇ ½ºÄÌ·¹Åæ ¸Å½Ã
+	
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	class USkeletalMeshComponent* meshComp;
 
@@ -56,6 +55,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+
 	UFUNCTION()
 	void GrabWeapon(class ABaseCharacter* player);
 		int32 ammo = 30;

@@ -25,8 +25,6 @@
 #include <GameFramework/PlayerState.h>
 #include "SB_Sova.h"
 
-
-
 UPlayerFireComponent::UPlayerFireComponent()
 {
 	static ConstructorHelpers::FClassFinder<UFireUserWidget> tempFireWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/PSH/UI/WBP_Fire.WBP_Fire_C'"));
@@ -35,12 +33,14 @@ UPlayerFireComponent::UPlayerFireComponent()
 	}
 
 	bWantsInitializeComponent = true;
+
 	SetIsReplicatedByDefault(true);
 }
 
 void UPlayerFireComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
+
 	
 }
 
@@ -48,7 +48,7 @@ void UPlayerFireComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	playerController = Cast<APlayerController>(me->GetController());
-
+	
 	if (me->HasAuthority())
 	{
 		me->CurrHP = me->FullHP;
@@ -61,6 +61,7 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
+	//if(me->TheEndGame)
 	if (isFire)
 	{
 		Fire();
@@ -77,6 +78,7 @@ void UPlayerFireComponent::SetupInputBinding(class UInputComponent* PlayerInputC
 	}
 }
 
+//XŰ        reload
 void UPlayerFireComponent::Reload()
 {
 	if (me->HasAuthority()) {
@@ -91,8 +93,6 @@ void UPlayerFireComponent::Server_Reload_Implementation()
 {
 	ammo = 30;
 }
-
-
 void UPlayerFireComponent::Fire()
 {
 
@@ -108,7 +108,6 @@ void UPlayerFireComponent::Fire()
 		ServerFire();
 	}
 }
-
 void UPlayerFireComponent::ServerFire_Implementation()
 {
 	if (me->GetWorldTimerManager().IsTimerActive(fireDelay))
@@ -121,19 +120,18 @@ void UPlayerFireComponent::ServerFire_Implementation()
 		me->PlaySound();
 	}
 		ammo--;
-
 		FVector startLoc = me->FollowCamera->GetComponentLocation();
 		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 5000;
 		FHitResult hitInfo;
 		FCollisionQueryParams params;
 		
 		params.AddIgnoredActor(me);
+
 		//---------effect-----------
 		const USkeletalMeshSocket* FireSocket = owningWeapon->meshComp->GetSocketByName("Fire Location");
 
 		FTransform SocketTransform = FireSocket->GetSocketTransform(owningWeapon->meshComp);
 		FVector StartTl = SocketTransform.GetLocation();
-
 		if (GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility, params))
 		{
 			FString hitActor = hitInfo.GetActor()->GetName();
@@ -169,6 +167,7 @@ void UPlayerFireComponent::MulticastFire_Implementation()
 		me->PlayAnimMontage(fireMontage);
 		me->PlayFpsMontage();
 	}
+
 }
 
 void UPlayerFireComponent::ServerFireEffect_Implementation(const USkeletalMeshSocket* FireSocket, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
@@ -246,6 +245,7 @@ void UPlayerFireComponent::StopFire()
 	ASB_Sova* sova = Cast<ASB_Sova>(me);
 	if (sova) {
 		if (sova->fire_UI) {
+			//  ݵ  ó          ư   
 			if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController()) {
 
 				isFire = false;
@@ -260,6 +260,7 @@ void UPlayerFireComponent::StopFire()
 	ASH_Neon* neon = Cast<ASH_Neon>(me);
 	if (neon) {
 		if (neon->fire_UI) {
+			//  ݵ  ó          ư   
 			if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController()) {
 				isFire = false;
 
@@ -271,6 +272,7 @@ void UPlayerFireComponent::StopFire()
 	if (neon)
 	{
 		if (neon->fire_UI != nullptr) {
+			//  ݵ  ó          ư   
 			if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController())
 				isFire = false;
 
@@ -281,11 +283,18 @@ void UPlayerFireComponent::StopFire()
 	
 	if (playerController)
 	{
+		//if (ammo > 0) {
+		//	ī ޶   ö󰡰        
+		//	//playerController->SetControlRotation(startFireRot);
+		//}
 		curRightRecoilAmount = 0;
 		curRecoilAmount = 0;
+
+		//isFireStart = false;
 	}
 
 }
+
 void UPlayerFireComponent::PrintLog()
 {
 	const FString localRoleString = UEnum::GetValueAsString<ENetRole>(myLocalRole);
@@ -302,4 +311,5 @@ void UPlayerFireComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UPlayerFireComponent, ammo);
 	DOREPLIFETIME(UPlayerFireComponent, attackPower);
 	DOREPLIFETIME(UPlayerFireComponent, fireInterval);
-}*/
+}
+*/

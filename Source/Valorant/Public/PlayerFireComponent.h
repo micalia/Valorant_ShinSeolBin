@@ -23,9 +23,6 @@ public:
 	void Reload();
 	UFUNCTION(Server, Reliable)
 	void Server_Reload();
-	//void BaseFire();
-	
-	//void WeaponInfoReset();
 	FORCEINLINE void SetOwningWeapon(class ABaseWeapon* weapon) { owningWeapon = weapon; }
 	FORCEINLINE class ABaseWeapon* GetOwningWeapon() const { return owningWeapon; }
 	FORCEINLINE int32 GetAmmo() const { return ammo; }
@@ -38,8 +35,6 @@ public:
 UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class ABaseWeapon> _weapon;
 
-	//void AttachWeapon(TSubclassOf<class ABaseWeapon> weapon);
-
 //무기 장착
 	UPROPERTY()
 	class ABaseWeapon* _equipWeapon;
@@ -47,6 +42,9 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	//애니메이션
 	UPROPERTY(EditAnywhere,Category = Anim)
 	class UAnimMontage* fireMontage;
+
+	UPROPERTY()
+	class USH_Neon_AnimInstance* anim;
 
 	UPROPERTY(EditDefaultsOnly, Category= MySettings)
 	TSubclassOf<class UCameraShakeBase> FireShake;
@@ -101,20 +99,6 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 
 	void Fire();
 
-
-	//UFUNCTION(Server, Unreliable)
-	//	void ServerFireEffect();
-
-	//UFUNCTION(NetMulticast, Unreliable)
-	//	void MulticastFireEffect();
-
-	//	UFUNCTION(Server, Unreliable)
-	//void ServerFireEffect(const FHitResult& FireHit, const FVector& Start, const FVector& End);
-
-	//UFUNCTION(NetMulticast, Unreliable)
-	//void MulticastFireEffect();
-
-
 	UFUNCTION(Server, Unreliable, WithValidation)
 	void ServerFire();
 
@@ -132,16 +116,7 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastHitProcess();
-
-	//UFUNCTION(Server, Reliable)
-	//	void ServerDamagedHealth(int32 value);
-
-	//void DieProcess();
-
-	//void StartFire();
 	void StopFire();
-	 
-	//void OnHitWall(const FHitResult& hitResult); // 데칼 만들기 (벽에 맞으면 생기는 총자국)
 
 		// 파티클
 	UPROPERTY(EditAnywhere)
@@ -165,9 +140,5 @@ private:
 	enum ENetRole myRemoteRole;
 
 	APlayerController* playerController;
-
-	//USkeletalMeshSocket* FireSocket;
-	//FTransform SocketTransform;
-	//FVector StartTl;
 	*/
 };

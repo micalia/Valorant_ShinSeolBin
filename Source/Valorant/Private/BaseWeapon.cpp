@@ -81,9 +81,7 @@ void ABaseWeapon::GrabWeapon(ABaseCharacter* player)
 			//// น฿ป็ Fire Location
 			boxComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 			boxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 		}
 
 	}
-}
-*/
+}*/

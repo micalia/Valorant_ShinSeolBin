@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-/*
+
 
 #include "FireUserWidget.h"
 #include "Components/TextBlock.h"
@@ -110,7 +110,7 @@ void UFireUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		fireComp = Cast<UPlayerFireComponent>(player->GetComponentByClass(UPlayerFireComponent::StaticClass()));
 		if (fireComp) {
-			text_Ammo->SetText(FText::AsNumber(fireComp->GetAmmo()));
+//			text_Ammo->SetText(FText::AsNumber(fireComp->GetAmmo()));
 		}
 	}
 	else {
@@ -118,4 +118,3 @@ void UFireUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 	
 }
-*/

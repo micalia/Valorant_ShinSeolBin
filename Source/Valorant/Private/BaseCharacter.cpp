@@ -280,7 +280,7 @@ void ABaseCharacter::DefaultShootPress()
 void ABaseCharacter::DefaultShootRelease()
 {
 	if (fireComp) {
-	//	fireComp->StopFire();
+		//fireComp->StopFire();
 	}
 }
 

@@ -6,7 +6,8 @@
 #include "Materials/MaterialParameterCollection.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Net/UnrealNetwork.h"
-#include "../Public/SB_Arrow.h"
+//#include "../Public/SB_Arrow.h"
+#include "../Public/SB_ArrowVersion2.h"
 
 // Sets default values
 AScanObj::AScanObj()

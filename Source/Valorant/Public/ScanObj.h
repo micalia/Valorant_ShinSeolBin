@@ -36,7 +36,7 @@ public:
 	int32 CurrWaveCount;
 
 	APlayerController* MyPlayer;
-	class ASB_Arrow* ScanArrow;
+	class ASB_ArrowVersion2* ScanArrow;
 
 	UFUNCTION(Server, Reliable)
 	void ServerHideScanEffect();

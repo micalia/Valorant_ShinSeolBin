@@ -97,15 +97,14 @@ ASB_Sova::ASB_Sova()
 	if (tempScoutingArrowVoice1.Succeeded()) {
 		ScoutingArrowVoice1 = tempScoutingArrowVoice1.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<USoundBase> tempScoutingArrowVoice2(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/ScoutingArrow/sova_ScoutingArrow0.sova_ScoutingArrow0'"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempScoutingArrowVoice2(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/ScoutingArrow/sova_ScoutingArrow1.sova_ScoutingArrow1'"));
 	if (tempScoutingArrowVoice2.Succeeded()) {
 		ScoutingArrowVoice2 = tempScoutingArrowVoice2.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<USoundBase> tempScoutingArrowVoice3(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/ScoutingArrow/sova_ScoutingArrow0.sova_ScoutingArrow0'"));
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempScoutingArrowVoice3(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/ScoutingArrow/sova_ScoutingArrow2.sova_ScoutingArrow2'"));
 	if (tempScoutingArrowVoice3.Succeeded()) {
 		ScoutingArrowVoice3 = tempScoutingArrowVoice3.Object;
 	}
-	
 
 	static ConstructorHelpers::FClassFinder<USkillWidget> tempSovaSkillUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SB/UMG/WB_Sova_Skill.WB_Sova_Skill_C'"));
 	if (tempSovaSkillUI.Succeeded()) {
@@ -167,8 +166,6 @@ void ASB_Sova::BeginPlay()
 
 	soundKill = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/2_throw.2_throw'"));
 	expl = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/5_expl.5_expl'"));
-
-	NGGuideLineEm = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/SB/Effect/Nebul/NS_Torus.NS_Torus"));
 }
 
 void ASB_Sova::Tick(float DeltaTime)
@@ -187,38 +184,11 @@ void ASB_Sova::Tick(float DeltaTime)
 			break;
 		case ESovaState::Grenade:
 			break;
-		case ESovaState::MinhaTeleport:
-			break;
 		default:
 			break;
 		}
 	}
-
-	if (currState == ESovaState::MinhaTeleport)
-	{
-		FVector start = FollowCamera->GetComponentLocation();
-		FVector end = FollowCamera->GetComponentLocation() + ((FollowCamera->GetForwardVector()) * MaxDistance);
-
-		FHitResult HitResult;
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-
-		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, start, end, ECC_Visibility, Params);
-
-		if (bHit)
-		{
-			Impacted = true;
-			if (Impacted)
-			{
-				ImpactPoint = HitResult.ImpactPoint;
-				if (NGGuideLine) {
-					NGGuideLine->SetWorldLocation(ImpactPoint);
-				}
-			}
-			//DrawDebugLine(GetWorld(), start, end, FColor::Orange, false, 2.0f);
-		}
-	}
-
+// ASB_Sova::Tick 매 프레임마다 궤적을 생성함
 	if (bThrowing) ShowProjectilePath();
 }
 
@@ -242,30 +212,7 @@ void ASB_Sova::MouseLeftAction()
 		else {
 			ServerGrenadeThrowAction();
 		}
-		//GrenadeThrowAction();
 		break;
-	case ESovaState::MinhaTeleport: {
-		if (Impacted)
-		{
-			if (NGGuideLine)
-			{
-				FVector pos = NGGuideLine->GetComponentLocation();
-				pos.Z += GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-				if (HasAuthority()) {
-					Server_SetLocation_Implementation(pos);
-				}
-				else {
-					Server_SetLocation(pos);
-				}
-
-				NGGuideLine->DestroyComponent();
-
-				Impacted = false;
-				currState = ESovaState::DefaultAtk;
-			}
-		}
-	}
-								  break;
 	default:
 		break;
 	}
@@ -292,7 +239,6 @@ void ASB_Sova::MouseLeftReleasedAction()
 		if (ui_SB_ScoutingArrowInstance) {
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
 		}
-		//Fire(); // bp 정찰용화살
 		ScoutingArrowShot();
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
 		InitScoutingArrow();
@@ -302,12 +248,9 @@ void ASB_Sova::MouseLeftReleasedAction()
 		break;
 	case ESovaState::Grenade:
 		break;
-	case ESovaState::MinhaTeleport:
-		break;
 	default:
 		break;
 	}
-
 }
 
 void ASB_Sova::MouseRightAction()
@@ -325,28 +268,22 @@ void ASB_Sova::MouseRightAction()
 		break;
 	case ESovaState::Grenade:
 		break;
-	case ESovaState::MinhaTeleport:
-		break;
 	default:
 		break;
 	}
 }
-
 
 void ASB_Sova::KeyE()
 {
 	if (IsLocallyControlled() == false) return;
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::ScoutingArrow;
-		////GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("E")), true, FVector2D(1, 1));
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(true);
 		}
 		else {
 			Server_SetBoolScoutingArrow(true);
 		}
-		//bScoutingArrow = true;
-		//SetScoutingArrow(true);
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Visible);
 	}
 	else if (currState == ESovaState::ScoutingArrow) {
@@ -405,57 +342,6 @@ void ASB_Sova::KeyC()
 	}
 }
 
-void ASB_Sova::KeyF()
-{
-	if (IsLocallyControlled() == false) return;
-	//if (currState == ESovaState::DefaultAtk) {
-	//	currState = ESovaState::MinhaTeleport;
-	//	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundCcast0,GetActorLocation());
-	//	GuideLine = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), GuideLineEm, ImpactPoint);
-	//}
-	//else if (currState == ESovaState::MinhaTeleport) {
-	//	currState = ESovaState::DefaultAtk;
-	//	if (GuideLine) {
-	//		GuideLine->DestroyComponent();
-	//	}
-	//}
-	if (currState == ESovaState::DefaultAtk) {
-		currState = ESovaState::MinhaTeleport;
-		//UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundCcast0,GetActorLocation());
-
-		if (NGGuideLineEm)
-		{
-			NGGuideLine = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NGGuideLineEm, ImpactPoint);
-		}
-		else {
-			/*DrawDebugLine(GetWorld(), start, end, FColor::Orange, false, 2.0f);*/
-			////GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("11111111111111111111111")), true, FVector2D(1, 1));
-		}
-
-	}
-	else if (currState == ESovaState::MinhaTeleport) {
-		currState = ESovaState::DefaultAtk;
-		if (NGGuideLine) {
-			NGGuideLine->DestroyComponent();
-		}
-	}
-}
-
-void ASB_Sova::KeyV()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Purple, FString::Printf(TEXT("v")), true, FVector2D(1, 1));
-}
-
-void ASB_Sova::KeyG()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Purple, FString::Printf(TEXT("g")), true, FVector2D(1, 1));
-}
-
-void ASB_Sova::KeyB()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Purple, FString::Printf(TEXT("b")), true, FVector2D(1, 1));
-}
-
 void ASB_Sova::Server_SetCurrState_Implementation(ESovaState paramCurrState)
 {
 	Multicast_SetCurrState(paramCurrState);
@@ -498,11 +384,8 @@ void ASB_Sova::InitScoutingArrow()
 void ASB_Sova::ScoutingArrowShot()
 {
 	if (auto PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)) {
-		/*FVector TraceStartLoc = PlayerCam->GetCameraLocation();
-		FVector TraceEndLoc = TraceStartLoc + (PlayerCam->GetActorForwardVector() * 5000);*/
-
-		FVector TraceStartLoc =FollowCamera->GetComponentLocation();
-		FVector TraceEndLoc = TraceStartLoc + FollowCamera->GetForwardVector() * 5000;
+		FVector TraceStartLoc = PlayerCam->GetCameraLocation();
+		FVector TraceEndLoc = TraceStartLoc + (PlayerCam->GetActorForwardVector() * 5000);
 
 		FHitResult HitResult;
 		FCollisionQueryParams param;
@@ -511,96 +394,69 @@ void ASB_Sova::ScoutingArrowShot()
 
 		if (HitResult.bBlockingHit) {
 			TraceEndLoc = HitResult.ImpactPoint;
-			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Hit"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> NotHit"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-		}
-			FVector ArrowSpawnLoc = ArrowFirePos->GetComponentLocation();
-			//FRotator ArrowSpawnRotator = UKismetMathLibrary::MakeRotFromX(TraceEndLoc - TraceStartLoc);
-			FVector ArrowDir = TraceEndLoc - ArrowSpawnLoc;
-			DrawDebugSphere(GetWorld(), TraceEndLoc, 4 , 10, FColor::Red, true, 999, 2, 2);
-			FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
-			//FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
-			FVector InDirVec = ArrowDir.GetSafeNormal();
-			//auto CamManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-			//ArrowSpawnRotator = CamManager->GetCameraRotation();
-			if (auto MyController = GetWorld()->GetFirstPlayerController()) {
-				FTransform ArrowTransform = FTransform(ArrowSpawnRotator.Quaternion(), ArrowSpawnLoc, FVector(1));
-				if (HasAuthority()) {
-					Server_SpawnArrow_Implementation(MyController, ArrowTransform, skillBounceCount, InDirVec);
-				}
-				else {
-					Server_SpawnArrow(MyController, ArrowTransform, skillBounceCount, InDirVec);
-				}
-				int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 2);
-				switch (RanVal)
-				{
-				case 0:
-					UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice1);
-					break;
-				case 1:
-					UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice2);
-					break;
-				case 2:
-					UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice3);
-					break;
-				default:
-					break;
-				}
+
+		FVector ArrowSpawnLoc = ArrowFirePos->GetComponentLocation();
+		FVector ArrowDir = TraceEndLoc - ArrowSpawnLoc;
+		FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
+		FVector InDirVec = ArrowDir.GetSafeNormal();
+		if (auto MyController = GetWorld()->GetFirstPlayerController()) {
+			FTransform ArrowTransform = FTransform(ArrowSpawnRotator.Quaternion(), ArrowSpawnLoc, FVector(1));
+			if (HasAuthority()) {
+				Server_SpawnArrow_Implementation(MyController, ArrowTransform, skillBounceCount, InDirVec, scoutingArrowSpeed);
 			}
-		//}
+			else {
+				Server_SpawnArrow(MyController, ArrowTransform, skillBounceCount, InDirVec, scoutingArrowSpeed);
+			}
+			int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 2);
+			switch (RanVal)
+			{
+			case 0:
+				UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice1);
+				break;
+			case 1:
+				UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice2);
+				break;
+			case 2:
+				UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice3);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }
 
-void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec)
+void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec, float ArrowSpeed)
 {
 	FActorSpawnParameters spawnConfig;
 	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 	spawnConfig.Owner = MyPlayer;
-	float customSpeed = scoutingArrowSpeed;
-	//FRotator Rot = transform.Rotator();
-	auto doFunc = [customSpeed, InDirVec](AActor* ObjectToModify)
-		{
+	auto doFunc = [ArrowSpeed, InDirVec](AActor* ObjectToModify)
+		{ 
 			ASB_ArrowVersion2* arrowToModify = Cast<ASB_ArrowVersion2>(ObjectToModify);
 			if (arrowToModify)
 			{
-				arrowToModify->InitSpeed = customSpeed;
+				arrowToModify->InitSpeed = ArrowSpeed;
 				arrowToModify->InitDirVector = InDirVec;
 			}
 		};
 
 	spawnConfig.CustomPreSpawnInitalization = doFunc;
 
-	// Physics 머테리얼을 활용한 화살 버전
-	//ASB_Arrow* arrow = GetWorld()->SpawnActor<ASB_Arrow>(arrowFactory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
-	
-	// 반사각 공식과 등가속도 공식으로 중력을 직접 계산한 버전
 	ASB_ArrowVersion2* arrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
 	if (arrow) {
 		arrow->maxBounceCount = bounceCount;
 	}
-
-	//MultiCast_SpawnArrow_Implementation(transform, bounceCount);
 }
-
-void ASB_Sova::MultiCast_SpawnArrow_Implementation(FTransform transform, int32 bounceCount)
-{
-}
-
+// 화살 속도 조절
 void ASB_Sova::ArrowPowerGaugeUp()
 {
 	gaugeCurrTime += GetWorld()->GetDeltaSeconds();
 	if (gaugeCurrTime < gaugeTime) {
 		float alpha = gaugeCurrTime / gaugeTime;
-		if (HasAuthority()) {
-			Server_SetFloatScoutingArrow_Implementation(alpha);
-		}
-		else {
-			Server_SetFloatScoutingArrow(alpha);
-		}
-		//scoutingArrowSpeed = FMath::Lerp(minScoutingArrowSpeed, maxScoutingArrowSpeed, alpha);
+		scoutingArrowSpeed = FMath::Lerp(minScoutingArrowSpeed, maxScoutingArrowSpeed, alpha);
 		if (ui_SB_ScoutingArrowInstance) {
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(alpha);
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetFillColorAndOpacity(ui_SB_ScoutingArrowInstance->LackGaugeColor);
@@ -608,61 +464,37 @@ void ASB_Sova::ArrowPowerGaugeUp()
 	}
 	else {
 		if (ui_SB_ScoutingArrowInstance) {
-			if (HasAuthority()) {
-				Server_SetFloatScoutingArrow_Implementation(1);
-			}
-			else {
-				Server_SetFloatScoutingArrow(1);
-			}
-			//scoutingArrowSpeed = FMath::Lerp(minScoutingArrowSpeed, maxScoutingArrowSpeed, 1.0f);
+			scoutingArrowSpeed = FMath::Lerp(minScoutingArrowSpeed, maxScoutingArrowSpeed, 1.0f);
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(1);
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetFillColorAndOpacity(ui_SB_ScoutingArrowInstance->FullGaugeColor);
 		}
 	}
 }
-
-void ASB_Sova::Server_SetFloatScoutingArrow_Implementation(float arrowSpeedAlpha)
-{
-	Mulitcast_SetFloatScoutingArrow_Implementation(arrowSpeedAlpha);
-}
-
-void ASB_Sova::Mulitcast_SetFloatScoutingArrow_Implementation(float arrowSpeedAlpha)
-{
-	scoutingArrowSpeed = FMath::Lerp(minScoutingArrowSpeed, maxScoutingArrowSpeed, arrowSpeedAlpha);
-}
-
+// 화살 튕김 횟수 증가
 void ASB_Sova::IncreaseBounceCount()
 {
 	if (ui_SB_ScoutingArrowInstance == nullptr) return;
-	if (IsLocallyControlled() == false) return;
 
 	skillBounceCount++;
-
-	if (skillBounceCount == 0) {
+	if (skillBounceCount > 2) skillBounceCount = 0; // 최대횟수 2회가 초과하면 다시 0으로 초기화
+	// 화살 튕김횟수 UI로 표시
+	if (skillBounceCount == 0) { // XX
 		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 	}
-	else if (skillBounceCount == 1) {
+	else if (skillBounceCount == 1) { // XO
 		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
 		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 	}
-	else if (skillBounceCount == 2) {
+	else if (skillBounceCount == 2) { // OO
 		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
 		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->ActiveColor);
 	}
-	else if (skillBounceCount > 2)
-	{
-		skillBounceCount = 0;
-		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
-		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
-	}
-
 }
 
 void ASB_Sova::ServerGrenadeThrowReady_Implementation(APlayerController* MyPlayerController) {
 	MulticastGrenadeThrowReady(MyPlayerController);
 }
-
 
 void ASB_Sova::MulticastGrenadeThrowReady_Implementation(APlayerController* MyPlayerController)
 {
@@ -681,7 +513,7 @@ void ASB_Sova::ShowProjectilePath()
 	if (bThrowing) {
 		// 이전 프레임에서 생성한 궤적 제거
 		ClearPath();
-		
+
 		FVector StartPos = projectileComp->GetComponentLocation();
 		FVector ThrowVelocity = GetThrowVelocity();
 		FHitResult HitResult;
@@ -738,7 +570,7 @@ FVector ASB_Sova::GetThrowVelocity()
 {
 	FRotator ControlRotation = GetControlRotation();
 	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(ControlRotation);
-	FVector ThrowVelocity = (ForwardVector + FVector(0, 0, 0.4)) * 1500;
+	FVector ThrowVelocity = (ForwardVector + FVector(0, 0, 0.4)) * 800;
 	return ThrowVelocity;
 }
 
@@ -766,7 +598,6 @@ void ASB_Sova::ServerCancelGrenade_Implementation()
 
 void ASB_Sova::ServerSpawnGrenade_Implementation(APlayerController* MyPlayerController)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> ServerGrenadeSpawn!!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	FActorSpawnParameters spawnConfig;
 	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	ASB_Sova* MySova = Cast<ASB_Sova>(MyPlayerController->GetPawn());
@@ -805,7 +636,6 @@ void ASB_Sova::MulticastGrenadeThrowAction_Implementation()
 	auto TpsAnim = GetMesh()->GetAnimInstance();
 	TpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
 	TpsAnim->Montage_JumpToSection(TEXT("End"), SovaGrenadeMongtage);
-
 
 	int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 1);
 	switch (RanVal)
@@ -909,16 +739,6 @@ void ASB_Sova::ServerSpawnSmokeObj_Implementation(FVector SpawnPos)
 	GetWorld()->SpawnActor<AActor>(SmokeObjFactory, SpawnPos, Rot);
 }
 
-void ASB_Sova::Server_SetLocation_Implementation(FVector pos)
-{
-	Multicast_SetLocation_Implementation(pos);
-}
-
-void ASB_Sova::Multicast_SetLocation_Implementation(FVector pos)
-{
-	SetActorLocation(pos);
-}
-
 void ASB_Sova::NotifyRestarted()
 {
 	Super::NotifyRestarted();
@@ -956,11 +776,9 @@ void ASB_Sova::NotifyRestarted()
 			fire_UI = CreateWidget<UFireUserWidget>(GetWorld(), fireWidget);
 			if (fire_UI != nullptr)
 			{
-				/*//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("widget ")), true, FVector2D(1, 1));*/
 				fire_UI->AddToViewport();
 			}
 		}
-
 	}
 }
 

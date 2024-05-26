@@ -43,6 +43,14 @@ public:
 	FVector InitDirVector;
 
 	FVector Velocity;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_LocAndRot)
+	FVector P;
+	UPROPERTY(ReplicatedUsing = OnRep_LocAndRot)
+	FRotator NewRotation;
+
+	UFUNCTION()
+	void OnRep_LocAndRot();
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AScanObj> ScanObjFactory;
@@ -56,8 +64,12 @@ public:
 	float CustomGravity = -450.0;
 	float zVelocity = 0;
 	
+	UPROPERTY(Replicated)
 	bool bMove = true;
 
 	UFUNCTION()
 	void ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSpawnScanObj(AActor* ScanObjOwner);
 };

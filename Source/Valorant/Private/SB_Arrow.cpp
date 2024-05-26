@@ -132,7 +132,7 @@ void ASB_Arrow::ServerSpawnScanObj_Implementation(AActor* ScanObjOwner)
 			AScanObj* ScanObjModify = Cast<AScanObj>(ObjectToModify);
 			if (ScanObjModify)
 			{
-				ScanObjModify->ScanArrow = this;
+				//ScanObjModify->ScanArrow = this;
 		}
 	};
 

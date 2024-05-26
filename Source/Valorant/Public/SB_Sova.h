@@ -13,7 +13,6 @@ enum class ESovaState :uint8
 	ScoutingArrow,
 	AirSmoke,
 	Grenade,
-	MinhaTeleport,
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRemoveSmokeMarkerUI);
@@ -34,10 +33,6 @@ public:
 	virtual void KeyE() override; // 정찰용 화살
 	virtual void KeyQ() override; // 수류탄
 	virtual void KeyC() override; // 공중 연막
-	virtual void KeyF() override; // MH 스킬
-	virtual void KeyV() override;
-	virtual void KeyG() override;
-	virtual void KeyB() override;
 public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASH_Neon> neonFactory;
@@ -57,7 +52,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float v;
 public:
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class USkillWidget> SkillWidgetFactory;
 	UPROPERTY()
@@ -99,15 +93,12 @@ public:
 	void ScoutingArrowShot();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec);
-	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void MultiCast_SpawnArrow(FTransform transform, int32 bounceCount);
+	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec, float ArrowSpeed);
 
 	UPROPERTY(EditAnywhere)
 	//파워 게이지 차는 속도
 	float gaugeTime = 1;
 	float gaugeCurrTime;
-	class USoundBase* soundCharging;
 
 	void ArrowPowerGaugeUp();
 
@@ -117,10 +108,6 @@ public:
 	float maxScoutingArrowSpeed = 3100;
 	UPROPERTY(BlueprintReadOnly, Category = "ScoutingArrow", Replicated)
 	float scoutingArrowSpeed;
-	UFUNCTION(Server, Reliable)
-	void Server_SetFloatScoutingArrow(float arrowSpeedAlpha);
-	UFUNCTION(NetMulticast, Reliable)
-	void Mulitcast_SetFloatScoutingArrow(float arrowSpeedAlpha);
 	UPROPERTY(BlueprintReadOnly)
 	int32 skillBounceCount = 0;
 	void IncreaseBounceCount();
@@ -209,35 +196,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnSmokeObj(FVector SpawnPos);
 
-	//********MH 순간이동*********//
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	FVector ImpactPoint;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	bool Impacted = false;
-
-
-	//	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	//class UParticleSystemComponent* GuideLine;
-
-	//test
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	class UNiagaraComponent* NGGuideLine;
-	//
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	//class UParticleSystem* GuideLineEm;
-
-	//test
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	class UNiagaraSystem* NGGuideLineEm;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Settings)
-	float MaxDistance = 3000;
-
-	UFUNCTION(Server, Reliable)
-	void Server_SetLocation(FVector pos);
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_SetLocation(FVector pos);
 
 	UPROPERTY(EditAnywhere, Category = MySettings)
 	TSubclassOf<class UFireUserWidget> fireWidget;

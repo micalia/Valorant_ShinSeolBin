@@ -51,44 +51,71 @@ void ASB_ArrowVersion2::BeginPlay()
 void ASB_ArrowVersion2::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	if (bMove) {
-		// v = v0 + at  >> 현재 속력에 중력 가속도를 더함
+	// 움직임은 서버에서 처리
+	if (HasAuthority() && bMove) {
+// 등가속도 운동 공식 : v = v0 + at  >> 현재 속력에 중력 가속도를 더함
 		Velocity = InitDirVector * InitSpeed;
 		zVelocity += CustomGravity * DeltaTime;
 		Velocity.Z += zVelocity;
 
-		// P = P0 + vt
+// 등속 운동 공식 : P = P0 + vt 
 		FVector P0 = GetActorLocation();
 		FVector VT = Velocity * DeltaTime;
-		FVector P = P0 + VT;
+		P = P0 + VT;
 		SetActorLocation(P, true);
-	
+// 방향 벡터를 활용하여 화살이 움직이는 방향으로 화살 회전(자연스러운 움직임 구현)
 		FVector RotDirVec = (P - P0).GetSafeNormal();
 		FMatrix RotationMatrix = FRotationMatrix::MakeFromX(RotDirVec);
-		FRotator NewRotation = RotationMatrix.Rotator();
+		NewRotation = RotationMatrix.Rotator();
 		SetActorRotation(NewRotation);
 	}
 }
 
-void ASB_ArrowVersion2::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASB_ArrowVersion2::OnRep_LocAndRot()
 {
-	if (currBounceCount < maxBounceCount) {
-		zVelocity = 0;
-		currBounceCount++;
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> CurrCount : %d"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S")), currBounceCount), true, FVector2D(1.5f, 1.5f));
-		// R(반사각) = L(입사각) + 2N(-L·N)
-		FVector ShootDir = Velocity.GetSafeNormal();
-		float Projection = FVector::DotProduct(-ShootDir, Hit.ImpactNormal);
-		FVector ReflectionVec = ShootDir + 2 * Hit.ImpactNormal * Projection;
+	SetActorLocation(P, true);
+	SetActorRotation(NewRotation);
+}
+// SphereCollComp->OnComponentHit.AddDynamic(this, &ASB_ArrowVersion2::ArrowHeadHit);
+void ASB_ArrowVersion2::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{ // 벽에 충돌시 반사각 계산
+	if (HasAuthority()) {  // 서버에서만 충돌처리
+		if (currBounceCount < maxBounceCount) {
+			zVelocity = 0;
+			currBounceCount++;
+			// R(반사각) = L(입사각) + 2N(-L·N)
+			FVector ShootDir = Velocity.GetSafeNormal();
+			float Projection = FVector::DotProduct(-ShootDir, Hit.ImpactNormal);
+			FVector ReflectionVec = ShootDir + 2 * Hit.ImpactNormal * Projection;
+			InitDirVector = ReflectionVec;
+		}// 발사시 설정된 충돌 횟수만큼 충돌하면, 화살 움직임 정지 후 적군 벽 투시 스캔시작
+		else { 
+			bMove = false;
+			SphereCollComp->SetSimulatePhysics(false);
+			SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			ServerSpawnScanObj_Implementation(GetOwner());
+		}
+	}
+}
 
-		InitDirVector = ReflectionVec;
-	}
-	else {
-		bMove = false;
-		SphereCollComp->SetSimulatePhysics(false);
-		SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+void ASB_ArrowVersion2::ServerSpawnScanObj_Implementation(AActor* ScanObjOwner)
+{
+	FActorSpawnParameters spawnConfig;
+	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+	spawnConfig.Owner = ScanObjOwner;
+	auto doFunc = [this](AActor* ObjectToModify)
+		{
+			AScanObj* ScanObjModify = Cast<AScanObj>(ObjectToModify);
+			if (ScanObjModify)
+			{
+				ScanObjModify->ScanArrow = this;
+			}
+	};
+
+	spawnConfig.CustomPreSpawnInitalization = doFunc;
+
+	AScanObj* ScanObj = GetWorld()->SpawnActor<AScanObj>(ScanObjFactory, GetActorTransform(), spawnConfig);
 }
 
 void ASB_ArrowVersion2::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -96,4 +123,7 @@ void ASB_ArrowVersion2::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASB_ArrowVersion2, currBounceCount);
+	DOREPLIFETIME(ASB_ArrowVersion2, bMove);
+	DOREPLIFETIME(ASB_ArrowVersion2, P);
+	DOREPLIFETIME(ASB_ArrowVersion2, NewRotation);
 }

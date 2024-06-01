@@ -1,0 +1,57 @@
+﻿# OnlineSubsystem English translation.
+# Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: OnlineSubsystem\n"
+"POT-Creation-Date: 2017-01-19 17:01\n"
+"PO-Revision-Date: 2017-01-19 17:01\n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Key:	Away
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:75
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:75
+msgctxt "OnlinePresence,Away"
+msgid "Away"
+msgstr "Ausente"
+
+#. Key:	Chat
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:78
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:78
+msgctxt "OnlinePresence,Chat"
+msgid "Chat"
+msgstr "Chat"
+
+#. Key:	DoNotDisturb
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:77
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:77
+msgctxt "OnlinePresence,DoNotDisturb"
+msgid "DoNotDisturb"
+msgstr "NoMolestar"
+
+#. Key:	ExtendedAway
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:76
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:76
+msgctxt "OnlinePresence,ExtendedAway"
+msgid "ExtendedAway"
+msgstr "AusenciaProlongada"
+
+#. Key:	Offline
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:74
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:74
+msgctxt "OnlinePresence,Offline"
+msgid "Offline"
+msgstr "Desconectado"
+
+#. Key:	Online
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:73
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:73
+msgctxt "OnlinePresence,Online"
+msgid "Online"
+msgstr "En línea"
+

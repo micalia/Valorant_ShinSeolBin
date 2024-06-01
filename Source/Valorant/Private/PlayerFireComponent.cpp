@@ -9,7 +9,7 @@
 #include <Camera/CameraComponent.h>
 #include <Engine/DecalActor.h>
 #include <Camera/CameraShakeBase.h>
-#include <UMG/Public/Components/SizeBox.h>
+#include "Components/SizeBox.h"
 #include <Engine/SkeletalMeshSocket.h>
 #include "BaseWeapon.h"
 #include "Net/UnrealNetwork.h"

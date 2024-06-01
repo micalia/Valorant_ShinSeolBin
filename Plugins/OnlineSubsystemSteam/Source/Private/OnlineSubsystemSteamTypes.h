@@ -16,7 +16,7 @@ namespace ESteamSession
 		None,
 		/** Session managed as a lobby on backend */
 		LobbySession,
-		/** Session managed by master server publishing */
+		/** Session managed by the server list */
 		AdvertisedSessionHost,
 		/** Session client of a game server session */
 		AdvertisedSessionClient,
@@ -620,7 +620,7 @@ public:
 
 			if (bCreateIfMissing)
 			{
-				return new (CloudMetadata) FCloudFileHeader(FileName, FileName, 0);
+				return &CloudMetadata.Emplace_GetRef(FileName, FileName, 0);
 			}
 		}
 
@@ -650,7 +650,7 @@ public:
 
 			if (bCreateIfMissing)
 			{
-				return new (CloudFileData) FCloudFile(FileName);
+				return &CloudFileData.Emplace_GetRef(FileName);
 			}
 		}
 

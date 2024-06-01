@@ -3,7 +3,7 @@
 
 #include "RespawnWidget.h"
 #include "BaseCharacter.h"
-#include <UMG/Public/Components/Button.h>
+#include "Components/Button.h"
 #include <Async/TaskTrace.h>
 
 void URespawnWidget::NativeConstruct()

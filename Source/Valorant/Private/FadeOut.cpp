@@ -5,7 +5,7 @@
 #include "NetPlayerController.h"
 #include "BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include <UMG/Public/Blueprint/UserWidget.h>
+#include "Blueprint/UserWidget.h"
 #include "BattleGameModeBase.h"
 
 void UFadeOut::NativeConstruct()

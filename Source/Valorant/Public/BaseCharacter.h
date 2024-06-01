@@ -144,7 +144,7 @@ public:
 
 	FORCEINLINE int32 GetHP() const { return CurrHP; }
 
-	UPROPERTY(EditAnywhere, Replicated)
+	UPROPERTY(EditAnywhere)
 	float FullHP = 100;
 	UPROPERTY(BlueprintReadWrite, Replicated)
 	float CurrHP = 0;

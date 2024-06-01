@@ -1,0 +1,183 @@
+﻿# OnlineSubsystem Spanish (Latin America) translation.
+# Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: OnlineSubsystem\n"
+"POT-Creation-Date: 2018-10-30 16:44\n"
+"PO-Revision-Date: 2018-10-30 16:44\n"
+"Language-Team: \n"
+"Language: es-419\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Key:	AccessDenied
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:213
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:213
+msgctxt "OnlineError,AccessDenied"
+msgid "Access denied"
+msgstr ""
+
+#. Key:	AlreadyPending
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:217
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:217
+msgctxt "OnlineError,AlreadyPending"
+msgid "Request already pending"
+msgstr ""
+
+#. Key:	Canceled
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:233
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:233
+msgctxt "OnlineError,Canceled"
+msgid "Operation was canceled"
+msgstr ""
+
+#. Key:	CantParse
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:221
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:221
+msgctxt "OnlineError,CantParse"
+msgid "Cannot parse results"
+msgstr ""
+
+#. Key:	FailExtended
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:235
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:235
+msgctxt "OnlineError,FailExtended"
+msgid "Extended error"
+msgstr ""
+
+#. Key:	IncompatibleVersion
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:225
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:225
+msgctxt "OnlineError,IncompatibleVersion"
+msgid "Incompatible client version"
+msgstr ""
+
+#. Key:	InvalidAuth
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:211
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:211
+msgctxt "OnlineError,InvalidAuth"
+msgid "No valid auth"
+msgstr ""
+
+#. Key:	InvalidCreds
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:207
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:207
+msgctxt "OnlineError,InvalidCreds"
+msgid "Invalid credentials"
+msgstr ""
+
+#. Key:	InvalidParams
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:219
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:219
+msgctxt "OnlineError,InvalidParams"
+msgid "Invalid params specified"
+msgstr ""
+
+#. Key:	InvalidResults
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:223
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:223
+msgctxt "OnlineError,InvalidResults"
+msgid "Results were invalid"
+msgstr ""
+
+#. Key:	InvalidUser
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:209
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:209
+msgctxt "OnlineError,InvalidUser"
+msgid "No valid user"
+msgstr ""
+
+#. Key:	MissingInterface
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:231
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:231
+msgctxt "OnlineError,MissingInterface"
+msgid "Interface not found"
+msgstr ""
+
+#. Key:	NotConfigured
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:227
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:227
+msgctxt "OnlineError,NotConfigured"
+msgid "No valid configuration"
+msgstr ""
+
+#. Key:	NotConnected
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:203
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:203
+msgctxt "OnlineError,NotConnected"
+msgid "No valid connection"
+msgstr ""
+
+#. Key:	NotImplemented
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:229
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:229
+msgctxt "OnlineError,NotImplemented"
+msgid "Not implemented"
+msgstr ""
+
+#. Key:	RequestFailure
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:205
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:205
+msgctxt "OnlineError,RequestFailure"
+msgid "Failed to send request"
+msgstr ""
+
+#. Key:	TooManyRequests
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:215
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:215
+msgctxt "OnlineError,TooManyRequests"
+msgid "Too many requests"
+msgstr ""
+
+#. Key:	Unknown
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:237
+#: Plugins/Online/OnlineSubsystem/Source/Private/OnlineError.cpp:237
+msgctxt "OnlineError,Unknown"
+msgid "Unknown error"
+msgstr ""
+
+#. Key:	Away
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:87
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:87
+msgctxt "OnlinePresence,Away"
+msgid "Away"
+msgstr "Ausente"
+
+#. Key:	Chat
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:90
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:90
+msgctxt "OnlinePresence,Chat"
+msgid "Chat"
+msgstr "Chat"
+
+#. Key:	DoNotDisturb
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:89
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:89
+msgctxt "OnlinePresence,DoNotDisturb"
+msgid "Do Not Disturb"
+msgstr ""
+
+#. Key:	ExtendedAway
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:88
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:88
+msgctxt "OnlinePresence,ExtendedAway"
+msgid "Extended Away"
+msgstr ""
+
+#. Key:	Offline
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:86
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:86
+msgctxt "OnlinePresence,Offline"
+msgid "Offline"
+msgstr "Desconectado"
+
+#. Key:	Online
+#. SourceLocation:	Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:85
+#: Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlinePresenceInterface.h:85
+msgctxt "OnlinePresence,Online"
+msgid "Online"
+msgstr "Conectado"
+

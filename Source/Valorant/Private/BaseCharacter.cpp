@@ -21,7 +21,7 @@
 #include "NetGameInstance.h"
 #include <GameFramework/Character.h>
 #include <Kismet/GameplayStatics.h>
-#include <UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "FireUserWidget.h"
 #include "Engine/World.h"
 #include "BattleGameModeBase.h"

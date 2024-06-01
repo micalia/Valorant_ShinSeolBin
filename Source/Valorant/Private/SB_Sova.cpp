@@ -3,8 +3,8 @@
 
 #include "SB_Sova.h"
 #include "UI_SB_ScoutingArrow.h"
-#include <UMG/Public/Components/Image.h>
-#include <UMG/Public/Components/ProgressBar.h>
+#include "Components/Image.h"
+#include "Components/ProgressBar.h"
 #include "SB_Arrow.h"
 #include <GameFramework/ProjectileMovementComponent.h>
 #include <Components/SplineComponent.h>
@@ -19,7 +19,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "FireUserWidget.h"
-#include <UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include <Sound/SoundBase.h>
 #include "Kismet/KismetMathLibrary.h"
 #include <AirSmokeMinimapWidget.h>
@@ -68,7 +68,7 @@ ASB_Sova::ASB_Sova()
 		GetMesh()->SetSkeletalMesh(tempSK.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<USB_SovaAnim> tempAnimTPS(TEXT("/Script/Engine.AnimBlueprint'/Game/SB/Blueprints/ABP_SovaTPS.ABP_SovaTPS_C'"));
+	ConstructorHelpers::FClassFinder<USB_SovaAnim> tempAnimTPS(TEXT("/Script/Engine.AnimBlueprint'/Game/SB/Blueprints/ABP_SovaTPS.ABP_SovaTPS_C'"));
 	if (tempAnimTPS.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(tempAnimTPS.Class);

@@ -3,7 +3,7 @@
 
 #include "SkillWidget.h"
 #include "PlayerFireComponent.h"
-#include <UMG/Public/Components/TextBlock.h>
+#include "Components/TextBlock.h"
 #include <Kismet/GameplayStatics.h>
 #include "BaseCharacter.h"
 #include <GameFramework/PlayerState.h>

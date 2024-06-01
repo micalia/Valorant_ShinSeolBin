@@ -19,11 +19,11 @@ class VALORANT_API UAirSmokeMinimapWidget : public UUserWidget
 	UPROPERTY()
 	class USoundBase* SovaMinimapClickSound;
 public:
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY()
 	TArray<FVector> SpawnSmokePos;
 	UPROPERTY(meta = (BindWidget))
 	class UImage* SmokeSkillMiniMap;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	FVector2D WorldScale = FVector2D(15780);
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class USB_AirSmokeMarker> AirSmokeMarkerFactory;

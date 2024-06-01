@@ -7,10 +7,10 @@
 #include "Components/Image.h"
 #include "Components/WidgetSwitcher.h"
 #include "NetGameInstance.h"
-#include <UMG/Public/Components/EditableText.h>
-#include <UMG/Public/Components/Slider.h>
+#include "Components/EditableText.h"
+#include "Components/Slider.h"
 #include "SessionInfoWidget.h"
-#include <UMG/Public/Components/ScrollBox.h>
+#include "Components/ScrollBox.h"
 #include <Kismet/GameplayStatics.h>
 #include <Components/AudioComponent.h>
 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include <UMG/Public/Components/CircularThrobber.h>
+#include "Components/CircularThrobber.h"
 #include "StartLoginWidget.generated.h"
 
 /**

@@ -4,6 +4,7 @@
 #include "NetGameInstance.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "Online/OnlineSessionNames.h"
 
 UNetGameInstance::UNetGameInstance()
 {
@@ -64,7 +65,7 @@ void UNetGameInstance::OnCreatedMySession(FName sessionName, bool bWasSuccessful
 	if (bWasSuccessful)
 	{
 		//listen -> listen server의 주체로서 서버트레블
-		bool result = GetWorld()->ServerTravel("/Game/AlphaServer/valorant_beta?Listen", true);
+		bool result = GetWorld()->ServerTravel("/Game/Map/JellyGameMap?Listen", true);
 		UE_LOG(LogTemp, Warning, TEXT("Travel Result: %s"), result ? *FString("Success") : *FString("Failed..."));
 	}
 }

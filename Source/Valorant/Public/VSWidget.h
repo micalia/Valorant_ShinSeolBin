@@ -17,12 +17,4 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = MySettings)
-    class UImage* img_teamStatus_green;
-
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = MySettings)
-    class UImage* img_teamStatus_red;
-
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = MySettings)
-    class UImage* img_topline;
 };

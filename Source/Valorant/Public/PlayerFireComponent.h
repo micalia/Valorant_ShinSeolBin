@@ -86,7 +86,7 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	FTimerHandle fireDelay;
 
 	UPROPERTY(EditAnywhere, Replicated)
-		int32 ammo = 30;
+		int32 ammo = 999;
 
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 attackPower = 20;

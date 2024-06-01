@@ -9,6 +9,7 @@
 #include <GameFramework/PlayerState.h>
 #include <GameFramework/GameStateBase.h>
 #include "SB_Sova.h"
+#include "InGameTopUi.h"
 
 void USkillWidget::NativeConstruct()
 {
@@ -22,13 +23,9 @@ void USkillWidget::NativeConstruct()
 
 void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-	Super::NativeTick(MyGeometry, InDeltaTime);
-	//현재 Pawn의 Score를 가져오고 싶다.
-	// 현재 me의 PlayerState를 가져온 후 이름을 출력한다.
-	//me->GetPlayerState()->GetPlayerName();
-	//위젯상단에 왼쪽은 내 이름과 점수, 오른쪽은 상대 이름과 점수를 넣고 싶다.
-	
-	//if () {
+	Super::NativeTick(MyGeometry, InDeltaTime);	
+
+	if (WB_TopUI && me) {
 		auto GameStateVal = GetWorld()->GetGameState();
 		if (GameStateVal) {
 			TArray<APlayerState*> players = GameStateVal->PlayerArray;
@@ -38,26 +35,19 @@ void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			{
 				auto a = MyPlayerController->GetPawn();
 				if (a) {
-
 					if (p != MyPlayerController->GetPawn()->GetPlayerState()) {
-						EnemyNameAndScore_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *p->GetPlayerName())));
-						EnemyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)p->GetScore())));
-					}
-					else {
-						//playersInfoText.Append(FString::Printf(TEXT("%s: %d\n"), *p->GetPlayerName(), (int32)p->GetScore()));
+						WB_TopUI->EnemyName_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *p->GetPlayerName())));
+						WB_TopUI->EnemyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)p->GetScore())));
 					}
 				}
 			}
 		}
 
-			
-	// 플레이어의 총알 정보 갱신
-	if (me) {
-		if (MyNameAndScore_txt) {
-			if (me->GetPlayerState()) {
-				MyNameAndScore_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *me->GetPlayerState()->GetPlayerName())));
-				MyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)me->GetPlayerState()->GetScore())));
-			}
+
+		// 플레이어의 총알 정보 갱신
+		if (me->GetPlayerState()) {
+			WB_TopUI->MyName_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *me->GetPlayerState()->GetPlayerName())));
+			WB_TopUI->MyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)me->GetPlayerState()->GetScore())));
 		}
 
 		if (Hp_txt) {

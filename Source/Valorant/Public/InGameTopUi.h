@@ -4,25 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "VSWidget.generated.h"
+#include "InGameTopUi.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
-class VALORANT_API UVSWidget : public UUserWidget
+class VALORANT_API UInGameTopUi : public UUserWidget
 {
 	GENERATED_BODY()
-protected:
-	virtual void NativeConstruct() override;
-
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = MySettings)
-		class UTextBlock* MyName_txt;
+	class UTextBlock* MyName_txt;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = MySettings)
-		class UTextBlock* EnemyName_txt;
+	class UTextBlock* EnemyName_txt;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = MySettings)
-		class UTextBlock* MyScore;
+	class UTextBlock* MyScore;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = MySettings)
-		class UTextBlock* EnemyScore;
+	class UTextBlock* EnemyScore;
 };

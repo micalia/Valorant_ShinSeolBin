@@ -31,9 +31,11 @@ public:
 	UPROPERTY(VisibleAnywhere, Category=MySettings)
 	class UBoxComponent* boxComp;
 
-	
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere)
 	class USkeletalMeshComponent* meshComp;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystemComponent* MuzzleFlashComp;
 
 	// ÆÄÆ¼Å¬
 	UPROPERTY(EditAnywhere)

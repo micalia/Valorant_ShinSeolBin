@@ -43,6 +43,11 @@ public:
 	class USplineComponent* projectilePath;
 	UPROPERTY(EditAnywhere)
 	class USkeletalMeshComponent* arrowMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UChildActorComponent* BaseWeapon;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AActor> BaseWeaponFactory;
+
 public:
 	UPROPERTY(BlueprintReadOnly)
 	float h;

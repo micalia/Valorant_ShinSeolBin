@@ -28,6 +28,7 @@
 #include "Components/SplineMeshComponent.h"
 #include "Grenade.h"
 #include "SB_ArrowVersion2.h"
+#include "Components/ChildActorComponent.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -79,6 +80,18 @@ ASB_Sova::ASB_Sova()
 	{
 		fpsMesh->SetSkeletalMesh(tempFpsMesh.Object);
 	}
+
+	static ConstructorHelpers::FClassFinder<AActor> tempBaseWeaponFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_BaseWeapon.BP_BaseWeapon_C'"));
+	if (tempBaseWeaponFactory.Succeeded()) {
+		BaseWeaponFactory = tempBaseWeaponFactory.Class;
+	}
+
+	BaseWeapon = CreateDefaultSubobject<UChildActorComponent>(TEXT("BaseWeapon"));
+	BaseWeapon->SetupAttachment(fpsMesh, TEXT("WeaponLoc"));
+	BaseWeapon->SetRelativeLocation(FVector(0.023368, -0.087597, -0.006360));
+	BaseWeapon->SetRelativeRotation(FRotator(30.336051, -106.504788, 176.800607));
+	BaseWeapon->SetRelativeScale3D(FVector(1.135));
+	BaseWeapon->SetChildActorClass(BaseWeaponFactory);
 
 	arrowMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("arrowObj"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> tempArrowMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SB/Models/BowAndArrow/Bow_and_arrow.Bow_and_arrow'"));

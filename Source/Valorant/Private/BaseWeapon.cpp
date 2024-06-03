@@ -13,6 +13,7 @@
 #include "Net/UnrealNetwork.h"
 #include "PlayerBaseComponent.h"
 #include "EngineUtils.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ABaseWeapon::ABaseWeapon()
@@ -33,10 +34,21 @@ ABaseWeapon::ABaseWeapon()
 	boxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	boxComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempWeaponMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/PSH/Resouce/Phantom2/Phantom.Phantom'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempWeaponMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Bundle/Weapons/Meshes/KA_Val/SK_KA_Val_X.SK_KA_Val_X'"));
 	if (tempWeaponMesh.Succeeded()) {
 		meshComp->SetSkeletalMesh(tempWeaponMesh.Object);
 	}
+
+	MuzzleFlashComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("MuzzleFlashComp"));
+	MuzzleFlashComp->SetupAttachment(meshComp, TEXT("FirePos"));
+
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempMuzzleFlash(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_Pistol_MuzzleFlash_01.P_Pistol_MuzzleFlash_01'"));
+	if (tempMuzzleFlash.Succeeded()) {
+		MuzzleFlash = tempMuzzleFlash.Object;
+	}
+
+	MuzzleFlashComp->SetTemplate(MuzzleFlash);
+
 	bReplicates = true;
 	SetReplicateMovement(true);
 }

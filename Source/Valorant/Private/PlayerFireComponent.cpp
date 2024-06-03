@@ -25,6 +25,7 @@
 #include <GameFramework/PlayerState.h>
 #include "SB_Sova.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 UPlayerFireComponent::UPlayerFireComponent()
 {
@@ -38,7 +39,7 @@ UPlayerFireComponent::UPlayerFireComponent()
 		FireMontage = tempFireMontage.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempImpactParticles(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_AssaultRifle_MuzzleFlash.P_AssaultRifle_MuzzleFlash'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempImpactParticles(TEXT("/Script/Engine.ParticleSystem'/Game/Realistic_Starter_VFX_Pack_Vol2/Particles/Destruction/GunBulletEffect.GunBulletEffect'"));
 	if (tempImpactParticles.Succeeded()) {
 		ImpactParticles = tempImpactParticles.Object;
 	}
@@ -48,7 +49,7 @@ UPlayerFireComponent::UPlayerFireComponent()
 		MuzzleFlash = tempMuzzleFlash.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<USoundCue> tempFireSound(TEXT("/Script/Engine.SoundCue'/Game/PSH/SMG/SMG_Cue.SMG_Cue'"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> tempFireSound(TEXT("/Script/Engine.SoundCue'/Game/SB/Sounds/Gun/SC_SovaGun.SC_SovaGun'"));
 	if (tempFireSound.Succeeded()) {
 		FireSound = tempFireSound.Object;
 	}
@@ -66,7 +67,6 @@ UPlayerFireComponent::UPlayerFireComponent()
 void UPlayerFireComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-
 }
 
 void UPlayerFireComponent::BeginPlay()
@@ -78,7 +78,6 @@ void UPlayerFireComponent::BeginPlay()
 	{
 		me->CurrHP = me->FullHP;
 	}
-
 }
 
 void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -86,16 +85,12 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
-	//if(me->TheEndGame)
-	if (isFire)
+	if (true)//isFire
 	{
-		Fire();
-		
+		Fire();	
 	}
-
 }
 
-//reload?
 void UPlayerFireComponent::SetupInputBinding(class UInputComponent* PlayerInputComponent)
 {
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
@@ -103,7 +98,6 @@ void UPlayerFireComponent::SetupInputBinding(class UInputComponent* PlayerInputC
 	}
 }
 
-//XŰ        reload
 void UPlayerFireComponent::Reload()
 {
 	if (me->HasAuthority()) {
@@ -120,7 +114,6 @@ void UPlayerFireComponent::Server_Reload_Implementation()
 }
 void UPlayerFireComponent::Fire()
 {
-
 	if (owningWeapon == nullptr)
 		return;
 	//RPC             
@@ -141,9 +134,9 @@ void UPlayerFireComponent::ServerFire_Implementation()
 	}
 	if (ammo > 0)
 	{
-	if (me) {
-		me->PlaySound();
-	}
+		if (me) {
+			me->PlaySound();
+		}
 		ammo--;
 		FVector startLoc = me->FollowCamera->GetComponentLocation();
 		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 5000;
@@ -153,7 +146,7 @@ void UPlayerFireComponent::ServerFire_Implementation()
 		params.AddIgnoredActor(me);
 
 		//---------effect-----------
-		const USkeletalMeshSocket* FireSocket = owningWeapon->meshComp->GetSocketByName("Fire Location");
+		const USkeletalMeshSocket* FireSocket = owningWeapon->meshComp->GetSocketByName("FirePos");
 
 		FTransform SocketTransform = FireSocket->GetSocketTransform(owningWeapon->meshComp);
 		FVector StartTl = SocketTransform.GetLocation();
@@ -167,7 +160,7 @@ void UPlayerFireComponent::ServerFire_Implementation()
 			}
 
 		}	
-		ServerFireEffect(FireSocket, SocketTransform.GetLocation(), hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(), endLoc, hitInfo.bBlockingHit);
+		ServerFireEffect(owningWeapon, FireSocket, SocketTransform.GetLocation(), hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(), endLoc, hitInfo.bBlockingHit);
 		//          
 		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Fire"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 
@@ -196,58 +189,62 @@ void UPlayerFireComponent::MulticastFire_Implementation()
 
 }
 
-void UPlayerFireComponent::ServerFireEffect_Implementation(const USkeletalMeshSocket* FireSocket, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
+void UPlayerFireComponent::ServerFireEffect_Implementation(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
 {
-	if (FireSocket)
+	if (Gun)
 	{
-
-		MulticastFireEffect(p1,p2,p3,p4,bBlockingHit);
+		MulticastFireEffect(Gun, p1,p2,p3,p4,bBlockingHit);
 	}
 }
-void UPlayerFireComponent::MulticastFireEffect_Implementation(FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
+
+void UPlayerFireComponent::MulticastFireEffect_Implementation(class ABaseWeapon* Gun, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
 {
-	if (ImpactParticles)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(
-			GetWorld(),
-			ImpactParticles,
-			p2,
-			p3
-		);
+	if (Gun) {
+		Gun->MuzzleFlashComp->Activate(true);
+		if (ImpactParticles)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				ImpactParticles,
+				p2,
+				p3,
+				FVector(0.35)
+			);
+		}
 	}
-	if (MuzzleFlash)
+	/*if (MuzzleFlash)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(
 			GetWorld(),
 			MuzzleFlash,
-			p1
+			p1, FRotator(0,0,90)
 		);
-	}
+	}*/
 	//    
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		FVector BeamEnd = p4;
-		if (bBlockingHit)
-		{
-			BeamEnd = p2;
-		}
-		if (BeamParticles)
-		{
-			//  Ƽĳ  Ʈ
-			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
-				World,
-				BeamParticles,
-				p1,
-				FRotator::ZeroRotator,
-				true
-			);
-			if (Beam)
-			{
-				Beam->SetVectorParameter(FName("Target"), BeamEnd);
-			}
-		}
-	}
+	//UWorld* World = GetWorld();
+	//if (World)
+	//{
+	//	FVector BeamEnd = p4;
+	//	if (bBlockingHit)
+	//	{
+	//		BeamEnd = p2;
+	//	}
+	//	if (BeamParticles)
+	//	{
+	//		//  Ƽĳ  Ʈ
+	//		UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
+	//			World,
+	//			BeamParticles,
+	//			p1,
+	//			FRotator::ZeroRotator,
+	//			true
+	//		);
+	//		if (Beam)
+	//		{
+	//			Beam->SetVectorParameter(FName("Target"), BeamEnd);
+	//		}
+	//	}
+	//}
 }
 
 void UPlayerFireComponent::ServerHitProcess_Implementation()
@@ -271,54 +268,20 @@ void UPlayerFireComponent::StopFire()
 	ASB_Sova* sova = Cast<ASB_Sova>(me);
 	if (sova) {
 		if (sova->fire_UI) {
-			//  ݵ  ó          ư   
 			if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController()) {
-
 				isFire = false;
-
+				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Stop FIre"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 				//UI cross hair
 				sova->fire_UI->isFire = false;
 			}
 		}
-
 	}
-
-	//ASH_Neon* neon = Cast<ASH_Neon>(me);
-	//if (neon) {
-	//	if (neon->fire_UI) {
-	//		//  ݵ  ó          ư   
-	//		if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController()) {
-	//			isFire = false;
-
-	//			//UI cross hair
-	//			neon->fire_UI->isFire = false;
-	//		}
-	//	}
-	//}
-	//if (neon)
-	//{
-	//	if (neon->fire_UI != nullptr) {
-	//		//  ݵ  ó          ư   
-	//		if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController())
-	//			isFire = false;
-
-	//		//UI cross hair
-	//		neon->fire_UI->isFire = false;
-	//	}
-	//}
 	
 	if (playerController)
 	{
-		//if (ammo > 0) {
-		//	ī ޶   ö󰡰        
-		//	//playerController->SetControlRotation(startFireRot);
-		//}
 		curRightRecoilAmount = 0;
 		curRecoilAmount = 0;
-
-		//isFireStart = false;
 	}
-
 }
 
 void UPlayerFireComponent::PrintLog()

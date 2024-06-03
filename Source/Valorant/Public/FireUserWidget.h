@@ -42,8 +42,6 @@ protected:
 	UPROPERTY(EditAnywhere,Category = crosshair)
 	float UpdatePerSecond;
 
-	
-
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn))
 	APawn* owningPawn;
 

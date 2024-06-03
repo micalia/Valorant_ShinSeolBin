@@ -85,7 +85,7 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
-	if (true)//isFire
+	if (isFire)//isFire
 	{
 		Fire();	
 	}

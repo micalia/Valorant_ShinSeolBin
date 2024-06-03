@@ -16,31 +16,31 @@
 UFireUserWidget::UFireUserWidget(const FObjectInitializer& objectInitializer)
 	:Super(objectInitializer)
 {
-	TestVelocity = 0.0f;
+	/*TestVelocity = 0.0f;
 	MaxVelocity = 350.0f;
 	MaxOffset = 100.0f;
 
-	UpdatePerSecond = 60.0f;
+	UpdatePerSecond = 60.0f;*/
 }
 
 void UFireUserWidget::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
 
-	HandleCrosshairScale(TestVelocity);
+	//HandleCrosshairScale(TestVelocity);
 }
 
 void UFireUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (APlayerController* PC = GetWorld()->GetFirstPlayerController()) {
+	/*if (APlayerController* PC = GetWorld()->GetFirstPlayerController()) {
 		if (APawn* Pawn = PC->GetPawn()) {
 			player = Cast<ABaseCharacter>(Pawn);
 		}
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(TcrossHair, this, &UFireUserWidget::HandleCrosshairScale, 1.0f/UpdatePerSecond, true);
+	GetWorld()->GetTimerManager().SetTimer(TcrossHair, this, &UFireUserWidget::HandleCrosshairScale, 1.0f/UpdatePerSecond, true);*/
 }
 
 void UFireUserWidget::HandleCrosshairScale()
@@ -56,11 +56,11 @@ void UFireUserWidget::HandleCrosshairScale()
 			TestVelocity = FMath::RandRange(75.0f, 125.0f);
 		}
 	}
-	HandleCrosshairScale(TestVelocity);
+	//HandleCrosshairScale(TestVelocity);
 }
 void UFireUserWidget::HandleCrosshairScale(float velocity)
 {
-	if (SB_Top && SB_Bottom && SB_Left && SB_Right)
+	/*if (SB_Top && SB_Bottom && SB_Left && SB_Right)
 	{
 		float FixedVelocity = UKismetMathLibrary::NormalizeToRange(velocity,0.0f,MaxVelocity);
 		FixedVelocity = FMath::Clamp(FixedVelocity,0.0f,1.0f);
@@ -97,7 +97,7 @@ void UFireUserWidget::HandleCrosshairScale(float velocity)
 			Position.X = FixedVelocity;
 			CPS_Right->SetPosition(Position);
 		}
-	}
+	}*/
 	
 }
 

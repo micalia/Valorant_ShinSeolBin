@@ -23,7 +23,7 @@ public:
 	class UInGameTopUi* WB_TopUI;
 
 	UPROPERTY(VisibleAnywhere, Category = MySettings)
-	class ABaseCharacter* me;
+	class ABaseCharacter* UiOwner;
 
 	UPROPERTY()
 	class APlayerController* MyPlayerController;
@@ -37,4 +37,18 @@ public:
 
 	UFUNCTION()
 	void SetAmmoCount(int32 AmmoCnt);
+
+public: // 공격한 플레이어가 있는 방향 표시
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = MySettings)
+	class UImage* DamageIndicator;
+
+	UPROPERTY(EditAnywhere)
+	float DamageUiActiveTime = 2;
+	float DamageUiActiveCurrTime = 0;
+
+	UPROPERTY()
+	class ABaseCharacter* AttackPlayer;
+
+	bool bActiveDamagedUI;
+
 };

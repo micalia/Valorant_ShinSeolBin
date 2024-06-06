@@ -50,4 +50,9 @@ public:
 	void ServerExplosion();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastExplosion();
+
+	UPROPERTY(EditAnywhere)
+	float ExplosionRadius = 480;
+	UPROPERTY(EditAnywhere)
+	int32 ExplosionDamage = 20;
 };

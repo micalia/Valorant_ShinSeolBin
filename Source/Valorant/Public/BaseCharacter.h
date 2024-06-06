@@ -153,12 +153,14 @@ public:
 	void ServerAddHealth(int32 value);
 
 	UFUNCTION(Server, Reliable)
-	void ServerDamagedHealth(int32 value, ABaseCharacter* otherPlayer);
+	void ServerDamagedHealth(int32 value, ABaseCharacter* WhoKilledMe);
+
+	//void DamagedHealth(int32 value, ABaseCharacter* WhoKilledMe);
 
 	void Stun();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastDamagedHealth(int32 value);
+	void MulticastAttackEnemyIndicator();
 
 	FORCEINLINE int32 GetHealth() { return CurrHP; };
 

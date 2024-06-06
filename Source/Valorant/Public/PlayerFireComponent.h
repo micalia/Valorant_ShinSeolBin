@@ -93,7 +93,7 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 		int32 ammo = 999;
 
 	UPROPERTY(EditAnywhere, Replicated)
-		int32 attackPower = 20;
+		int32 attackPower = 5;
 
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 magazine = 3;

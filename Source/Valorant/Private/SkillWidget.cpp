@@ -11,6 +11,8 @@
 #include "SB_Sova.h"
 #include "InGameTopUi.h"
 #include "PlayerFireComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Components/Image.h"
 
 void USkillWidget::NativeConstruct()
 {
@@ -18,9 +20,9 @@ void USkillWidget::NativeConstruct()
 
 	MyPlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	if (MyPlayerController) {
-		me = Cast<ABaseCharacter>(MyPlayerController->GetPawn());
-		if (me) {
-			FireComp = Cast<UPlayerFireComponent>(me->GetComponentByClass(UPlayerFireComponent::StaticClass()));
+		UiOwner = Cast<ABaseCharacter>(MyPlayerController->GetPawn());
+		if (UiOwner) {
+			FireComp = Cast<UPlayerFireComponent>(UiOwner->GetComponentByClass(UPlayerFireComponent::StaticClass()));
 			if (FireComp)
 			{
 				FireComp->SetAmmoCountTextInit(this);
@@ -31,13 +33,35 @@ void USkillWidget::NativeConstruct()
 			}
 		}
 	}
+
+	TArray<AActor*> OutActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass() ,OutActors);
+	for (auto& Player: OutActors)
+	{
+		ABaseCharacter* ValorantPlayer = Cast<ABaseCharacter>(Player);
+		if (!ValorantPlayer->IsLocallyControlled()) {
+			AttackPlayer = ValorantPlayer;
+		}
+	}
 }
 
 void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);	
 
-	if (WB_TopUI && me) {
+	if (AttackPlayer == nullptr) {
+		TArray<AActor*> OutActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), OutActors);
+		for (auto& Player : OutActors)
+		{
+			ABaseCharacter* ValorantPlayer = Cast<ABaseCharacter>(Player);
+			if (!ValorantPlayer->IsLocallyControlled()) {
+				AttackPlayer = ValorantPlayer;
+			}
+		}
+	}
+
+	if (WB_TopUI && UiOwner) {
 		auto GameStateVal = GetWorld()->GetGameState();
 		if (GameStateVal) {
 			TArray<APlayerState*> players = GameStateVal->PlayerArray;
@@ -56,15 +80,44 @@ void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		}
 
 		// 플레이어의 총알 정보 갱신
-		if (me->GetPlayerState()) {
-			WB_TopUI->MyName_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *me->GetPlayerState()->GetPlayerName())));
-			WB_TopUI->MyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)me->GetPlayerState()->GetScore())));
+		if (UiOwner->GetPlayerState()) {
+			WB_TopUI->MyName_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *UiOwner->GetPlayerState()->GetPlayerName())));
+			WB_TopUI->MyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)UiOwner->GetPlayerState()->GetScore())));
 		}
 
 		if (Hp_txt) {
-			Hp_txt->SetText(FText::AsNumber(me->GetHP()));
+			Hp_txt->SetText(FText::AsNumber(UiOwner->GetHP()));
 		}
 	}
+
+#pragma region AttackIndicator
+	if (bActiveDamagedUI) {
+		DamageIndicator->SetRenderOpacity(1);
+		if (AttackPlayer) {
+			DamageUiActiveCurrTime += InDeltaTime;
+			if(DamageUiActiveCurrTime > DamageUiActiveTime) {
+				DamageUiActiveCurrTime = 0;
+				bActiveDamagedUI = false;
+				DamageIndicator->SetRenderOpacity(0);
+			}
+			FVector2D MyForwardVec2D = FVector2D(UiOwner->GetActorForwardVector().X, UiOwner->GetActorForwardVector().Y);
+			FVector ToAttackPlayerDir = AttackPlayer->GetActorLocation() - UiOwner->GetActorLocation();
+			ToAttackPlayerDir.Normalize();
+			FVector2D ToAttackPlayerDir2D = FVector2D(ToAttackPlayerDir.X, ToAttackPlayerDir.Y);
+			float Cross = UKismetMathLibrary::CrossProduct2D(MyForwardVec2D, ToAttackPlayerDir2D);
+			float Dot = UKismetMathLibrary::DotProduct2D(MyForwardVec2D, ToAttackPlayerDir2D);
+			float RotateAngle = UKismetMathLibrary::RadiansToDegrees(UKismetMathLibrary::Acos(Dot));
+			
+			if (Cross < 0) {
+				RotateAngle *= -1;
+				DamageIndicator->SetRenderTransformAngle(RotateAngle);
+			}
+			else {
+				DamageIndicator->SetRenderTransformAngle(RotateAngle);
+			}
+		}
+	}
+#pragma endregion
 }
 
 void USkillWidget::SetAmmoCount(int32 AmmoCnt)

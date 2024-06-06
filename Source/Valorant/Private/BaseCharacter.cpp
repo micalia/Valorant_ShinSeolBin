@@ -30,6 +30,9 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "NetGameStateBase.h"
 #include "SB_FireComponent.h"
+#include "SB_Sova.h"
+#include "SkillWidget.h"
+#include "Components/Image.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
@@ -286,19 +289,21 @@ void ABaseCharacter::DefaultShootRelease()
 	}
 }
 
-void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharacter* otherPlayer)
+void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharacter* WhoKilledMe)
 {
+	MulticastAttackEnemyIndicator();
+
 	CurrHP = CurrHP - value;
 
 	if (CurrHP <= 0) {
 		if (HasAuthority()) {
-			if (otherPlayer) {
-				otherPlayer->GetPlayerState()->SetScore(otherPlayer->GetPlayerState()->GetScore() + 1);
+			if (WhoKilledMe) {
+				WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
 
-				if (otherPlayer->GetPlayerState()->GetScore() >= 3)
+				if (WhoKilledMe->GetPlayerState()->GetScore() >= 3)
 				{
 					TheEndGame = true;
-					otherPlayer->TheEndGame = true; // ºγ !!
+					WhoKilledMe->TheEndGame = true; // ºγ !!
 					ANetGameStateBase* sb = GetWorld()->GetGameState<ANetGameStateBase>();
 					sb->endGame = true;
 					if (HasAuthority()) {
@@ -324,10 +329,12 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 
 			}), 0.1f, false);
 	}
-
 }
 
-
+//void ABaseCharacter::DamagedHealth(int32 value, ABaseCharacter* WhoKilledMe)
+//{
+//	ServerDamagedHealth_Implementation(value, WhoKilledMe);
+//}
 
 void ABaseCharacter::Server_AllEndGame_Implementation()
 {
@@ -355,8 +362,17 @@ void ABaseCharacter::Stun()
 		}), 3.0f, false);
 }
 
-void ABaseCharacter::MulticastDamagedHealth_Implementation(int32 value)
+void ABaseCharacter::MulticastAttackEnemyIndicator_Implementation()
 {
+	if (IsLocallyControlled()) {
+		if (ASB_Sova* Sova = Cast<ASB_Sova>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))) {
+			if (Sova->skillWigetInstance) {
+				Sova->skillWigetInstance->DamageIndicator->SetRenderOpacity(1);
+				Sova->skillWigetInstance->bActiveDamagedUI = true;
+				Sova->skillWigetInstance->DamageUiActiveCurrTime = 0;
+			}
+		}
+	}
 }
 
 void ABaseCharacter::PlayDieAnimationInWidget()

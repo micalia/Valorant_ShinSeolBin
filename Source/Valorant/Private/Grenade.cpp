@@ -11,6 +11,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
+#include "BaseCharacter.h"
 
 // Sets default values
 AGrenade::AGrenade()
@@ -119,6 +120,33 @@ void AGrenade::ServerExplosion_Implementation()
 void AGrenade::MulticastExplosion_Implementation()
 {
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), GetActorRotation(), FVector(7));
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> BOOM!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	TArray<FHitResult> OutHits;
+	TArray<AActor*> EmptyActorsToIgnore;
+	bool bResult = UKismetSystemLibrary::SphereTraceMulti(
+		GetWorld(),
+		GetActorLocation(),
+		GetActorLocation(),
+		ExplosionRadius,
+		UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel5),
+		true,
+		EmptyActorsToIgnore,
+		EDrawDebugTrace::None,
+		OutHits,
+		true
+	);
+
+	if (bResult) {
+		for (auto& Element : OutHits)
+		{
+			if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(Element.GetActor())) {
+				if (ABaseCharacter* GrenadeOwner = Cast<ABaseCharacter>(GetOwner())) {
+					DamagedPlayer->ServerDamagedHealth_Implementation(ExplosionDamage, GrenadeOwner);
+				}
+			}
+		}
+	}
+
 	GrenadeMeshComp->SetHiddenInGame(true);
 	SetLifeSpan(3);
 }

@@ -6,6 +6,8 @@
 #include "PlayerBaseComponent.h"
 #include "PlayerFireComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedDel, int32 /* AmmoCnt */);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class VALORANT_API UPlayerFireComponent : public UPlayerBaseComponent
 {
@@ -85,6 +87,8 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	bool bInDelay = false;
 	FTimerHandle fireDelay;
 
+	FOnAmmoChangedDel OnAmmoCntChanged;
+
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 ammo = 999;
 
@@ -134,6 +138,7 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySound();
 
+	void SetAmmoCountTextInit(class USkillWidget* SkillUI);
 private:
 	void PrintLog();
 	enum ENetRole myLocalRole;

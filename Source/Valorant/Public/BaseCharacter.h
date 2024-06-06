@@ -8,6 +8,7 @@
 #include "BaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, class UInputComponent*);
+//DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedDel, int32 /* AmmoCnt */);
 
 UCLASS()
 class VALORANT_API ABaseCharacter : public ACharacter
@@ -268,4 +269,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_EndGame();
 
+//	FOnAmmoChangedDel OnAmmoCntChanged;
+	
 };

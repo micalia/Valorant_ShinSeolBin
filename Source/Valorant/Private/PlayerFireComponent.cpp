@@ -24,8 +24,11 @@
 #include <Components/SkeletalMeshComponent.h>
 #include <GameFramework/PlayerState.h>
 #include "SB_Sova.h"
+#include "SB_SovaAnim.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
+#include "SkillWidget.h"
+#include "Components/TextBlock.h"
 
 UPlayerFireComponent::UPlayerFireComponent()
 {
@@ -34,7 +37,7 @@ UPlayerFireComponent::UPlayerFireComponent()
 		fireWidget = tempFireWidget.Class;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempFireMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Gun/AM_MainFire.AM_MainFire'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempFireMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Gun/AM_NewFire.AM_NewFire'"));
 	if (tempFireMontage.Succeeded()) {
 		FireMontage = tempFireMontage.Object;
 	}
@@ -138,6 +141,8 @@ void UPlayerFireComponent::ServerFire_Implementation()
 			me->PlaySound();
 		}
 		ammo--;
+		OnAmmoCntChanged.Broadcast(ammo);
+		//me->OnAmmoCntChanged.Broadcast(ammo);
 		FVector startLoc = me->FollowCamera->GetComponentLocation();
 		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 5000;
 		FHitResult hitInfo;
@@ -184,9 +189,10 @@ void UPlayerFireComponent::MulticastFire_Implementation()
 	if (FireMontage)
 	{	
 		me->PlayAnimMontage(FireMontage);
+		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
+		SovaFpsAnim->Montage_Play(FireMontage);
 		me->PlayFpsMontage();
 	}
-
 }
 
 void UPlayerFireComponent::ServerFireEffect_Implementation(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
@@ -281,6 +287,14 @@ void UPlayerFireComponent::StopFire()
 	{
 		curRightRecoilAmount = 0;
 		curRecoilAmount = 0;
+	}
+}
+
+void UPlayerFireComponent::SetAmmoCountTextInit(USkillWidget* SkillUI)
+{
+	if (SkillUI) {
+		OnAmmoCntChanged.AddUObject(SkillUI, &USkillWidget::SetAmmoCount);
+		SkillUI->AmmoCnt_txt->SetText(FText::AsNumber(GetAmmo()));
 	}
 }
 

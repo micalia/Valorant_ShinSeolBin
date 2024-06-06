@@ -10,6 +10,7 @@
 #include <GameFramework/GameStateBase.h>
 #include "SB_Sova.h"
 #include "InGameTopUi.h"
+#include "PlayerFireComponent.h"
 
 void USkillWidget::NativeConstruct()
 {
@@ -18,6 +19,17 @@ void USkillWidget::NativeConstruct()
 	MyPlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	if (MyPlayerController) {
 		me = Cast<ABaseCharacter>(MyPlayerController->GetPawn());
+		if (me) {
+			FireComp = Cast<UPlayerFireComponent>(me->GetComponentByClass(UPlayerFireComponent::StaticClass()));
+			if (FireComp)
+			{
+				FireComp->SetAmmoCountTextInit(this);
+				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Get FireComp"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+			}
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Not FireComp"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+			}
+		}
 	}
 }
 
@@ -43,7 +55,6 @@ void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			}
 		}
 
-
 		// 플레이어의 총알 정보 갱신
 		if (me->GetPlayerState()) {
 			WB_TopUI->MyName_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *me->GetPlayerState()->GetPlayerName())));
@@ -54,4 +65,9 @@ void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			Hp_txt->SetText(FText::AsNumber(me->GetHP()));
 		}
 	}
+}
+
+void USkillWidget::SetAmmoCount(int32 AmmoCnt)
+{
+	AmmoCnt_txt->SetText(FText::AsNumber(AmmoCnt));
 }

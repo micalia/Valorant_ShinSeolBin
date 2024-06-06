@@ -46,10 +46,10 @@ void UFireUserWidget::NativeConstruct()
 void UFireUserWidget::HandleCrosshairScale()
 {
 	if (player)
-	{	
+	{
 		if (!isFire)
 		{
-		TestVelocity = player->GetVelocity().Size();
+			TestVelocity = player->GetVelocity().Size();
 		}
 		else
 		{
@@ -98,7 +98,7 @@ void UFireUserWidget::HandleCrosshairScale(float velocity)
 			CPS_Right->SetPosition(Position);
 		}
 	}*/
-	
+
 }
 
 void UFireUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -110,11 +110,11 @@ void UFireUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	{
 		fireComp = Cast<UPlayerFireComponent>(player->GetComponentByClass(UPlayerFireComponent::StaticClass()));
 		if (fireComp) {
-//			text_Ammo->SetText(FText::AsNumber(fireComp->GetAmmo()));
+			//			text_Ammo->SetText(FText::AsNumber(fireComp->GetAmmo()));
 		}
 	}
 	else {
 		player = Cast<ABaseCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	}
-	
+
 }

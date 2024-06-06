@@ -14,9 +14,6 @@ class VALORANT_API UFireUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = MySettings)
-	class UTextBlock* text_Ammo = 0;
-
 public:
 	UFireUserWidget(const FObjectInitializer& objectInitializer);
 	UPROPERTY(EditAnywhere, Category = crosshair)

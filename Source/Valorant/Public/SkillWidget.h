@@ -29,4 +29,12 @@ public:
 	class APlayerController* MyPlayerController;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = MySettings)
 	class UTextBlock* Hp_txt;
+	UPROPERTY(EditAnywhere, meta = (BindWidget), Category = MySettings)
+	class UTextBlock* AmmoCnt_txt;
+
+	UPROPERTY()
+	class UPlayerFireComponent* FireComp;
+
+	UFUNCTION()
+	void SetAmmoCount(int32 AmmoCnt);
 };

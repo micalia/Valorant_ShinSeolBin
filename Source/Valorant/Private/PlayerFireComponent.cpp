@@ -137,12 +137,8 @@ void UPlayerFireComponent::ServerFire_Implementation()
 	}
 	if (ammo > 0)
 	{
-		if (me) {
-			me->PlaySound();
-		}
 		ammo--;
-		OnAmmoCntChanged.Broadcast(ammo);
-		//me->OnAmmoCntChanged.Broadcast(ammo);
+		
 		FVector startLoc = me->FollowCamera->GetComponentLocation();
 		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 5000;
 		FHitResult hitInfo;
@@ -166,8 +162,6 @@ void UPlayerFireComponent::ServerFire_Implementation()
 
 		}	
 		ServerFireEffect(owningWeapon, FireSocket, SocketTransform.GetLocation(), hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(), endLoc, hitInfo.bBlockingHit);
-		//          
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Fire"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 
 		if (me->HasAuthority()) {
 			me->GetWorldTimerManager().ClearTimer(fireDelay);
@@ -193,6 +187,10 @@ void UPlayerFireComponent::MulticastFire_Implementation()
 		SovaFpsAnim->Montage_Play(FireMontage);
 		me->PlayFpsMontage();
 	}
+	if (me) {
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, me->GetActorLocation());
+	}
+	OnAmmoCntChanged.Broadcast(ammo);
 }
 
 void UPlayerFireComponent::ServerFireEffect_Implementation(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
@@ -218,39 +216,6 @@ void UPlayerFireComponent::MulticastFireEffect_Implementation(class ABaseWeapon*
 			);
 		}
 	}
-	/*if (MuzzleFlash)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(
-			GetWorld(),
-			MuzzleFlash,
-			p1, FRotator(0,0,90)
-		);
-	}*/
-	//    
-	//UWorld* World = GetWorld();
-	//if (World)
-	//{
-	//	FVector BeamEnd = p4;
-	//	if (bBlockingHit)
-	//	{
-	//		BeamEnd = p2;
-	//	}
-	//	if (BeamParticles)
-	//	{
-	//		//  Ƽĳ  Ʈ
-	//		UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
-	//			World,
-	//			BeamParticles,
-	//			p1,
-	//			FRotator::ZeroRotator,
-	//			true
-	//		);
-	//		if (Beam)
-	//		{
-	//			Beam->SetVectorParameter(FName("Target"), BeamEnd);
-	//		}
-	//	}
-	//}
 }
 
 void UPlayerFireComponent::ServerHitProcess_Implementation()

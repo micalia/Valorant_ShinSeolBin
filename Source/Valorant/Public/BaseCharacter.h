@@ -8,7 +8,6 @@
 #include "BaseCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, class UInputComponent*);
-//DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedDel, int32 /* AmmoCnt */);
 
 UCLASS()
 class VALORANT_API ABaseCharacter : public ACharacter
@@ -242,8 +241,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void MeshVisible();
 
+	UPROPERTY()
 	class USoundBase* soundKill;
+	UPROPERTY()
 	class USoundBase* soundV;
+	UPROPERTY()
 	class USoundBase* soundShot;
 	class ABaseCharacter* other;
 public:
@@ -269,6 +271,4 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_EndGame();
 
-//	FOnAmmoChangedDel OnAmmoCntChanged;
-	
 };

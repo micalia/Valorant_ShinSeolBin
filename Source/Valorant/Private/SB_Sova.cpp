@@ -88,9 +88,9 @@ ASB_Sova::ASB_Sova()
 
 	BaseWeapon = CreateDefaultSubobject<UChildActorComponent>(TEXT("BaseWeapon"));
 	BaseWeapon->SetupAttachment(fpsMesh, TEXT("WeaponLoc"));
-	BaseWeapon->SetRelativeLocation(FVector(0.023368, -0.087597, -0.006360));
-	BaseWeapon->SetRelativeRotation(FRotator(30.336051, -106.504788, 176.800607));
-	BaseWeapon->SetRelativeScale3D(FVector(1.135));
+	BaseWeapon->SetRelativeLocation(FVector(1.700801, -9.536563, 0.029019));
+	BaseWeapon->SetRelativeRotation(FRotator(0, -11, 208));
+	BaseWeapon->SetRelativeScale3D(FVector(1.17));
 	BaseWeapon->SetChildActorClass(BaseWeaponFactory);
 
 	arrowMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("arrowObj"));
@@ -271,12 +271,39 @@ void ASB_Sova::MouseRightAction()
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
+		if (skillWigetInstance) {
+			skillWigetInstance->AimingPanelOn();
+			BaseWeapon->SetHiddenInGame(true);
+			fpsMesh->SetHiddenInGame(true);
+		}
 		break;
 	case ESovaState::ScoutingArrow:
 		IncreaseBounceCount();
 		break;
 	case ESovaState::AirSmoke:
 		AirSmokeLogic();
+		break;
+	case ESovaState::Grenade:
+		break;
+	default:
+		break;
+	}
+}
+
+void ASB_Sova::MouseRightReleasedAction()
+{
+	switch (currState)
+	{
+	case ESovaState::DefaultAtk:
+		if (skillWigetInstance) {
+			skillWigetInstance->AimingPanelOff();
+			BaseWeapon->SetHiddenInGame(false);
+			fpsMesh->SetHiddenInGame(false);
+		}
+		break;
+	case ESovaState::ScoutingArrow:
+		break;
+	case ESovaState::AirSmoke:
 		break;
 	case ESovaState::Grenade:
 		break;

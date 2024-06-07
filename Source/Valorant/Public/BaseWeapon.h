@@ -56,11 +56,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, Category = Anim)
+	class UAnimMontage* ReloadMontage;
+
 private:
 
 	UFUNCTION()
 	void GrabWeapon(class ABaseCharacter* player);
-		int32 ammo = 999;
+		int32 ammo = 5;
 		int32 attackPower = 5;
 		int32 magazine = 3;
 		float fireInterval = 0.1f;

@@ -30,6 +30,7 @@ public:
 	virtual void MouseLeftAction() override;
 	virtual void MouseLeftReleasedAction() override;
 	virtual void MouseRightAction() override;
+	virtual void MouseRightReleasedAction() override;
 	virtual void KeyE() override; // 정찰용 화살
 	virtual void KeyQ() override; // 수류탄
 	virtual void KeyC() override; // 공중 연막

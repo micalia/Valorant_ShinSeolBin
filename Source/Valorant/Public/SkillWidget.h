@@ -51,4 +51,10 @@ public: // 공격한 플레이어가 있는 방향 표시
 
 	bool bActiveDamagedUI;
 
+public: // 조준 사격
+	UPROPERTY(meta = (BindWidget))
+	class UCanvasPanel* AimingPanel;
+
+	void AimingPanelOn();
+	void AimingPanelOff();
 };

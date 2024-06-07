@@ -13,6 +13,7 @@
 #include "PlayerFireComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/Image.h"
+#include "Components/CanvasPanel.h"
 
 void USkillWidget::NativeConstruct()
 {
@@ -123,4 +124,20 @@ void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 void USkillWidget::SetAmmoCount(int32 AmmoCnt)
 {
 	AmmoCnt_txt->SetText(FText::AsNumber(AmmoCnt));
+}
+
+void USkillWidget::AimingPanelOn()
+{
+	AimingPanel->SetVisibility(ESlateVisibility::Visible);
+	if (APlayerCameraManager* PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)) {
+		PlayerCam->SetFOV(45);
+	}
+}
+
+void USkillWidget::AimingPanelOff()
+{
+	AimingPanel->SetVisibility(ESlateVisibility::Hidden);
+	if (APlayerCameraManager* PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)) {
+		PlayerCam->SetFOV(0);
+	}
 }

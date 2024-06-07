@@ -62,6 +62,7 @@ ABaseCharacter::ABaseCharacter()
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetRelativeLocation(FVector(5, 0, 68));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character   
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
@@ -583,7 +584,7 @@ void ABaseCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(mouseLeftAction, ETriggerEvent::Started, this, &ABaseCharacter::MouseLeftAction);
 		EnhancedInputComponent->BindAction(mouseLeftAction, ETriggerEvent::Completed, this, &ABaseCharacter::MouseLeftReleasedAction);
 		EnhancedInputComponent->BindAction(mouseRightAction, ETriggerEvent::Started, this, &ABaseCharacter::MouseRightAction);
-		//  EnhancedInputComponent->BindAction(mouseRightAction, ETriggerEvent::Completed, this, &ABaseCharacter::MouseRightAction);
+		EnhancedInputComponent->BindAction(mouseRightAction, ETriggerEvent::Completed, this, &ABaseCharacter::MouseRightReleasedAction);
 
 		EnhancedInputComponent->BindAction(Key_Q_action, ETriggerEvent::Started, this, &ABaseCharacter::KeyQ);
 		EnhancedInputComponent->BindAction(Key_E_action, ETriggerEvent::Started, this, &ABaseCharacter::KeyE);

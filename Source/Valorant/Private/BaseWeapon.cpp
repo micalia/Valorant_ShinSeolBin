@@ -34,7 +34,7 @@ ABaseWeapon::ABaseWeapon()
 	boxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	boxComp->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempWeaponMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Bundle/Weapons/Meshes/KA_Val/SK_KA_Val_X.SK_KA_Val_X'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempWeaponMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Marketplace/MilitaryWeapDark/Weapons/Sniper_Rifle_B.Sniper_Rifle_B'"));
 	if (tempWeaponMesh.Succeeded()) {
 		meshComp->SetSkeletalMesh(tempWeaponMesh.Object);
 	}
@@ -48,6 +48,11 @@ ABaseWeapon::ABaseWeapon()
 	}
 
 	MuzzleFlashComp->SetTemplate(MuzzleFlash);
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempReloadMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Gun/AM_SniperReload.AM_SniperReload'"));
+	if (tempReloadMontage.Succeeded()) {
+		ReloadMontage = tempReloadMontage.Object;
+	}
 
 	bReplicates = true;
 	SetReplicateMovement(true);

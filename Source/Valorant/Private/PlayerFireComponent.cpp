@@ -42,6 +42,11 @@ UPlayerFireComponent::UPlayerFireComponent()
 		FireMontage = tempFireMontage.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempReloadMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Gun/AM_Reload.AM_Reload'"));
+	if (tempReloadMontage.Succeeded()) {
+		ReloadMontage = tempReloadMontage.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempImpactParticles(TEXT("/Script/Engine.ParticleSystem'/Game/Realistic_Starter_VFX_Pack_Vol2/Particles/Destruction/GunBulletEffect.GunBulletEffect'"));
 	if (tempImpactParticles.Succeeded()) {
 		ImpactParticles = tempImpactParticles.Object;
@@ -114,7 +119,22 @@ void UPlayerFireComponent::Reload()
 void UPlayerFireComponent::Server_Reload_Implementation()
 {
 	ammo = 30;
+	Multicast_Reload();
 }
+
+void UPlayerFireComponent::Multicast_Reload_Implementation()
+{
+	if (ReloadMontage) {
+		me->PlayAnimMontage(ReloadMontage);
+		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
+		SovaFpsAnim->Montage_Play(ReloadMontage);
+		me->PlayFpsMontage();
+		if (auto GunAnim = owningWeapon->meshComp->GetAnimInstance()) {
+			GunAnim->Montage_Play(owningWeapon->ReloadMontage);
+		}
+	}
+}
+
 void UPlayerFireComponent::Fire()
 {
 	if (owningWeapon == nullptr)

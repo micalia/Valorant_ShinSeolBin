@@ -25,6 +25,8 @@ public:
 	void Reload();
 	UFUNCTION(Server, Reliable)
 	void Server_Reload();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Reload();
 	FORCEINLINE void SetOwningWeapon(class ABaseWeapon* weapon) { owningWeapon = weapon; }
 	FORCEINLINE class ABaseWeapon* GetOwningWeapon() const { return owningWeapon; }
 	FORCEINLINE int32 GetAmmo() const { return ammo; }
@@ -44,6 +46,9 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	//애니메이션
 	UPROPERTY(EditAnywhere,Category = Anim)
 	class UAnimMontage* FireMontage;
+
+	UPROPERTY(EditAnywhere, Category = Anim)
+	class UAnimMontage* ReloadMontage;
 
 	/*UPROPERTY()
 	class USH_Neon_AnimInstance* anim;*/
@@ -90,7 +95,7 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	FOnAmmoChangedDel OnAmmoCntChanged;
 
 	UPROPERTY(EditAnywhere, Replicated)
-		int32 ammo = 999;
+		int32 ammo = 5;
 
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 attackPower = 5;

@@ -332,10 +332,7 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 	}
 }
 
-//void ABaseCharacter::DamagedHealth(int32 value, ABaseCharacter* WhoKilledMe)
-//{
-//	ServerDamagedHealth_Implementation(value, WhoKilledMe);
-//}
+
 
 void ABaseCharacter::Server_AllEndGame_Implementation()
 {

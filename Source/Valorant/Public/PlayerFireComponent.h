@@ -8,7 +8,7 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedDel, int32 /* AmmoCnt */);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class VALORANT_API UPlayerFireComponent : public UPlayerBaseComponent
 {
 	GENERATED_BODY()
@@ -26,7 +26,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_Reload();
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_Reload();
+	void Multicast_Reload(int32 BulletCount);
 	FORCEINLINE void SetOwningWeapon(class ABaseWeapon* weapon) { owningWeapon = weapon; }
 	FORCEINLINE class ABaseWeapon* GetOwningWeapon() const { return owningWeapon; }
 	FORCEINLINE int32 GetAmmo() const { return ammo; }
@@ -106,6 +106,10 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	UPROPERTY(EditAnywhere, Replicated)
 		float fireInterval = 0.1f;
 
+	UPROPERTY(Replicated)
+	bool bReloadOn;
+	UFUNCTION(Server, Reliable)
+	void ServerReloadComplete();
 	void Fire();
 
 	UFUNCTION(Server, Unreliable, WithValidation)
@@ -113,6 +117,9 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastFire();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastSniperShot();
 
 	UFUNCTION(Server, reliable)
 	void ServerFireEffect(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket,FVector p1, FVector p2, FRotator p3, FVector p4,bool bBlockingHit);
@@ -139,11 +146,18 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	
 	UPROPERTY(EditAnywhere)
 	class USoundCue* FireSound;
+	UPROPERTY(EditAnywhere)
+	class USoundCue* SniperSound;
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySound();
 
 	void SetAmmoCountTextInit(class USkillWidget* SkillUI);
+
+public:
+	void SniperShot();
+	UFUNCTION(Server, Reliable)
+	void ServerSniperShot();
 private:
 	void PrintLog();
 	enum ENetRole myLocalRole;

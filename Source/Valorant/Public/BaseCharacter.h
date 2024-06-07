@@ -164,6 +164,7 @@ public:
 
 	FORCEINLINE int32 GetHealth() { return CurrHP; };
 
+public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UWinLoseWidget> WinLoseWidgetFactory;
 	UPROPERTY()

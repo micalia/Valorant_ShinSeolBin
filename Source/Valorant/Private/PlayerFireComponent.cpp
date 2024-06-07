@@ -62,6 +62,11 @@ UPlayerFireComponent::UPlayerFireComponent()
 		FireSound = tempFireSound.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundCue> tempSniperSound(TEXT("/Script/Engine.SoundCue'/Game/SB/Sounds/Kar98_Cue.Kar98_Cue'"));
+	if (tempSniperSound.Succeeded()) {
+		SniperSound = tempSniperSound.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempBeamParticles(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/TrilFX/SmokeBeam/P_SmokeTrail.P_SmokeTrail'"));
 	if (tempBeamParticles.Succeeded()) {
 		BeamParticles = tempBeamParticles.Object;
@@ -81,7 +86,7 @@ void UPlayerFireComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	playerController = Cast<APlayerController>(me->GetController());
-	
+
 	if (me->HasAuthority())
 	{
 		me->CurrHP = me->FullHP;
@@ -93,7 +98,7 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
-	if (isFire)//isFire
+	if (isFire && !bReloadOn)
 	{
 		Fire();	
 	}
@@ -119,20 +124,33 @@ void UPlayerFireComponent::Reload()
 void UPlayerFireComponent::Server_Reload_Implementation()
 {
 	ammo = 30;
-	Multicast_Reload();
+	bReloadOn = true;
+	Multicast_Reload(ammo);
 }
 
-void UPlayerFireComponent::Multicast_Reload_Implementation()
+void UPlayerFireComponent::Multicast_Reload_Implementation(int32 BulletCount)
 {
 	if (ReloadMontage) {
 		me->PlayAnimMontage(ReloadMontage);
 		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
 		SovaFpsAnim->Montage_Play(ReloadMontage);
 		me->PlayFpsMontage();
-		if (auto GunAnim = owningWeapon->meshComp->GetAnimInstance()) {
-			GunAnim->Montage_Play(owningWeapon->ReloadMontage);
+		if (owningWeapon) {
+			if (auto GunAnim = owningWeapon->meshComp->GetAnimInstance()) {
+				GunAnim->Montage_Play(owningWeapon->ReloadMontage);
+			}
 		}
 	}
+	if (me->IsLocallyControlled()) {
+		if (ASB_Sova* Sova = Cast<ASB_Sova>(me)) {
+			Sova->skillWigetInstance->AmmoCnt_txt->SetText(FText::AsNumber(BulletCount));
+		}
+	}
+}
+
+void UPlayerFireComponent::ServerReloadComplete_Implementation()
+{
+	bReloadOn = false;
 }
 
 void UPlayerFireComponent::Fire()
@@ -151,6 +169,10 @@ void UPlayerFireComponent::Fire()
 }
 void UPlayerFireComponent::ServerFire_Implementation()
 {
+	if (ammo <= 0) {
+		Reload();
+	}
+
 	if (me->GetWorldTimerManager().IsTimerActive(fireDelay))
 	{
 		return;
@@ -201,7 +223,7 @@ bool UPlayerFireComponent::ServerFire_Validate()
 void UPlayerFireComponent::MulticastFire_Implementation()
 {
 	if (FireMontage)
-	{	
+	{
 		me->PlayAnimMontage(FireMontage);
 		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
 		SovaFpsAnim->Montage_Play(FireMontage);
@@ -213,11 +235,26 @@ void UPlayerFireComponent::MulticastFire_Implementation()
 	OnAmmoCntChanged.Broadcast(ammo);
 }
 
+void UPlayerFireComponent::MulticastSniperShot_Implementation()
+{
+	if (FireMontage)
+	{
+		me->PlayAnimMontage(FireMontage);
+		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
+		SovaFpsAnim->Montage_Play(FireMontage);
+		me->PlayFpsMontage();
+	}
+	if (me) {
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SniperSound, me->GetActorLocation());
+	}
+	OnAmmoCntChanged.Broadcast(ammo);
+}
+
 void UPlayerFireComponent::ServerFireEffect_Implementation(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit)
 {
 	if (Gun)
 	{
-		MulticastFireEffect(Gun, p1,p2,p3,p4,bBlockingHit);
+		MulticastFireEffect(Gun, p1, p2, p3, p4, bBlockingHit);
 	}
 }
 
@@ -225,6 +262,9 @@ void UPlayerFireComponent::MulticastFireEffect_Implementation(class ABaseWeapon*
 {
 	if (Gun) {
 		Gun->MuzzleFlashComp->Activate(true);
+		/*if (UAnimInstance* GunAnim = Gun->meshComp->GetAnimInstance()) {
+			GunAnim->Montage_Play(Gun->FireMontage);
+		}*/
 		if (ImpactParticles)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(
@@ -255,7 +295,7 @@ void UPlayerFireComponent::MulticastHitProcess_Implementation()
 
 void UPlayerFireComponent::StopFire()
 {
-	if(me==nullptr) return;
+	if (me == nullptr) return;
 	ASB_Sova* sova = Cast<ASB_Sova>(me);
 	if (sova) {
 		if (sova->fire_UI) {
@@ -267,7 +307,7 @@ void UPlayerFireComponent::StopFire()
 			}
 		}
 	}
-	
+
 	if (playerController)
 	{
 		curRightRecoilAmount = 0;
@@ -280,6 +320,63 @@ void UPlayerFireComponent::SetAmmoCountTextInit(USkillWidget* SkillUI)
 	if (SkillUI) {
 		OnAmmoCntChanged.AddUObject(SkillUI, &USkillWidget::SetAmmoCount);
 		SkillUI->AmmoCnt_txt->SetText(FText::AsNumber(GetAmmo()));
+	}
+}
+
+void UPlayerFireComponent::SniperShot()
+{
+	if(ammo <=0) return;
+	if (me->IsLocallyControlled()) {
+		if(ASB_Sova* Sova = Cast<ASB_Sova>(me)){
+			Sova->SniperRecoilCameraEffect();
+		}
+	}
+
+	if (me->HasAuthority()) {
+		ServerSniperShot_Implementation();
+	}
+	else {
+		ServerSniperShot();
+	}
+}
+
+void UPlayerFireComponent::ServerSniperShot_Implementation()
+{
+	if (ammo > 0)
+	{
+		ammo--;
+
+		FVector startLoc = me->FollowCamera->GetComponentLocation();
+		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 5000;
+		FHitResult hitInfo;
+		FCollisionQueryParams params;
+
+		params.AddIgnoredActor(me);
+
+		//---------effect-----------
+		const USkeletalMeshSocket* FireSocket = owningWeapon->meshComp->GetSocketByName("FirePos");
+
+		FTransform SocketTransform = FireSocket->GetSocketTransform(owningWeapon->meshComp);
+		FVector StartTl = SocketTransform.GetLocation();
+		if (GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility, params))
+		{
+			FString hitActor = hitInfo.GetActor()->GetName();
+			if (ABaseCharacter* hitPawn = Cast<ABaseCharacter>(hitInfo.GetActor()))
+			{
+				hitPawn->ServerDamagedHealth(attackPower, me);
+				ServerHitProcess();
+			}
+
+		}
+		ServerFireEffect(owningWeapon, FireSocket, SocketTransform.GetLocation(), hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(), endLoc, hitInfo.bBlockingHit);
+
+		if (me->HasAuthority()) {
+			me->GetWorldTimerManager().ClearTimer(fireDelay);
+			me->GetWorldTimerManager().SetTimer(fireDelay, FTimerDelegate::CreateLambda([&]() {
+				bInDelay = !bInDelay;
+				}), fireInterval, false);
+		}
+		MulticastSniperShot();
 	}
 }
 
@@ -299,4 +396,5 @@ void UPlayerFireComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(UPlayerFireComponent, ammo);
 	DOREPLIFETIME(UPlayerFireComponent, attackPower);
 	DOREPLIFETIME(UPlayerFireComponent, fireInterval);
+	DOREPLIFETIME(UPlayerFireComponent, bReloadOn);
 }

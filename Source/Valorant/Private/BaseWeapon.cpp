@@ -54,6 +54,11 @@ ABaseWeapon::ABaseWeapon()
 		ReloadMontage = tempReloadMontage.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempFireMontage(TEXT("/Script/Engine.AnimMontage'/Game/Marketplace/MilitaryWeapDark/Weapons/Anims/AM_SniperFire.AM_SniperFire'"));
+	if (tempFireMontage.Succeeded()) {
+		FireMontage = tempFireMontage.Object;
+	}
+
 	bReplicates = true;
 	SetReplicateMovement(true);
 }

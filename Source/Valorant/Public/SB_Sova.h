@@ -70,6 +70,13 @@ public:
 
 	bool mouseLeftClick;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void SniperRecoilCameraEffect();
+
+	bool bSniperOn = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bSniperRecoil = false;
+
 	//********정찰용화살********//
 	UPROPERTY()
 	class USoundBase* ScoutingArrowVoice1;

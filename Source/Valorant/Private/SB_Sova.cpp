@@ -211,7 +211,14 @@ void ASB_Sova::MouseLeftAction()
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
-		DefaultShootPress();
+		if (fireComp && !fireComp->bReloadOn) {
+			if (!bSniperOn) {
+				DefaultShootPress();
+			}
+			else {
+				fireComp->SniperShot();
+			}
+		}
 		break;
 	case ESovaState::ScoutingArrow:
 		break;
@@ -238,7 +245,12 @@ void ASB_Sova::MouseLeftReleasedAction()
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
-		DefaultShootRelease();
+		if (!bSniperOn) {
+			DefaultShootRelease();
+		}
+		else {
+			// 스나이퍼 모드
+		}
 		break;
 	case ESovaState::ScoutingArrow:
 		if (HasAuthority()) {
@@ -271,6 +283,7 @@ void ASB_Sova::MouseRightAction()
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
+		bSniperOn = true;
 		if (skillWigetInstance) {
 			skillWigetInstance->AimingPanelOn();
 			BaseWeapon->SetHiddenInGame(true);
@@ -295,6 +308,7 @@ void ASB_Sova::MouseRightReleasedAction()
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
+		bSniperOn = false;
 		if (skillWigetInstance) {
 			skillWigetInstance->AimingPanelOff();
 			BaseWeapon->SetHiddenInGame(false);

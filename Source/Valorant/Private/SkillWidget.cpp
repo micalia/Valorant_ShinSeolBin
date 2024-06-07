@@ -27,10 +27,6 @@ void USkillWidget::NativeConstruct()
 			if (FireComp)
 			{
 				FireComp->SetAmmoCountTextInit(this);
-				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Get FireComp"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-			}
-			else {
-				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Not FireComp"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 			}
 		}
 	}

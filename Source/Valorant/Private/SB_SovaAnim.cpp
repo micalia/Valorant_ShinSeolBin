@@ -4,6 +4,7 @@
 #include "SB_SovaAnim.h"
 #include "SB_Sova.h"
 #include "NetPlayerController.h"
+#include "PlayerFireComponent.h"
 
 void USB_SovaAnim::NativeInitializeAnimation()
 {
@@ -25,6 +26,16 @@ void USB_SovaAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 		FRotator delta = (me->GetActorRotation() - me->GetBaseAimRotation()).GetNormalized();
 		deltaRot = delta.Pitch;
+	}
+}
+
+void USB_SovaAnim::AnimNotify_ReloadComplete()
+{
+	if (me->HasAuthority()) {
+		me->fireComp->ServerReloadComplete_Implementation();
+	}
+	else {
+		me->fireComp->ServerReloadComplete();
 	}
 }
 

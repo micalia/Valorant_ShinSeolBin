@@ -28,6 +28,9 @@ public:
 	float deltaRot = 0;
 
 	UFUNCTION()
+	void AnimNotify_ReloadComplete();
+
+	UFUNCTION()
 	void AnimNotify_Die();
 
 	UFUNCTION()

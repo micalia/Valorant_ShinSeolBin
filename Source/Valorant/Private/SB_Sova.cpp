@@ -245,12 +245,12 @@ void ASB_Sova::MouseLeftReleasedAction()
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
-		if (!bSniperOn) {
+		//if (!bSniperOn) {
 			DefaultShootRelease();
-		}
-		else {
-			// 스나이퍼 모드
-		}
+		//}
+		//else {
+		//	// 스나이퍼 모드
+		//}
 		break;
 	case ESovaState::ScoutingArrow:
 		if (HasAuthority()) {

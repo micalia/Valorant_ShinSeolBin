@@ -98,7 +98,7 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
-	if (isFire && !bReloadOn)
+	if (isFire)
 	{
 		Fire();	
 	}
@@ -123,18 +123,20 @@ void UPlayerFireComponent::Reload()
 
 void UPlayerFireComponent::Server_Reload_Implementation()
 {
-	ammo = 30;
+	ammo = 5;
 	bReloadOn = true;
 	Multicast_Reload(ammo);
 }
 
 void UPlayerFireComponent::Multicast_Reload_Implementation(int32 BulletCount)
 {
+	USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
+	if (SovaFpsAnim) {
+		SovaFpsAnim->StopAllMontages(0.0f);
+	}
+
 	if (ReloadMontage) {
 		me->PlayAnimMontage(ReloadMontage);
-		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
-		SovaFpsAnim->Montage_Play(ReloadMontage);
-		me->PlayFpsMontage();
 		if (owningWeapon) {
 			if (auto GunAnim = owningWeapon->meshComp->GetAnimInstance()) {
 				GunAnim->Montage_Play(owningWeapon->ReloadMontage);
@@ -144,6 +146,18 @@ void UPlayerFireComponent::Multicast_Reload_Implementation(int32 BulletCount)
 	if (me->IsLocallyControlled()) {
 		if (ASB_Sova* Sova = Cast<ASB_Sova>(me)) {
 			Sova->skillWigetInstance->AmmoCnt_txt->SetText(FText::AsNumber(BulletCount));
+			Sova->MouseRightReleasedAction();
+			if (SovaFpsAnim) {
+				if (me->HasAuthority()) {
+					SovaFpsAnim->StopAllMontages(0.0f);
+					SovaFpsAnim->Montage_Play(ReloadMontage);
+				}
+				else {
+					SovaFpsAnim->StopAllMontages(0.0f);
+					SovaFpsAnim->Montage_Play(ReloadMontage);
+				}
+				
+			}
 		}
 	}
 }
@@ -169,10 +183,7 @@ void UPlayerFireComponent::Fire()
 }
 void UPlayerFireComponent::ServerFire_Implementation()
 {
-	if (ammo <= 0) {
-		Reload();
-	}
-
+	if(bReloadOn) return;
 	if (me->GetWorldTimerManager().IsTimerActive(fireDelay))
 	{
 		return;
@@ -211,7 +222,16 @@ void UPlayerFireComponent::ServerFire_Implementation()
 				bInDelay = !bInDelay;
 				}), fireInterval, false);
 		}
-		MulticastFire();
+
+		bool bReloadChk;
+		if (ammo <= 0) {
+			bReloadChk = true;
+		}
+		else {
+			bReloadChk = false;
+		}
+		MulticastFire(bReloadChk);
+		if(bReloadChk) Reload();
 	}
 }
 
@@ -220,14 +240,15 @@ bool UPlayerFireComponent::ServerFire_Validate()
 	return true;
 }
 
-void UPlayerFireComponent::MulticastFire_Implementation()
+void UPlayerFireComponent::MulticastFire_Implementation(bool InFireReloadChk)
 {
-	if (FireMontage)
+	if (!InFireReloadChk && FireMontage)
 	{
 		me->PlayAnimMontage(FireMontage);
-		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
-		SovaFpsAnim->Montage_Play(FireMontage);
-		me->PlayFpsMontage();
+		if (me->IsLocallyControlled()) {
+			USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
+			SovaFpsAnim->Montage_Play(FireMontage);
+		}
 	}
 	if (me) {
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, me->GetActorLocation());
@@ -235,14 +256,13 @@ void UPlayerFireComponent::MulticastFire_Implementation()
 	OnAmmoCntChanged.Broadcast(ammo);
 }
 
-void UPlayerFireComponent::MulticastSniperShot_Implementation()
+void UPlayerFireComponent::MulticastSniperShot_Implementation(bool InReloadOn)
 {
-	if (FireMontage)
+	if (!InReloadOn && FireMontage)
 	{
 		me->PlayAnimMontage(FireMontage);
 		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
 		SovaFpsAnim->Montage_Play(FireMontage);
-		me->PlayFpsMontage();
 	}
 	if (me) {
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SniperSound, me->GetActorLocation());
@@ -301,7 +321,6 @@ void UPlayerFireComponent::StopFire()
 		if (sova->fire_UI) {
 			if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController()) {
 				isFire = false;
-				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Stop FIre"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 				//UI cross hair
 				sova->fire_UI->isFire = false;
 			}
@@ -325,7 +344,7 @@ void UPlayerFireComponent::SetAmmoCountTextInit(USkillWidget* SkillUI)
 
 void UPlayerFireComponent::SniperShot()
 {
-	if(ammo <=0) return;
+	
 	if (me->IsLocallyControlled()) {
 		if(ASB_Sova* Sova = Cast<ASB_Sova>(me)){
 			Sova->SniperRecoilCameraEffect();
@@ -376,7 +395,16 @@ void UPlayerFireComponent::ServerSniperShot_Implementation()
 				bInDelay = !bInDelay;
 				}), fireInterval, false);
 		}
-		MulticastSniperShot();
+
+		bool ReloadChk;
+		if (ammo <= 0) {
+			ReloadChk = true;
+		}
+		else {
+			ReloadChk = false;
+		}
+		MulticastSniperShot(ReloadChk);
+		if(ReloadChk)Server_Reload_Implementation();
 	}
 }
 

@@ -116,10 +116,10 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	void ServerFire();
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastFire();
+	void MulticastFire(bool InFireReloadChk);
 
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastSniperShot();
+	void MulticastSniperShot(bool InReloadOn);
 
 	UFUNCTION(Server, reliable)
 	void ServerFireEffect(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket,FVector p1, FVector p2, FRotator p3, FVector p4,bool bBlockingHit);

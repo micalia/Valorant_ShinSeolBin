@@ -279,7 +279,6 @@ void ABaseCharacter::DefaultShootPress()
 {
 	if (fireComp) {
 		fireComp->isFire = true;
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Fire Start"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	}
 }
 

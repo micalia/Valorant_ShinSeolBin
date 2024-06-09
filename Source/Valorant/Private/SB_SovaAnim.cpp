@@ -19,10 +19,9 @@ void USB_SovaAnim::NativeUpdateAnimation(float DeltaSeconds)
 	if (me) {
 		FVector forward = me->GetActorForwardVector();
 		FVector velocity = me->GetVelocity();
-		speed = FMath::Clamp(FVector::DotProduct(forward, velocity), -280, 280);
-
+		speed = FMath::Clamp(FVector::DotProduct(forward, velocity), -100, 100);
 		FVector right = me->GetActorRightVector();
-		direction = FMath::Clamp(FVector::DotProduct(right, velocity), -280, 280);
+		direction = FMath::Clamp(FVector::DotProduct(right, velocity), -100, 100);
 
 		FRotator delta = (me->GetActorRotation() - me->GetBaseAimRotation()).GetNormalized();
 		deltaRot = delta.Pitch;

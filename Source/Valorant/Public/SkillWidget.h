@@ -46,7 +46,7 @@ public: // 공격한 플레이어가 있는 방향 표시
 	class UImage* DamageIndicator;
 
 	UPROPERTY(EditAnywhere)
-	float DamageUiActiveTime = 2;
+	float DamageUiActiveTime = 3;
 	float DamageUiActiveCurrTime = 0;
 
 	UPROPERTY()

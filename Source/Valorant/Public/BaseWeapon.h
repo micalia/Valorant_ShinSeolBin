@@ -59,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Anim)
 	class UAnimMontage* ReloadMontage;
 	UPROPERTY(EditAnywhere, Category = Anim)
-	class UAnimMontage* FireMontage;
+	class UAnimMontage* SniperFireMontage;
 
 private:
 

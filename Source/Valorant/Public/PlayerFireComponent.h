@@ -85,7 +85,9 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	class UFireUserWidget* fire_UI;
 
 	bool bInDelay = false;
+	bool bInSniperDelay = false;
 	FTimerHandle fireDelay;
+	FTimerHandle SniperDelay;
 
 	FOnAmmoChangedDel OnAmmoCntChanged;
 
@@ -97,6 +99,8 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 
 	UPROPERTY(EditAnywhere)
 	float FireDelayTime = 0.045;
+	UPROPERTY(EditAnywhere)
+	float SniperDelayTime = 1;
 
 	UPROPERTY(Replicated)
 	bool bReloadOn;
@@ -113,13 +117,19 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	void MulticastFire(bool InFireReloadChk, int32 CurrAmmoCnt);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSniperShot(bool InReloadOn);
+	void MulticastSniperShot(bool InReloadOn, int32 CurrAmmoCnt);
 
 	UFUNCTION(Server, reliable)
 	void ServerFireEffect(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket,FVector p1, FVector p2, FRotator p3, FVector p4,bool bBlockingHit);
 
 	UFUNCTION(NetMulticast, reliable)
 	void MulticastFireEffect(class ABaseWeapon* Gun, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit);
+
+	UFUNCTION(Server, Reliable)
+	void ServerSniperEffect(class ABaseWeapon* Gun, const USkeletalMeshSocket* FireSocket,FVector p1, FVector p2, FRotator p3, FVector p4,bool bBlockingHit);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSniperEffect(class ABaseWeapon* Gun, FVector p1, FVector p2, FRotator p3, FVector p4, bool bBlockingHit);
 
 	UFUNCTION(Server, Unreliable)
 	void ServerHitProcess();
@@ -154,10 +164,6 @@ public:
 	void SniperShot();
 	UFUNCTION(Server, Reliable)
 	void ServerSniperShot();
-private:
-	void PrintLog();
-	enum ENetRole myLocalRole;
-	enum ENetRole myRemoteRole;
 
 	APlayerController* playerController;
 

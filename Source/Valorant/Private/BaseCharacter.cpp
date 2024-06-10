@@ -277,6 +277,19 @@ void ABaseCharacter::Multicast_Lose_Implementation()
 
 void ABaseCharacter::DefaultShootPress()
 {
+	if (HasAuthority()) {
+		
+	}
+	else {
+
+	}
+	if (fireComp) {
+		fireComp->isFire = true;
+	}
+}
+
+void ABaseCharacter::ServerDefaultShootPress_Implementation()
+{
 	if (fireComp) {
 		fireComp->isFire = true;
 	}

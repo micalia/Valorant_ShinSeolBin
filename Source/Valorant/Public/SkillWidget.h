@@ -25,6 +25,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = MySettings)
 	class ABaseCharacter* UiOwner;
 
+	UPROPERTY(EditAnywhere, meta = (BindWidget), Category = MySettings)
+	class UFireUserWidget* WBP_FireAim;
+
 	UPROPERTY()
 	class APlayerController* MyPlayerController;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = MySettings)

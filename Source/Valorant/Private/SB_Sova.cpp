@@ -123,10 +123,6 @@ ASB_Sova::ASB_Sova()
 		SkillWidgetFactory = tempSovaSkillUI.Class;
 	}
 
-	static ConstructorHelpers::FClassFinder<UFireUserWidget> tempFireWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/PSH/UI/WBP_Fire.WBP_Fire_C'"));
-	if (tempFireWidget.Succeeded()) {
-		fireWidget = tempFireWidget.Class;
-	}
 	static ConstructorHelpers::FClassFinder<UUserWidget> tempSmokeSkillUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/SB/UMG/WB_SmokeSkillUI.WB_SmokeSkillUI_C'"));
 	if (tempSmokeSkillUI.Succeeded()) {
 		smokeSkillUIFactory = tempSmokeSkillUI.Class;
@@ -213,7 +209,13 @@ void ASB_Sova::MouseLeftAction()
 	case ESovaState::DefaultAtk:
 		if (fireComp && !fireComp->bReloadOn) {
 			if (!bSniperOn) {
-				DefaultShootPress();
+				if (HasAuthority()) {
+					ServerDefaultShootPress_Implementation();
+				}
+				else {
+					ServerDefaultShootPress();
+				}
+				//DefaultShootPress();
 			}
 			else {
 				fireComp->SniperShot();
@@ -245,8 +247,14 @@ void ASB_Sova::MouseLeftReleasedAction()
 	switch (currState)
 	{
 	case ESovaState::DefaultAtk:
+		if (HasAuthority()) {
+			fireComp->ServerStopFire_Implementation();
+		}
+		else {
+			fireComp->ServerStopFire();
+		}
 		//if (!bSniperOn) {
-			DefaultShootRelease();
+			//DefaultShootRelease();
 		//}
 		//else {
 		//	// 스나이퍼 모드
@@ -821,15 +829,6 @@ void ASB_Sova::NotifyRestarted()
 				smokeSkillUIinstance = CreateWidget<UUserWidget>(GetWorld(), ProtoSmokeSkillUIFactory);
 				smokeSkillUIinstance->AddToViewport();
 				smokeSkillUIinstance->SetVisibility(ESlateVisibility::Collapsed);
-			}
-		}
-
-		if (fireWidget)
-		{
-			fire_UI = CreateWidget<UFireUserWidget>(GetWorld(), fireWidget);
-			if (fire_UI != nullptr)
-			{
-				fire_UI->AddToViewport();
 			}
 		}
 	}

@@ -33,8 +33,6 @@ public:
 	
 	FORCEINLINE void SetAmmo(int32 count) { ammo = count; }
 	FORCEINLINE void SetAttckPower(int32 damage) { attackPower = damage; }
-	FORCEINLINE void SetFireInterval(float time) { fireInterval = time; }
-	FORCEINLINE void Setmagazine(int32 count) { magazine = count; }
 public:
 UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class ABaseWeapon> _weapon;
@@ -60,12 +58,12 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	UPROPERTY(EditAnywhere,Category = "Fire")
 	FRotator startFireRot;
 	
-	UPROPERTY(EditAnywhere,Category = "Fire") //??
+	UPROPERTY(EditAnywhere,Category = "Fire") 
 	bool isFireStart = false;
 
 	//연사모드
-	UPROPERTY(EditAnywhere,Category = "Fire")
-	bool isFire = false; //?
+	UPROPERTY(EditAnywhere, Replicated, Category = "Fire")
+	bool isFire = false; 
 
 	//총기 반동
 	UPROPERTY(EditAnywhere,Category = "Fire")
@@ -80,11 +78,8 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	UPROPERTY(Replicated)
 	int32 health = 0;
 
-	UPROPERTY(EditAnywhere, Replicated)
+	UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite)
 	class ABaseWeapon* owningWeapon;
-
-	UPROPERTY(EditAnywhere, Category = MySettings)
-	TSubclassOf<class UFireUserWidget> fireWidget;
 
 	UPROPERTY()
 	class UFireUserWidget* fire_UI;
@@ -100,25 +95,24 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 attackPower = 5;
 
-	UPROPERTY(EditAnywhere, Replicated)
-		int32 magazine = 3;
-
-	UPROPERTY(EditAnywhere, Replicated)
-		float fireInterval = 0.1f;
+	UPROPERTY(EditAnywhere)
+	float FireDelayTime = 0.045;
 
 	UPROPERTY(Replicated)
 	bool bReloadOn;
 	UFUNCTION(Server, Reliable)
 	void ServerReloadComplete();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastReloadComplete(int32 AmmoCnt);
 	void Fire();
 
-	UFUNCTION(Server, Unreliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastFire(bool InFireReloadChk);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastFire(bool InFireReloadChk, int32 CurrAmmoCnt);
 
-	UFUNCTION(NetMulticast, Unreliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSniperShot(bool InReloadOn);
 
 	UFUNCTION(Server, reliable)
@@ -133,6 +127,8 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastHitProcess();
 	void StopFire();
+	UFUNCTION(Server, Reliable)
+	void ServerStopFire();
 
 		// 파티클
 	UPROPERTY(EditAnywhere)

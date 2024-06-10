@@ -136,6 +136,10 @@ public:
 	class UPlayerFireComponent* fireComp = nullptr;
 	UFUNCTION(BlueprintCallable)
 	void DefaultShootPress();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDefaultShootPress();
+
 	UFUNCTION(BlueprintCallable)
 	void DefaultShootRelease();
 

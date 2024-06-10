@@ -68,6 +68,6 @@ private:
 		int32 ammo = 5;
 		int32 attackPower = 5;
 		int32 magazine = 3;
-		float fireInterval = 0.1f;
+		float fireInterval = 0.3f;
 
 };

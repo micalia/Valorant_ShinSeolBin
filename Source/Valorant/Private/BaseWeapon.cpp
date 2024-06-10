@@ -91,9 +91,6 @@ void ABaseWeapon::GrabWeapon(ABaseCharacter* player)
 		// ÃÑÀÇ Á¤º¸ ³Ñ±â±â
 		fireComp->SetAmmo(ammo); //ÃÑ¾Ë
 		fireComp->SetAttckPower(attackPower); //µ¥¹ÌÁö
-		fireComp->SetFireInterval(fireInterval); //ÃÑ¾Ë µô·¹ÀÌ
-
-		fireComp->Setmagazine(magazine); //ÅºÃ¢°¹¼ö
 
 		boxComp->SetSimulatePhysics(false);
 		FAttachmentTransformRules rules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;

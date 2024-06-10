@@ -206,9 +206,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnSmokeObj(FVector SpawnPos);
 
-
-	UPROPERTY(EditAnywhere, Category = MySettings)
-	TSubclassOf<class UFireUserWidget> fireWidget;
 	UPROPERTY(EditAnywhere, Category = MySettings)
 	TSubclassOf<class UUserWidget> smokeSkillUIFactory;
 	UPROPERTY(EditAnywhere, Category = MySettings)

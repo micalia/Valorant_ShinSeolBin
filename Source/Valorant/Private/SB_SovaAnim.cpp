@@ -22,7 +22,6 @@ void USB_SovaAnim::NativeUpdateAnimation(float DeltaSeconds)
 		speed = FMath::Clamp(FVector::DotProduct(forward, velocity), -100, 100);
 		FVector right = me->GetActorRightVector();
 		direction = FMath::Clamp(FVector::DotProduct(right, velocity), -100, 100);
-
 		FRotator delta = (me->GetActorRotation() - me->GetBaseAimRotation()).GetNormalized();
 		deltaRot = delta.Pitch;
 	}
@@ -30,6 +29,7 @@ void USB_SovaAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 void USB_SovaAnim::AnimNotify_ReloadComplete()
 {
+	if(!me->IsLocallyControlled())return;
 	if (me->HasAuthority()) {
 		me->fireComp->ServerReloadComplete_Implementation();
 	}

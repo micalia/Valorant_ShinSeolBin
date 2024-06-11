@@ -156,7 +156,7 @@ public:
 	void GrenadeThrowAction();
 	UFUNCTION()
 	void ClearPath();
-	UFUNCTION(Server,Reliable)
+	UFUNCTION(Server, Reliable)
 	void ServerCancelGrenade();
 
 	// ¼ö·ùÅº »ý¼º
@@ -227,4 +227,11 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DebugSphere();
+
+public:
+	UPROPERTY(EditAnywhere, Category = Grab)
+	class UCableComponent* CableComp;
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* HookMesh;
 };

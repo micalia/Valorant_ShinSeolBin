@@ -177,18 +177,18 @@ void UPlayerFireComponent::Fire()
 		return;
 	if (!me->IsLocallyControlled() || bReloadOn)return;
 
-	if (me->GetWorldTimerManager().IsTimerActive(fireDelay))
+	if (bInDelay)
 	{
 		return;
 	}
 
 	me->GetWorldTimerManager().ClearTimer(fireDelay);
 	me->GetWorldTimerManager().SetTimer(fireDelay, FTimerDelegate::CreateLambda([&]() {
-		bInDelay = !bInDelay;
-		}), FireDelayTime, false);
+		bInDelay = false;
+	}), FireDelayTime, false);
 
 	//RPC             
-	if (bInDelay) {
+	if (bInDelay == false) {
 		if (me->HasAuthority())
 		{
 			ServerFire_Implementation();
@@ -197,6 +197,7 @@ void UPlayerFireComponent::Fire()
 		{
 			ServerFire();
 		}
+		bInDelay = true;
 	}
 }
 
@@ -365,18 +366,18 @@ void UPlayerFireComponent::SniperShot()
 {
 	if (!me->IsLocallyControlled() || bReloadOn)return;
 
-	if (me->GetWorldTimerManager().IsTimerActive(SniperDelay))
+	if (bInSniperDelay)
 	{
 		return;
 	}
 
 	me->GetWorldTimerManager().ClearTimer(SniperDelay);
 	me->GetWorldTimerManager().SetTimer(SniperDelay, FTimerDelegate::CreateLambda([&]() {
-		bInSniperDelay = !bInSniperDelay;
-		}), SniperDelayTime, false);
+		bInSniperDelay = false;
+	}), SniperDelayTime, false);
 
 	//RPC             
-	if (bInSniperDelay) {
+	if (bInSniperDelay == false) {
 		if (me->HasAuthority()) {
 			ServerSniperShot_Implementation();
 		}
@@ -389,6 +390,7 @@ void UPlayerFireComponent::SniperShot()
 				Sova->SniperRecoilCameraEffect();
 			}
 		}
+		bInSniperDelay = true;
 	}
 
 }
@@ -422,7 +424,7 @@ void UPlayerFireComponent::ServerSniperShot_Implementation()
 
 		}
 		ServerSniperEffect_Implementation(owningWeapon, FireSocket, SocketTransform.GetLocation(), hitInfo.ImpactPoint, hitInfo.ImpactNormal.Rotation(), endLoc, hitInfo.bBlockingHit);
-
+		
 		/*if (me->HasAuthority()) {
 			me->GetWorldTimerManager().ClearTimer(fireDelay);
 			me->GetWorldTimerManager().SetTimer(fireDelay, FTimerDelegate::CreateLambda([&]() {

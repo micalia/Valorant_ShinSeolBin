@@ -29,6 +29,8 @@
 #include "Grenade.h"
 #include "SB_ArrowVersion2.h"
 #include "Components/ChildActorComponent.h"
+#include "CableComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -165,6 +167,18 @@ ASB_Sova::ASB_Sova()
 		GrenadeSound2 = tempGrenadeSound2.Object;
 	}
 
+	CableComp = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
+	CableComp->SetupAttachment(fpsMesh, TEXT("L_Shoulder"));
+	CableComp->SetRelativeScale3D(FVector(0.01));
+
+
+	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hook"));
+	HookMesh->SetupAttachment(RootComponent);
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempHookMesh(TEXT("/Script/Engine.StaticMesh'/Game/SB/Models/Hook/Hook.Hook'"));
+	if (tempHookMesh.Succeeded()) {
+		HookMesh->SetStaticMesh(tempHookMesh.Object);
+	}
+	
 	bReplicates = true;
 }
 

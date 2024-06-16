@@ -123,12 +123,8 @@ public:
 
 	virtual void PlayFireAnimation() {};
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USkeletalMeshComponent* fpsMesh;
-
-	//			//애니메이션
-	UPROPERTY(EditAnywhere, Category = Anim)
-	class UAnimMontage* DieMonatage;
 
 public:
 	//Default Attack
@@ -203,6 +199,9 @@ public:
 	UPROPERTY(Replicated)
 	float Score = 0;
 
+	UPROPERTY(EditAnywhere)
+	int32 EndGameScore = 6;
+
 	UFUNCTION(Server, Reliable)
 	void Server_WinLose();
 	UFUNCTION(NetMulticast, Reliable)
@@ -230,8 +229,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayFpsMontage();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void PlayDieMontage();
+	virtual void PlayDieMontage();
 
 	/*UFUNCTION()
 	void OnDieProcess();*/
@@ -245,8 +243,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_RestartControlMode(class ANetPlayerController* NetPC);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void MeshVisible();
+	virtual void MeshVisible();
 
 	UPROPERTY()
 	class USoundBase* soundKill;

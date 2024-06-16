@@ -34,6 +34,8 @@ public:
 	virtual void KeyE() override; // 정찰용 화살
 	virtual void KeyQ() override; // 수류탄
 	virtual void KeyC() override; // 공중 연막
+	virtual void KeyF() override; // 로프 이동
+	virtual void PossessedBy(AController* NewController) override;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool isGun = true;
@@ -49,6 +51,18 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AActor> BaseWeaponFactory;
 
+	UPROPERTY(EditAnywhere)
+	class UChildActorComponent* DeathCamera;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AActor> DeathCameraFactory;
+
+	virtual void PlayDieMontage() override;
+
+	UPROPERTY()
+	class UAnimMontage* DieMontage;
+
+	virtual void MeshVisible() override;
 public:
 	UPROPERTY(BlueprintReadOnly)
 	float h;
@@ -214,6 +228,7 @@ public:
 	UPROPERTY()
 	class UFireUserWidget* fire_UI;
 
+	void AirSmokeMouseCursor();
 public:
 	UPROPERTY()
 	class USoundBase* throwBump;
@@ -229,9 +244,61 @@ public:
 	void DebugSphere();
 
 public:
-	UPROPERTY(EditAnywhere, Category = Grab)
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ASB_Hook> HookActorFactory;
+
+	UPROPERTY(EditAnywhere, Category = Grab, BlueprintReadWrite)
 	class UCableComponent* CableComp;
 
-	UPROPERTY(EditAnywhere)
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* HookMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USphereComponent* HookColl;*/
+
+	UPROPERTY()
+	class ASB_Hook* MyHook;
+
+	UPROPERTY(EditAnywhere, Category = "Materials")
+    class UMaterialInterface* RopeMat;
+
+	void HookNotify();
+
+	UFUNCTION(Server, Reliable)
+	void ServerGrappleAction();
+	void AttachHook(class ASB_Hook* HookPtr);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastEndGrappleAction();
+	void GrappleAction();
+
+	//FVector HookStartLoc;
+	UPROPERTY(BlueprintReadOnly)
+	FVector GrappleEndLoc;
+
+	UPROPERTY(BlueprintReadOnly);
+	float ToGrappleDeltaTime;
+
+	bool bThrowHook;
+
+	bool bCanGrappleHook;
+
+	UPROPERTY(EditAnywhere)
+	float GrappleHookDistance = 3000;
+	
+	UPROPERTY(BlueprintReadOnly);
+	FVector HookLocation;
+
+	UPROPERTY(EditAnywhere)
+	float GrappleHookCoolDown = 1;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShootGrappleHook();
+
+	void ResetGrappleHook();
+
+	UPROPERTY(EditAnywhere)
+	float GrappleMovePower = 3470000;
+	
+	UPROPERTY(EditAnywhere)
+	float GrappleMoveStopDist = 400;
 };

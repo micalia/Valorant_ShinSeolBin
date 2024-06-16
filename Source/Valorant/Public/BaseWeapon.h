@@ -65,7 +65,7 @@ private:
 
 	UFUNCTION()
 	void GrabWeapon(class ABaseCharacter* player);
-		int32 ammo = 5;
+		int32 ammo = 30;
 		int32 attackPower = 5;
 		int32 magazine = 3;
 		float fireInterval = 0.3f;

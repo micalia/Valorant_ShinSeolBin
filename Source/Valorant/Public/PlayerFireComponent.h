@@ -92,15 +92,18 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	FOnAmmoChangedDel OnAmmoCntChanged;
 
 	UPROPERTY(EditAnywhere, Replicated)
-		int32 ammo = 5;
+		int32 ammo = 30;
+		int32 FullAmmoCount = ammo;
 
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 attackPower = 5;
+	UPROPERTY(EditAnywhere, Replicated)
+		int32 SniperPower = 50;
 
 	UPROPERTY(EditAnywhere)
-	float FireDelayTime = 0.045;
+	float FireDelayTime = 0.1;
 	UPROPERTY(EditAnywhere)
-	float SniperDelayTime = 1;
+	float SniperDelayTime = 0.8;
 
 	UPROPERTY(Replicated)
 	bool bReloadOn;

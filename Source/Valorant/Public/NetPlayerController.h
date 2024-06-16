@@ -26,6 +26,5 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerChangePlayerToSpectator();
-
-
+	
 };

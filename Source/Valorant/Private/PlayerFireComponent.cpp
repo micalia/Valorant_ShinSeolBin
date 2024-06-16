@@ -119,7 +119,7 @@ void UPlayerFireComponent::Reload()
 void UPlayerFireComponent::Server_Reload_Implementation()
 {
 	bReloadOn = true;
-	Multicast_Reload(ammo);
+	Multicast_Reload(FullAmmoCount);
 }
 
 void UPlayerFireComponent::Multicast_Reload_Implementation(int32 BulletCount)
@@ -160,7 +160,7 @@ void UPlayerFireComponent::Multicast_Reload_Implementation(int32 BulletCount)
 void UPlayerFireComponent::ServerReloadComplete_Implementation()
 {
 	bReloadOn = false;
-	ammo = 5;
+	ammo = FullAmmoCount;
 	MulticastReloadComplete(ammo);
 }
 
@@ -271,7 +271,7 @@ void UPlayerFireComponent::MulticastSniperShot_Implementation(bool InReloadOn, i
 		USB_SovaAnim* SovaFpsAnim = Cast<USB_SovaAnim>(me->fpsMesh->GetAnimInstance());
 		SovaFpsAnim->Montage_Play(FireMontage);
 	}
-	if (me) {
+	if (ensure(me)) {
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SniperSound, me->GetActorLocation());
 	}
 	OnAmmoCntChanged.Broadcast(CurrAmmoCnt);
@@ -418,7 +418,7 @@ void UPlayerFireComponent::ServerSniperShot_Implementation()
 			FString hitActor = hitInfo.GetActor()->GetName();
 			if (ABaseCharacter* hitPawn = Cast<ABaseCharacter>(hitInfo.GetActor()))
 			{
-				hitPawn->ServerDamagedHealth(attackPower, me);
+				hitPawn->ServerDamagedHealth(SniperPower, me);
 				ServerHitProcess();
 			}
 

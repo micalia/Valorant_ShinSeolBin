@@ -86,11 +86,13 @@ void ABaseWeapon::Tick(float DeltaTime)
 void ABaseWeapon::GrabWeapon(ABaseCharacter* player)
 {
 	if (player) {
-		fireComp->SetOwningWeapon(this);
+		if (fireComp) {
+			fireComp->SetOwningWeapon(this);
 
-		// 총의 정보 넘기기
-		fireComp->SetAmmo(ammo); //총알
-		fireComp->SetAttckPower(attackPower); //데미지
+			// 총의 정보 넘기기
+			fireComp->SetAmmo(ammo); //총알
+			fireComp->SetAttckPower(attackPower); //데미지
+		}
 
 		boxComp->SetSimulatePhysics(false);
 		FAttachmentTransformRules rules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;

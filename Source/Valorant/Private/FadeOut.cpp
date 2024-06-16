@@ -55,7 +55,8 @@ void UFadeOut::onDestory()
 
 	//원래 카메라로 돌아옴
 	if (player) {
-		player->MeshVisible();
+		//player->MeshVisible();
+		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> MeshVisible!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 
 	}
 

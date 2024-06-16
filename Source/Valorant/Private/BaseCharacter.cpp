@@ -313,7 +313,7 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 			if (WhoKilledMe) {
 				WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
 
-				if (WhoKilledMe->GetPlayerState()->GetScore() >= 3)
+				if (WhoKilledMe->GetPlayerState()->GetScore() >= EndGameScore)
 				{
 					TheEndGame = true;
 					WhoKilledMe->TheEndGame = true; // ºγ !!
@@ -405,6 +405,12 @@ void ABaseCharacter::Multicast_WinLose_Implementation()
 {
 	winloseInstance->SetVisibility(ESlateVisibility::Visible);
 }
+
+void ABaseCharacter::PlayDieMontage()
+{
+
+}
+
 void ABaseCharacter::DieProcess()
 {
 	if (HasAuthority()) {
@@ -452,6 +458,11 @@ void ABaseCharacter::Multicast_RestartControlMode_Implementation(class ANetPlaye
 	FInputModeGameOnly inputMode = FInputModeGameOnly();
 
 	NetPC->SetInputMode(inputMode);
+}
+
+void ABaseCharacter::MeshVisible()
+{
+
 }
 
 void ABaseCharacter::Server_NoCollision_Implementation()

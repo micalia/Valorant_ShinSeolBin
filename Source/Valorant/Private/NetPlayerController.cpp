@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BattleGameModeBase.h"
 #include <GameFramework/SpectatorPawn.h>
+#include "SB_Sova.h"
 
 void ANetPlayerController::BeginPlay()
 {

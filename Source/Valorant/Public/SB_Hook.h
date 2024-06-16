@@ -24,12 +24,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(ReplicatedUsing = OnRep_InitActor)
-	bool bInitActor;
+	bool bClientInitActor;
 
 	UFUNCTION()
 	void OnRep_InitActor();
 
-	float DetectObjDistance = 150;
+	UPROPERTY(EditAnywhere)
+	float DetectObjDistance = 200;
 
 	bool bThrowHook = true;
 

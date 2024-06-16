@@ -128,7 +128,7 @@ void AGrenade::MulticastExplosion_Implementation()
 		GetActorLocation(),
 		GetActorLocation(),
 		ExplosionRadius,
-		UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel5),
+		UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel9),
 		true,
 		EmptyActorsToIgnore,
 		EDrawDebugTrace::None,

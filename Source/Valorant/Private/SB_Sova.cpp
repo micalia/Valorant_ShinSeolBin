@@ -203,24 +203,7 @@ ASB_Sova::ASB_Sova()
 	CableComp->SetAttachEndTo(this, TEXT("HookColl"));
 	CableComp->SetMaterial(0, RopeMat);
 	CableComp->CableGravityScale = 0;
-
-	//HookColl = CreateDefaultSubobject<USphereComponent>(TEXT("HookCollison"));
-	//HookColl->SetupAttachment(RootComponent);
-	//HookColl->SetRelativeScale3D(FVector(6, 6, 4));
-	////HookColl->SetRelativeScale3D(FVector(0.06, 0.06, 0.04));
-	//HookColl->SetSphereRadius(5.5);
-	//HookColl->SetCollisionProfileName(TEXT("Hook"));
-	///*HookColl->SetSimulatePhysics(true*/
-	//HookColl->SetEnableGravity(false);
-
-	//HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hook"));
-
-	//ConstructorHelpers::FObjectFinder<UStaticMesh> tempHookMesh(TEXT("/Script/Engine.StaticMesh'/Game/SB/Models/Hook/Hook.Hook'"));
-	//if (tempHookMesh.Succeeded()) {
-	//	HookMesh->SetStaticMesh(tempHookMesh.Object);
-	//}
-	//HookMesh->SetupAttachment(HookColl);
-	//HookMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CableComp->CastShadow = false;
 
 	static ConstructorHelpers::FClassFinder<AActor> tempDeathCameraFactory(TEXT("/Script/Engine.Blueprint'/Game/LMH/BP/BP_DeathCamera.BP_DeathCamera_C'"));
 	if (tempDeathCameraFactory.Succeeded()) {
@@ -248,6 +231,17 @@ ASB_Sova::ASB_Sova()
 		HookActorFactory = tempHookActorFactory.Class;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UMaterialInterface> tempDefaultMaterial(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/SB/Materials/M_CubeBeam_Inst.M_CubeBeam_Inst'"));
+	if (tempDefaultMaterial.Succeeded())
+	{
+		GrenadeSplineMat = tempDefaultMaterial.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempGrenadeSplineMesh(TEXT("/Script/Engine.StaticMesh'/Game/SB/Models/splinebeam.splinebeam'"));
+	if (tempGrenadeSplineMesh.Succeeded()) {
+		GrenadeSplineMesh = tempGrenadeSplineMesh.Object;
+	}
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->CustomDepthStencilValue = 1;
 	bReplicates = true;
 }
 
@@ -257,7 +251,6 @@ void ASB_Sova::BeginPlay()
 
 	soundKill = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/2_throw.2_throw'"));
 	expl = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/5_expl.5_expl'"));
-
 
 	FAttachmentTransformRules AttachCamRule = FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true);
 	CameraBoom->AttachToComponent(fpsMesh, AttachCamRule, TEXT("Head"));
@@ -277,18 +270,12 @@ void ASB_Sova::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if (HasAuthority() && bThrowHook && MyHook != nullptr) {
-		//FVector MoveDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), MyHook->GetActorLocation());
-		//GetCharacterMovement()->AddForce(MoveDir * GrappleMovePower);
-		//float ToHookDist = FMath::Abs((GetActorLocation() - MyHook->GetActorLocation()).Length());
-
-		//if (ToHookDist < GrappleMoveStopDist) {
-		//	bThrowHook = false;
-		//	GetCharacterMovement()->Velocity = FVector(0);
-		//	LaunchCharacter(FVector(0, 0, 900), true, true);
-		//	MulticastEndGrappleAction();
-		//	//MyHook->Destroy();
-		//}
-		//GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Move Sova HOOK / To Hook Dist : %f"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S")), ToHookDist), true, FVector2D(1.5f, 1.5f));
+		FVector MoveDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), MyHook->GetActorLocation());
+		GetCharacterMovement()->AddForce(MoveDir * GrappleMovePower);
+		float ToHookDist = (GetActorLocation() - MyHook->GetActorLocation()).Length();
+		if (ToHookDist < GrappleMoveStopDist && MyHook->bThrowHook == false) {
+			EndGrappleMove();
+		}
 	}
 
 	if (IsLocallyControlled() == false) return;
@@ -522,6 +509,7 @@ void ASB_Sova::KeyC()
 void ASB_Sova::KeyF()
 {
 	if (IsLocallyControlled() == false) return;
+	if(bCanGrappleAction == false) return;
 	GrappleAction();
 }
 
@@ -757,7 +745,7 @@ void ASB_Sova::ShowProjectilePath()
 			USplineMeshComponent* SplineMeshComponent = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass());
 			//실린더 메쉬를 사용할떄 곡면이 있는 부분이 X축 정면일때, 평평한 윗면 Z축을 정면으로 변경
 			SplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
-			SplineMeshComponent->SetStaticMesh(DefalutMesh);
+			SplineMeshComponent->SetStaticMesh(GrenadeSplineMesh);
 			// 메쉬 움직일 수 있도록 설정
 			SplineMeshComponent->SetMobility(EComponentMobility::Movable);
 			//월드에 등록
@@ -776,9 +764,9 @@ void ASB_Sova::ShowProjectilePath()
 			SplineMeshComponent->SetStartAndEnd(StartPoint, StartTangent, EndPoint, EndTangent, true);
 			SplineMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-			if (DefaultMaterial)
+			if (GrenadeSplineMat)
 			{ // 머테리얼 할당
-				SplineMeshComponent->SetMaterial(0, DefaultMaterial);
+				SplineMeshComponent->SetMaterial(0, GrenadeSplineMat);
 			}
 			// 궤적 메쉬를 매프레임마다 생성하기 때문에 
 			// 이전 프레임에서 생성한 궤적을 지우기 위해 메쉬 컴포넌트 포인터 배열 저장
@@ -1015,18 +1003,26 @@ void ASB_Sova::HookNotify()
 		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
 			bThrowHook = true;
 		}), 0.2f, false);
+
+		FTimerHandle EndHookSkillHandle;
+		GetWorld()->GetTimerManager().SetTimer(EndHookSkillHandle, FTimerDelegate::CreateLambda([&]() {
+			if (bCanGrappleAction == false && MyHook && MyHook->bThrowHook == false) {
+				EndGrappleMove();
+			}
+			}), 2.5f, false);
 	}
 }
 
 void ASB_Sova::ServerGrappleAction_Implementation()
 {
+	bCanGrappleAction = false;
 	FVector StartLoc = GetActorLocation();
 	GrappleEndLoc = StartLoc + GetFollowCamera()->GetForwardVector() * GrappleHookDistance;
 	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility);
 	TArray<AActor*> ActorsToIgnore;
 	FHitResult OutHit;
 	ActorsToIgnore.Add(this);
-	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLoc, GrappleEndLoc, TraceChannel, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, OutHit, true, FLinearColor::Red, FLinearColor::Blue, 0.1f);
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLoc, GrappleEndLoc, TraceChannel, false, ActorsToIgnore, EDrawDebugTrace::None, OutHit, true, FLinearColor::Red, FLinearColor::Blue, 0.1f);
 
 	FVector HookStartPos = fpsMesh->GetSocketLocation(TEXT("L_Shoulder"));
 	FRotator HookRot = UKismetMathLibrary::FindLookAtRotation(HookStartPos, GrappleEndLoc);
@@ -1036,6 +1032,13 @@ void ASB_Sova::ServerGrappleAction_Implementation()
 	spawnConfig.Owner = this;
 
 	MyHook = GetWorld()->SpawnActor<ASB_Hook>(HookActorFactory, fpsMesh->GetSocketLocation(TEXT("L_Shoulder")), HookRot, spawnConfig);
+
+	FTimerHandle DelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+		if (bCanGrappleAction == false && MyHook->bThrowHook == true) {
+			EndGrappleMove();
+			}
+		}), 2.0f, false);
 }
 
 void ASB_Sova::AttachHook(class ASB_Hook* HookPtr)
@@ -1052,10 +1055,21 @@ void ASB_Sova::MulticastEndGrappleAction_Implementation()
 	CableComp->SetVisibility(false);
 }
 
+void ASB_Sova::EndGrappleMove()
+{
+	if (MyHook && HasAuthority()) {
+		bThrowHook = false;
+		GetCharacterMovement()->Velocity = FVector(0);
+		if (MyHook->bThrowHook == false) {
+			LaunchCharacter(FVector(0, 0, 900), true, true);
+		}
+		bCanGrappleAction = MyHook->Destroy();
+	}
+	MulticastEndGrappleAction();
+}
+
 void ASB_Sova::GrappleAction()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Sova FFF"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-
 	if (HasAuthority()) {
 		ServerGrappleAction_Implementation();
 	}
@@ -1064,14 +1078,13 @@ void ASB_Sova::GrappleAction()
 	}
 }
 
-void ASB_Sova::ResetGrappleHook()
+void ASB_Sova::CheckGrapple()
 {
-	//CableComp->SetVisibility(false);
-
-	FTimerHandle ResetDelayHandle;
-	GetWorld()->GetTimerManager().SetTimer(ResetDelayHandle, FTimerDelegate::CreateLambda([&]() {
-		bCanGrappleHook = true;
-		}), GrappleHookCoolDown, false);
+	/*if (bCanGrappleAction == false && MyHook->bThrowHook == true) {
+		EndGrappleMove();
+		MulticastEndGrappleAction();
+		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> HookBegin!!!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	}*/
 }
 
 void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -1084,5 +1097,6 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, currState);
 	DOREPLIFETIME(ASB_Sova, airSmokeCurrCount);
 	DOREPLIFETIME(ASB_Sova, bThrowing);
+	DOREPLIFETIME(ASB_Sova, bCanGrappleAction);
 }
 

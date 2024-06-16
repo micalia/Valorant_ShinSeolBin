@@ -146,9 +146,9 @@ public:
 	UPROPERTY()
 	class UAnimMontage* SovaGrenadeMongtage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
-	class UMaterialInterface* DefaultMaterial;
+	class UMaterialInterface* GrenadeSplineMat;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
-	class UStaticMesh* DefalutMesh;
+	class UStaticMesh* GrenadeSplineMesh;
 	UPROPERTY(BlueprintReadWrite)
 	TArray<class USplineMeshComponent*> SplineMeshComponents;
 	UPROPERTY(BlueprintReadWrite, Replicated)
@@ -176,7 +176,7 @@ public:
 	// ¼ö·ùÅº »ý¼º
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AGrenade> GrenadeFactory;
-	AGrenade* MyGrenade;
+	class AGrenade* MyGrenade;
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnGrenade(APlayerController* MyPlayerController);
 
@@ -250,12 +250,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = Grab, BlueprintReadWrite)
 	class UCableComponent* CableComp;
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* HookMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class USphereComponent* HookColl;*/
-
 	UPROPERTY()
 	class ASB_Hook* MyHook;
 
@@ -269,9 +263,10 @@ public:
 	void AttachHook(class ASB_Hook* HookPtr);
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEndGrappleAction();
+
+	void EndGrappleMove();
 	void GrappleAction();
 
-	//FVector HookStartLoc;
 	UPROPERTY(BlueprintReadOnly)
 	FVector GrappleEndLoc;
 
@@ -279,8 +274,6 @@ public:
 	float ToGrappleDeltaTime;
 
 	bool bThrowHook;
-
-	bool bCanGrappleHook;
 
 	UPROPERTY(EditAnywhere)
 	float GrappleHookDistance = 3000;
@@ -294,11 +287,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShootGrappleHook();
 
-	void ResetGrappleHook();
-
 	UPROPERTY(EditAnywhere)
-	float GrappleMovePower = 3470000;
+	float GrappleMovePower = 2000000;
 	
 	UPROPERTY(EditAnywhere)
 	float GrappleMoveStopDist = 400;
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+	bool bCanGrappleAction = true;
+
+	void CheckGrapple();
 };

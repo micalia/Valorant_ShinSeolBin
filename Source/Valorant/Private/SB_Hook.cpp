@@ -42,7 +42,7 @@ void ASB_Hook::BeginPlay()
 
 	HookColl->OnComponentHit.AddDynamic(this, &ASB_Hook::HookHitCheck);
 
-	bInitActor = true;
+	bClientInitActor = true;
 	if (HasAuthority()) {
 		ASB_Sova* MyOwner = Cast<ASB_Sova>(GetOwner());
 		if (MyOwner != nullptr) {
@@ -127,6 +127,6 @@ void ASB_Hook::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ASB_Hook, bInitActor);	
+	DOREPLIFETIME(ASB_Hook, bClientInitActor);
 	DOREPLIFETIME(ASB_Hook, ServerNewLocation);
 }

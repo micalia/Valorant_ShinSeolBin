@@ -90,6 +90,7 @@ void ASB_ArrowVersion2::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* 
 			InitDirVector = ReflectionVec;
 		}// 발사시 설정된 충돌 횟수만큼 충돌하면, 화살 움직임 정지 후 적군 벽 투시 스캔시작
 		else { 
+			LastImpactNormal = Hit.ImpactNormal;
 			bMove = false;
 			SphereCollComp->SetSimulatePhysics(false);
 			SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -115,7 +116,16 @@ void ASB_ArrowVersion2::ServerSpawnScanObj_Implementation(AActor* ScanObjOwner)
 
 	spawnConfig.CustomPreSpawnInitalization = doFunc;
 
-	AScanObj* ScanObj = GetWorld()->SpawnActor<AScanObj>(ScanObjFactory, GetActorTransform(), spawnConfig);
+	FMatrix ScanObjRotMatrix = FRotationMatrix::MakeFromX(LastImpactNormal);
+	FRotator ScanObjRot = ScanObjRotMatrix.Rotator();
+
+	AScanObj* ScanObj = GetWorld()->SpawnActor<AScanObj>(ScanObjFactory, GetActorLocation(), ScanObjRot, spawnConfig);
+	MulticastHideArrowMesh();
+}
+
+void ASB_ArrowVersion2::MulticastHideArrowMesh_Implementation()
+{
+	SMSovaArrow->SetVisibility(false);
 }
 
 void ASB_ArrowVersion2::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

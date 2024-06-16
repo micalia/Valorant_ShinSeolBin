@@ -72,4 +72,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnScanObj(AActor* ScanObjOwner);
+
+	FVector LastImpactNormal;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastHideArrowMesh();
 };

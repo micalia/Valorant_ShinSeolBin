@@ -295,6 +295,4 @@ public:
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bCanGrappleAction = true;
-
-	void CheckGrapple();
 };

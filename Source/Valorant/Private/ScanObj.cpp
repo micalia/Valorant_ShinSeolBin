@@ -23,6 +23,21 @@ AScanObj::AScanObj()
 	if (tempMPCScanObjRadius.Succeeded()) {
 		MPCScanObjRadius = tempMPCScanObjRadius.Object;
 	}
+
+	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
+	SetRootComponent(RootComp);
+
+	ScanObjMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ScanObjMeshComp"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempScanObjMesh(TEXT("/Script/Engine.StaticMesh'/Game/SB/Models/ArrowScanObj/ArrowScanObj.ArrowScanObj'"));
+	if (tempScanObjMesh.Succeeded()) {
+		ScanObjMeshComp->SetStaticMesh(tempScanObjMesh.Object);
+	}
+	ScanObjMeshComp->SetupAttachment(RootComp);
+	ScanObjMeshComp->SetRelativeScale3D(FVector(2.4));
+	ScanObjMeshComp->SetRelativeRotation(FRotator(270, 0, 0));
+	ScanObjMeshComp->SetRelativeLocation(FVector(-5, 0, 0));
+	ScanObjMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	bReplicates = true;
 }
 

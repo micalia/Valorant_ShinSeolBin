@@ -42,4 +42,9 @@ public:
 	void ServerHideScanEffect();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHideScanEffect();
+
+	UPROPERTY(EditAnywhere)
+	class USceneComponent* RootComp;
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* ScanObjMeshComp;
 };

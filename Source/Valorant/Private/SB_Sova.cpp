@@ -1078,15 +1078,6 @@ void ASB_Sova::GrappleAction()
 	}
 }
 
-void ASB_Sova::CheckGrapple()
-{
-	/*if (bCanGrappleAction == false && MyHook->bThrowHook == true) {
-		EndGrappleMove();
-		MulticastEndGrappleAction();
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> HookBegin!!!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-	}*/
-}
-
 void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "BaseCharacter.h"
+#include "../../Engine/Classes/Sound/SoundCue.h"
 
 // Sets default values
 AGrenade::AGrenade()
@@ -48,6 +49,12 @@ AGrenade::AGrenade()
 	ProjectileComp->bAutoActivate = false;
 	bReplicates = true;
 	SetReplicateMovement(true);
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> tempExplosionSound(TEXT("/Script/Engine.SoundCue'/Game/SB/Sounds/Grenade/SC_GrenadeExplosion.SC_GrenadeExplosion'"));
+	if (tempExplosionSound.Succeeded()) {
+		ExplosionSound = tempExplosionSound.Object;
+	}
+	
 }
 
 // Called when the game starts or when spawned
@@ -119,8 +126,8 @@ void AGrenade::ServerExplosion_Implementation()
 
 void AGrenade::MulticastExplosion_Implementation()
 {
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), GetActorRotation(), FVector(7));
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> BOOM!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), GetActorRotation(), FVector(7.5));
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
 	TArray<FHitResult> OutHits;
 	TArray<AActor*> EmptyActorsToIgnore;
 	bool bResult = UKismetSystemLibrary::SphereTraceMulti(

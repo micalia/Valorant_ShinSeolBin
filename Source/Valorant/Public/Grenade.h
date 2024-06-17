@@ -32,6 +32,9 @@ public:
 
 	class ASB_Sova* SovaOwner;
 	
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ExplosionSound;
+
 	FVector MyVelocity;
 	void Throw(FVector Velocity);
 
@@ -52,7 +55,7 @@ public:
 	void MulticastExplosion();
 
 	UPROPERTY(EditAnywhere)
-	float ExplosionRadius = 480;
+	float ExplosionRadius = 530;
 	UPROPERTY(EditAnywhere)
 	int32 ExplosionDamage = 20;
 };

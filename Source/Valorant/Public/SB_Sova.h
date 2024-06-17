@@ -158,6 +158,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastGrenadeThrowAction();
 
+	UPROPERTY(EditAnywhere)
+	float ThrowPower = 1700;
+
 	// 던질 준비
 	UFUNCTION(Server, Reliable)
 	void ServerGrenadeThrowReady(APlayerController* MyPlayerController);

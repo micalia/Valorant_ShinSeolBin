@@ -779,7 +779,7 @@ FVector ASB_Sova::GetThrowVelocity()
 {
 	FRotator ControlRotation = GetControlRotation();
 	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(ControlRotation);
-	FVector ThrowVelocity = (ForwardVector + FVector(0, 0, 0.4)) * 800;
+	FVector ThrowVelocity = (ForwardVector + FVector(0, 0, 0.4)) * ThrowPower;
 	return ThrowVelocity;
 }
 

@@ -49,17 +49,6 @@ void UFadeOut::OnRestart()
 
 void UFadeOut::onDestory()
 {
-
-	////GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, TEXT("Destroy!!"), true, FVector2D(1, 1));
-	//UE_LOG(	LogTemp,Warning,TEXT("onDestory!!!!!!!!!!!!!11"));
-
-	//원래 카메라로 돌아옴
-	if (player) {
-		//player->MeshVisible();
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> MeshVisible!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-
-	}
-
 	if (player && player->HasAuthority())
 	{
 		//승부가 나지 않으면 다시 플레이어 스폰

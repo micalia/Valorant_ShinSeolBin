@@ -209,10 +209,10 @@ void UPlayerFireComponent::ServerFire_Implementation()
 		ammo--;
 
 		FVector startLoc = me->FollowCamera->GetComponentLocation();
-		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 5000;
+		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 9000;
 		FHitResult hitInfo;
 		FCollisionQueryParams params;
-
+		
 		params.AddIgnoredActor(me);
 
 		//---------effect-----------
@@ -258,7 +258,7 @@ void UPlayerFireComponent::MulticastFire_Implementation(bool InFireReloadChk, in
 		SovaFpsAnim->Montage_Play(FireMontage);
 	}
 	if (me) {
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, me->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, me->GetActorLocation(), 1.3f);
 	}
 	OnAmmoCntChanged.Broadcast(CurrAmmoCnt);
 }
@@ -272,7 +272,7 @@ void UPlayerFireComponent::MulticastSniperShot_Implementation(bool InReloadOn, i
 		SovaFpsAnim->Montage_Play(FireMontage);
 	}
 	if (ensure(me)) {
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SniperSound, me->GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SniperSound, me->GetActorLocation(), 0.7f);
 	}
 	OnAmmoCntChanged.Broadcast(CurrAmmoCnt);
 }
@@ -402,10 +402,10 @@ void UPlayerFireComponent::ServerSniperShot_Implementation()
 		ammo--;
 
 		FVector startLoc = me->FollowCamera->GetComponentLocation();
-		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 5000;
+		FVector endLoc = startLoc + me->FollowCamera->GetForwardVector() * 22000;
 		FHitResult hitInfo;
 		FCollisionQueryParams params;
-
+		
 		params.AddIgnoredActor(me);
 
 		//---------effect-----------

@@ -17,7 +17,6 @@ class VALORANT_API UWinLoseWidget : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
 public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget),Category = StandBy)
@@ -70,33 +69,15 @@ public:
 	UFUNCTION()
 	void onDestory();
 
-	UFUNCTION()
-	void EndWinAnim();
-
 	FWidgetAnimationDynamicEvent AnimFinshed;
-
-	//UFUNCTION(Server,Reliable)
-	//void ServerPlayWinAnim();
-	//UFUNCTION(Server,Reliable)
-	//void ServerPlayLoseAnim();
-
-	//UFUNCTION(NetMulticast,Reliable)
-	//void MultiPlayWinAnim();
-	//UFUNCTION(NetMulticast,Reliable)
-	//void MultiPlayLoseAnim();
 
 	UFUNCTION()
 	void StartLoseBackAnim();
 
 	UFUNCTION()
 	void StartWinBackAnim();
-	//	UFUNCTION()
-	//void StartWinAnim();
-	//void StartLoseAnim();
 
-	//void StartLoseBackAnim();
-	//void StartWinBackAnim();
-
+	UPROPERTY()
 	class USoundBase* soundV;
 
 	//Ending
@@ -105,4 +86,12 @@ public:
 	UFUNCTION()
 	void StartLoseEndingAnim();
 
+public:
+	UPROPERTY()
+	class UUMGSequencePlayer* SequencePlayer;
+
+	void OnSequenceFinished(class UUMGSequencePlayer& InSequencePlayer);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UUMGSequencePlayer* WinPlayer;
 };

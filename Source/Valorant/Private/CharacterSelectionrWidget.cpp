@@ -48,7 +48,6 @@ void UCharacterSelectionrWidget::Selection3Player()
 void UCharacterSelectionrWidget::EnterInGame()
 {
 	if (!bStartChk) { // 한번만 로그인 클릭할 수 있게 처리
-		//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("click")), true, FVector2D(1, 1));
 		bStartChk = true; 
 		LoadingIcon->SetRenderOpacity(1);
 	}

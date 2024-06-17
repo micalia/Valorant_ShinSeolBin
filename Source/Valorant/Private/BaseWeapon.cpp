@@ -71,6 +71,10 @@ void ABaseWeapon::BeginPlay()
 	playerInstance = Cast<ABaseCharacter>(GetAttachParentActor());
 	if (playerInstance) {
 		fireComp = Cast<UPlayerFireComponent>(playerInstance->GetComponentByClass(UPlayerFireComponent::StaticClass()));
+		if (!playerInstance->IsLocallyControlled()) {
+			meshComp->SetRenderCustomDepth(true);
+			meshComp->CustomDepthStencilValue = 1;
+		}
 	}
 	SetOwner(playerInstance);
 	GrabWeapon(playerInstance); // ÃÑ ÀåÂø, ÃÑ¾Ë °¹¼ö ³Ñ±è

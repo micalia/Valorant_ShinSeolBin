@@ -46,12 +46,10 @@ AActor* ABattleGameModeBase::ChoosePlayerStart_Implementation(AController* Playe
 		APlayerStart* ps = *it;
 		if (ps->ActorHasTag(FName("First")))
 		{
-			/*//GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, TEXT("playerStarts1111 !!!"), true, FVector2D(1, 1));*/
 			playerStarts[0] = ps;
 		}
 		else if(ps->ActorHasTag(FName("Second")))
 		{
-			/*//GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, TEXT("playerStarts 2222!!!"), true, FVector2D(1, 1));*/
 			playerStarts[1] = ps;
 		}
 	}

@@ -40,8 +40,6 @@ void USB_SovaAnim::AnimNotify_ReloadComplete()
 
 void USB_SovaAnim::AnimNotify_Die()
 {
-	/*//GEngine->AddOnScreenDebugMessage(-1, 8, FColor::Purple, TEXT("nofify !!!"), true, FVector2D(1, 1));*/
-
 	//fade out animation 
 	
 	if (me->GetController() != nullptr && me->GetController()->IsLocalPlayerController())

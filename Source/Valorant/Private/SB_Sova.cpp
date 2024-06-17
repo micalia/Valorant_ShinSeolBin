@@ -242,6 +242,12 @@ ASB_Sova::ASB_Sova()
 	}
 	GetMesh()->SetRenderCustomDepth(true);
 	GetMesh()->CustomDepthStencilValue = 1;
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempGrappleShotSound(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/Grapple/GrappleShotSound.GrappleShotSound'"));
+	if (tempGrappleShotSound.Succeeded()) {
+		GrappleShotSound = tempGrappleShotSound.Object;
+	}
+
 	bReplicates = true;
 }
 
@@ -262,6 +268,10 @@ void ASB_Sova::BeginPlay()
 	else {
 		GetMesh()->SetVisibility(true);
 		fpsMesh->SetVisibility(false);
+		arrowMesh->SetRenderCustomDepth(true);
+		arrowMesh->CustomDepthStencilValue = 1;
+		CableComp->SetRenderCustomDepth(true);
+		CableComp->CustomDepthStencilValue = 1;
 	}
 }
 
@@ -510,13 +520,13 @@ void ASB_Sova::KeyF()
 {
 	if (IsLocallyControlled() == false) return;
 	if(bCanGrappleAction == false) return;
+	UGameplayStatics::PlaySound2D(GetWorld(), GrappleShotSound, 0.4f, 1, 0.1f);
 	GrappleAction();
 }
 
 void ASB_Sova::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> PosseedBy"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (IsLocallyControlled()) {
 		GetMesh()->SetVisibility(false);
 		fpsMesh->SetVisibility(true);
@@ -864,7 +874,6 @@ void ASB_Sova::MulticastGrenadeThrowAction_Implementation()
 
 void ASB_Sova::ActiveAirSmoke()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> ActiveAirSmoke"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (smokeSkillUIinstance) {
 		smokeSkillUIinstance->SetVisibility(ESlateVisibility::Visible);
 		if (auto Pc = GetWorld()->GetFirstPlayerController()) {

@@ -23,6 +23,4 @@ void URespawnWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 void URespawnWidget::OnClickedRetry()
 {
 	this->RemoveFromParent();
-	//
-	/*//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Yellow, FString::Printf(TEXT("Clicked!")), true, FVector2D(1, 1));*/
 }

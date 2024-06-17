@@ -250,6 +250,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASB_Hook> HookActorFactory;
 
+	UPROPERTY(EditAnywhere)
+	class USoundBase* GrappleShotSound;
+
 	UPROPERTY(EditAnywhere, Category = Grab, BlueprintReadWrite)
 	class UCableComponent* CableComp;
 

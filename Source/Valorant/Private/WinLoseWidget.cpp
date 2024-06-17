@@ -9,6 +9,8 @@
 #include "Net/UnrealNetwork.h"
 #include "EngineUtils.h"
 #include <Sound/SoundBase.h>
+#include "Animation/UMGSequencePlayer.h"
+
 void UWinLoseWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -29,30 +31,20 @@ void UWinLoseWidget::NativeConstruct()
 	AnimFinshed.BindDynamic(this, &UWinLoseWidget::onDestory);
 	BindToAnimationFinished(LossAnimation, AnimFinshed);
 
-	AnimFinshed.BindDynamic(this, &UWinLoseWidget::EndWinAnim);
-	BindToAnimationFinished(WinBackGroundAnim, AnimFinshed);
-	
-}
-
-void UWinLoseWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-	
+	/*AnimFinshed.BindDynamic(this, &UWinLoseWidget::EndWinLoseAnim);
+	BindToAnimationFinished(WinBackGroundAnim, AnimFinshed);*/
 }
 
 void UWinLoseWidget::StartLoseAnim() // 졌을때 위에 나오는 UI
 {
-	OV_Loss->SetVisibility(ESlateVisibility::Visible);  // 
+	OV_Loss->SetVisibility(ESlateVisibility::Visible);
 
-	////GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("Loooss")), true, FVector2D(1, 1));
-
-
-	//ServerPlayLoseAnim();
 	PlayAnimation(LossAnimation); // 애니메이션 실행
 
 	FTimerHandle delay;
 	GetWorld()->GetTimerManager().SetTimer(delay,FTimerDelegate::CreateLambda([&](){
-		OV_LoseBack->SetVisibility(ESlateVisibility::Visible); StartLoseBackAnim();
+		OV_LoseBack->SetVisibility(ESlateVisibility::Visible); 
+		StartLoseBackAnim();
 	}),3.0f,false);
 
 }
@@ -60,13 +52,6 @@ void UWinLoseWidget::StartLoseAnim() // 졌을때 위에 나오는 UI
 void UWinLoseWidget::onDestory()
 {
 	this->RemoveFromParent();
-}
-
-void UWinLoseWidget::EndWinAnim()
-{
-	//WinBackGroundAnim->
-	////GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Purple, FString::Printf(TEXT("EndWinAnim")), true, FVector2D(1, 1));
-
 }
 
 void UWinLoseWidget::StartWinAnim() // 이겼을때 위에 나오는 UI
@@ -78,11 +63,7 @@ void UWinLoseWidget::StartWinAnim() // 이겼을때 위에 나오는 UI
 	}*/
 	OV_Win->SetVisibility(ESlateVisibility::Visible);
 
-	////GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Purple, FString::Printf(TEXT("Wiiin")), true, FVector2D(1, 1));
-
-
 	PlayAnimation(WinAnimation);
-	//ServerPlayWinAnim();
 
 	FTimerHandle delay;
 	GetWorld()->GetTimerManager().SetTimer(delay, FTimerDelegate::CreateLambda([&]() {
@@ -90,28 +71,6 @@ void UWinLoseWidget::StartWinAnim() // 이겼을때 위에 나오는 UI
 	StartWinBackAnim();
 		}), 3.0f, false);
 }
-//
-//void UWinLoseWidget::ServerPlayWinAnim_Implementation()
-//{
-//	MultiPlayWinAnim_Implementation();
-//}
-//
-//void UWinLoseWidget::ServerPlayLoseAnim_Implementation()
-//{
-//	MultiPlayLoseAnim_Implementation();
-//}
-//
-//void UWinLoseWidget::MultiPlayWinAnim_Implementation()
-//{
-//	PlayAnimation(WinAnimation); // 애니메이션 실행
-//}
-//
-//void UWinLoseWidget::MultiPlayLoseAnim_Implementation()
-//{
-//	PlayAnimation(LossAnimation); // 애니메이션 실행
-//}
-
-
 
 void UWinLoseWidget::StartLoseBackAnim() // 졌을떄 백그라운드 UI 
 {
@@ -120,19 +79,25 @@ void UWinLoseWidget::StartLoseBackAnim() // 졌을떄 백그라운드 UI
 	GetWorld()->GetTimerManager().SetTimer(delay, FTimerDelegate::CreateLambda([&]() {
 		PlayAnimationReverse(LoseBackGroundAnim);
 		}), 3.0f, false);
-	
-	/*OV_LoseBack->SetVisibility(ESlateVisibility::Hidden);*/
 }
 
 void UWinLoseWidget::StartWinBackAnim() //이겼을떄 백그라운드 UI 
 {
 	PlayAnimationForward(WinBackGroundAnim);
+	
 	FTimerHandle delay;
 	GetWorld()->GetTimerManager().SetTimer(delay, FTimerDelegate::CreateLambda([&]() {
-		PlayAnimationReverse(WinBackGroundAnim);
-	OV_WinBack->SetVisibility(ESlateVisibility::Hidden);
+		SequencePlayer = PlayAnimationReverse(WinBackGroundAnim);
+		OV_WinBack->SetVisibility(ESlateVisibility::Hidden);
+		SequencePlayer->OnSequenceFinishedPlaying().AddUObject(this, &UWinLoseWidget::OnSequenceFinished);
+		
+
+//		FinishDel.AddUFunction(this, TEXT("EndWidgetAnim"));
 		}), 3.0f, false);
-	
+
+	/*FWidgetAnimationDynamicEvent EndWidget;
+	EndWidget.BindDynamic(this, &UWinLoseWidget::EndWinLoseAnim);
+	WinBackGroundAnim->BindToAnimationFinished(this, EndWidget);*/
 }
 
 void UWinLoseWidget::StartWinEndingAnim()
@@ -147,3 +112,13 @@ void UWinLoseWidget::StartLoseEndingAnim()
 	PlayAnimationForward(LoseEndingAnim);
 }
 
+void UWinLoseWidget::OnSequenceFinished(class UUMGSequencePlayer& InSequencePlayer)
+{
+	OV_standBy->SetVisibility(ESlateVisibility::Hidden);
+	OV_Loss->SetVisibility(ESlateVisibility::Hidden);
+	OV_Win->SetVisibility(ESlateVisibility::Hidden);
+	OV_WinBack->SetVisibility(ESlateVisibility::Hidden);
+	OV_LoseBack->SetVisibility(ESlateVisibility::Hidden);
+	OV_LoseEnding->SetVisibility(ESlateVisibility::Hidden);
+	OV_WinEnding->SetVisibility(ESlateVisibility::Hidden);
+}

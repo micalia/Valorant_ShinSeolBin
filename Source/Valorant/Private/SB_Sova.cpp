@@ -123,6 +123,16 @@ ASB_Sova::ASB_Sova()
 	arrowMesh->SetRelativeRotation(FRotator(0, -75, 0));
 	arrowMesh->CastShadow = false;
 
+	static ConstructorHelpers::FClassFinder<UAnimInstance> tempOnlyArrowABP(TEXT("/Script/Engine.AnimBlueprint'/Game/SB/Blueprints/ABP_Arrow.ABP_Arrow_C'"));
+	if (tempOnlyArrowABP.Succeeded()) {
+		arrowMesh->SetAnimInstanceClass(tempOnlyArrowABP.Class);
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempOnlyArrowMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/ArrowAnim/Arrow/AM_PullArrow.AM_PullArrow'"));
+	if (tempOnlyArrowMontage.Succeeded()) {
+		OnlyArrowMontage = tempOnlyArrowMontage.Object;
+	}
+
 	ArrowFirePos = CreateDefaultSubobject<USceneComponent>(TEXT("ArrowFirePos"));
 	ArrowFirePos->SetupAttachment(RootComponent);
 	ArrowFirePos->SetRelativeLocation(FVector(64, 30, 34));
@@ -385,7 +395,7 @@ void ASB_Sova::MouseLeftReleasedAction()
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
 		}
 		ScoutingArrowShot();
-		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
+		//ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
 		InitScoutingArrow();
 		currState = ESovaState::DefaultAtk;
 		break;
@@ -585,10 +595,10 @@ void ASB_Sova::Mulitcast_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
 		}
 	}
 	else {
-		if (arrowMesh->GetVisibleFlag()) {
-			isGun = true;
-			arrowMesh->SetVisibility(false);
-			BaseWeapon->SetVisibility(true);
+		if (auto ArrowAnim = arrowMesh->GetAnimInstance()) {
+			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Back Arrow String"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+			ArrowAnim->Montage_Play(OnlyArrowMontage);
+			ArrowAnim->Montage_JumpToSection(TEXT("Release"), OnlyArrowMontage);
 		}
 	}
 }

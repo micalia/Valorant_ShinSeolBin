@@ -98,6 +98,12 @@ public:
 	class USoundBase* ScoutingArrowVoice2;
 	UPROPERTY()
 	class USoundBase* ScoutingArrowVoice3;
+
+	UPROPERTY()
+	class UAnimMontage* OnlyArrowMontage;
+	UPROPERTY()
+	class UAnimInstance* OnlyArrowABP;
+
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* ArrowFirePos;
 	UPROPERTY(BlueprintReadWrite, Replicated)

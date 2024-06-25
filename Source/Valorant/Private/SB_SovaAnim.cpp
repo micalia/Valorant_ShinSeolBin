@@ -59,3 +59,20 @@ void USB_SovaAnim::AnimNotify_FadeOut()
 	
 }
 
+void USB_SovaAnim::AnimNotify_PullArrow()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> PullArrow!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f)); 
+	
+	if (auto ArrowAnim = me->arrowMesh->GetAnimInstance()) {
+		ArrowAnim->Montage_Play(me->OnlyArrowMontage);
+	}
+}
+
+void USB_SovaAnim::AnimNotify_ShotComplete()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> ShotComplete!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f)); 
+	me->isGun = true;
+	me->arrowMesh->SetVisibility(false);
+	me->BaseWeapon->SetVisibility(true);
+}
+

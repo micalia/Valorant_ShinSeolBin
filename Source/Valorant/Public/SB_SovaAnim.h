@@ -36,6 +36,11 @@ public:
 	UFUNCTION()
 	void AnimNotify_FadeOut();
 
+	UFUNCTION()
+	void AnimNotify_PullArrow();
+	UFUNCTION()
+	void AnimNotify_ShotComplete();
+
 	//UPROPERTY(EditAnywhere)
 	//TSubclassOf<class USkillWidget> SkillWidgetFactory;
 	//UPROPERTY()

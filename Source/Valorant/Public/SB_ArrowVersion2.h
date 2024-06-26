@@ -35,8 +35,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* SphereCollComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* SMSovaArrow;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_InitComplete(class ASB_Sova* InPlayer);
 
 	UPROPERTY(BlueprintReadWrite)
 	float InitSpeed = 2000;
@@ -65,7 +68,7 @@ public:
 	float zVelocity = 0;
 	
 	UPROPERTY(Replicated)
-	bool bMove = true;
+	bool bMove;
 
 	UFUNCTION()
 	void ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

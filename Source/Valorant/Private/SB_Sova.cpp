@@ -462,11 +462,14 @@ void ASB_Sova::KeyE()
 	if (IsLocallyControlled() == false) return;
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::ScoutingArrow;
+		ABaseCharacter* MyPlayer = Cast<ABaseCharacter>(this);
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(true);
+			Server_SpawnArrow_Implementation(MyPlayer);
 		}
 		else {
 			Server_SetBoolScoutingArrow(true);
+			Server_SpawnArrow(MyPlayer);
 		}
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Visible);
 	}
@@ -596,7 +599,6 @@ void ASB_Sova::Mulitcast_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
 	}
 	else {
 		if (auto ArrowAnim = arrowMesh->GetAnimInstance()) {
-			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Back Arrow String"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 			ArrowAnim->Montage_Play(OnlyArrowMontage);
 			ArrowAnim->Montage_JumpToSection(TEXT("Release"), OnlyArrowMontage);
 		}
@@ -631,12 +633,12 @@ void ASB_Sova::ScoutingArrowShot()
 		FVector InDirVec = ArrowDir.GetSafeNormal();
 		if (auto MyController = GetWorld()->GetFirstPlayerController()) {
 			FTransform ArrowTransform = FTransform(ArrowSpawnRotator.Quaternion(), ArrowSpawnLoc, FVector(1));
-			if (HasAuthority()) {
+			/*if (HasAuthority()) {
 				Server_SpawnArrow_Implementation(MyController, ArrowTransform, skillBounceCount, InDirVec, scoutingArrowSpeed);
 			}
 			else {
 				Server_SpawnArrow(MyController, ArrowTransform, skillBounceCount, InDirVec, scoutingArrowSpeed);
-			}
+			}*/
 			int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 2);
 			switch (RanVal)
 			{
@@ -656,29 +658,44 @@ void ASB_Sova::ScoutingArrowShot()
 	}
 }
 
-void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec, float ArrowSpeed)
+//void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec, float ArrowSpeed)
+//{
+//	FActorSpawnParameters spawnConfig;
+//	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+//	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+//	spawnConfig.Owner = MyPlayer;
+//	auto doFunc = [ArrowSpeed, InDirVec](AActor* ObjectToModify)
+//		{
+//			ASB_ArrowVersion2* arrowToModify = Cast<ASB_ArrowVersion2>(ObjectToModify);
+//			if (arrowToModify)
+//			{
+//				arrowToModify->InitSpeed = ArrowSpeed;
+//				arrowToModify->InitDirVector = InDirVec;
+//			}
+//		};
+//
+//	spawnConfig.CustomPreSpawnInitalization = doFunc;
+//
+//	ASB_ArrowVersion2* arrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
+//	if (arrow) {
+//		arrow->maxBounceCount = bounceCount;
+//	}
+//}
+
+void ASB_Sova::Server_SpawnArrow_Implementation(class ABaseCharacter* MyPlayer)
 {
 	FActorSpawnParameters spawnConfig;
 	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 	spawnConfig.Owner = MyPlayer;
-	auto doFunc = [ArrowSpeed, InDirVec](AActor* ObjectToModify)
-		{
-			ASB_ArrowVersion2* arrowToModify = Cast<ASB_ArrowVersion2>(ObjectToModify);
-			if (arrowToModify)
-			{
-				arrowToModify->InitSpeed = ArrowSpeed;
-				arrowToModify->InitDirVector = InDirVec;
-			}
-		};
 
-	spawnConfig.CustomPreSpawnInitalization = doFunc;
-
-	ASB_ArrowVersion2* arrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
-	if (arrow) {
-		arrow->maxBounceCount = bounceCount;
-	}
+	FAttachmentTransformRules AttachRule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
+	ASB_ArrowVersion2* arrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, arrowMesh->GetSocketLocation(TEXT("ArrowSocket")), arrowMesh->GetSocketRotation(TEXT("ArrowSocket")), spawnConfig);
+	/*if (arrow) {
+		arrow->AttachToComponent(arrowMesh, AttachRule, TEXT("ArrowSocket"));
+	}*/
 }
+
 // 화살 속도 조절
 void ASB_Sova::ArrowPowerGaugeUp()
 {

@@ -7,11 +7,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "../Public/ScanObj.h"
+#include "SB_Sova.h"
 
 // Sets default values
 ASB_ArrowVersion2::ASB_ArrowVersion2()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereCollComp = CreateDefaultSubobject<USphereComponent>(TEXT("CapsuleCollComp"));
@@ -45,7 +46,61 @@ void ASB_ArrowVersion2::BeginPlay()
 	Super::BeginPlay();
 
 	SphereCollComp->OnComponentHit.AddDynamic(this, &ASB_ArrowVersion2::ArrowHeadHit);
+
+	if (HasAuthority()) {
+		ASB_Sova* MyPlayer = Cast<ASB_Sova>(GetOwner());
+		Multicast_InitComplete(MyPlayer);
+	}
+	/*if (HasAuthority()) {
+		if (APlayerController* Pc = Cast<APlayerController>(GetOwner())) {
+			if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
+				AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
+			}
+		}
+	}
+	else {
+	if(APlayerController* Pc = Cast<APlayerController>(GetOwner())){
+		if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
+			bool bResult = AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
+			if (bResult) {
+				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Succ"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+			}
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> fail"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+			}
+		}
+	}*/
+	/*if (!HasAuthority()) {
+		if (APlayerController* Pc = Cast<APlayerController>(GetOwner())) {
+			if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
+				bool bResult = AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
+				if (bResult) {
+					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Succ"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+				}
+				else {
+					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> fail"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+				}
+			}
+		}
+
+	}*/
+	/*if (HasAuthority()) {
+		FAttachmentTransformRules AttachRule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
+		if (APlayerController* Pc = Cast<APlayerController>(GetOwner())) {
+			if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
+				bool bResult = AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
+				if (bResult) {
+					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Succ"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+				}
+				else {
+					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> fail"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+				}
+			}
+		}
+
+	}*/
 }
+
 
 // Called every frame
 void ASB_ArrowVersion2::Tick(float DeltaTime)
@@ -71,6 +126,23 @@ void ASB_ArrowVersion2::Tick(float DeltaTime)
 	}
 }
 
+void ASB_ArrowVersion2::Multicast_InitComplete_Implementation(ASB_Sova* InPlayer)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Init Multicast"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	FAttachmentTransformRules rules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+
+	if (InPlayer != nullptr)
+	{
+		bool bAttachResult = AttachToComponent(InPlayer->arrowMesh, rules, TEXT("ArrowSocket"));
+		if (bAttachResult) {
+			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> attach SU"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> attach Fai"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+		}
+	}
+}
+
 void ASB_ArrowVersion2::OnRep_LocAndRot()
 {
 	SetActorLocation(P, true);
@@ -79,6 +151,8 @@ void ASB_ArrowVersion2::OnRep_LocAndRot()
 // SphereCollComp->OnComponentHit.AddDynamic(this, &ASB_ArrowVersion2::ArrowHeadHit);
 void ASB_ArrowVersion2::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 { // 벽에 충돌시 반사각 계산
+	auto name =  Hit.GetActor()->GetName();
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Arrow hit name : %s"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S")), *name), true, FVector2D(1.5f, 1.5f));
 	if (HasAuthority()) {  // 서버에서만 충돌처리
 		if (currBounceCount < maxBounceCount) {
 			zVelocity = 0;
@@ -89,7 +163,7 @@ void ASB_ArrowVersion2::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* 
 			FVector ReflectionVec = ShootDir + 2 * Hit.ImpactNormal * Projection;
 			InitDirVector = ReflectionVec;
 		}// 발사시 설정된 충돌 횟수만큼 충돌하면, 화살 움직임 정지 후 적군 벽 투시 스캔시작
-		else { 
+		else {
 			LastImpactNormal = Hit.ImpactNormal;
 			bMove = false;
 			SphereCollComp->SetSimulatePhysics(false);

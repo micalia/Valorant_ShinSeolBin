@@ -34,9 +34,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* SMSovaArrow;
 
-	/*UPROPERTY(EditAnywhere)
-	class UPhysicalMaterial* PMBounceArrow;*/
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UProjectileMovementComponent* projectileComp;
 

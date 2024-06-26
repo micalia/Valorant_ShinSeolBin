@@ -122,8 +122,10 @@ public:
 	void Fire();
 	void ScoutingArrowShot();
 
-	UFUNCTION(BlueprintCallable, Server, Reliable)
-	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec, float ArrowSpeed);
+	/*UFUNCTION(BlueprintCallable, Server, Reliable)
+	void Server_SpawnArrow(class APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec, float ArrowSpeed);*/
+	UFUNCTION(Server, Reliable)
+	void Server_SpawnArrow(class ABaseCharacter* MyPlayer);
 
 	UPROPERTY(EditAnywhere)
 	//파워 게이지 차는 속도

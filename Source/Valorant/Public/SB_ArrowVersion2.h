@@ -70,14 +70,23 @@ public:
 	UPROPERTY(Replicated)
 	bool bMove;
 
-	UFUNCTION()
-	void ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 	UFUNCTION(Server, Reliable)
-	void ServerSpawnScanObj(AActor* ScanObjOwner);
+	void ServerSpawnScanObj(class ASB_Sova* InOwnerSova);
 
 	FVector LastImpactNormal;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastHideArrowMesh();
+
+	UFUNCTION(Server, Reliable)
+	void Server_DetachArrow();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_DetachArrow(class ASB_Sova* InSova);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ArrowShotInit(float InInitSpeed, int32 BounceCount, FVector InDirVec);
+
+	void ArrowReflection(FHitResult& InHitInfo);
+	UPROPERTY(EditAnywhere)
+	float DetectObjDistance = 200;
 };

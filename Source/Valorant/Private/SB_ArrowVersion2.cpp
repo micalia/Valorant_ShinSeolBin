@@ -20,6 +20,7 @@ ASB_ArrowVersion2::ASB_ArrowVersion2()
 	SphereCollComp->SetupAttachment(CollTransformComp);
 	SphereCollComp->SetSphereRadius(3.5);
 	SphereCollComp->SetCollisionProfileName(TEXT("ScoutingArrow"));
+	SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	SMSovaArrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMSovaArrow"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> tempArrowMesh(TEXT("/Script/Engine.StaticMesh'/Game/SB/Models/arrow/RegacyArrow/sovaArrow.sovaArrow'"));
@@ -31,6 +32,7 @@ ASB_ArrowVersion2::ASB_ArrowVersion2()
 	SMSovaArrow->SetRelativeScale3D(FVector(2));
 	SMSovaArrow->SetRelativeLocation(FVector(0, 0, 141));
 	SMSovaArrow->SetRelativeRotation(FRotator(-90, 0, 0));
+	SMSovaArrow->SetCastShadow(false);
 
 	static ConstructorHelpers::FClassFinder<AScanObj> tempScanObjFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_ScanObj.BP_ScanObj_C'"));
 	if (tempScanObjFactory.Succeeded()) {
@@ -45,62 +47,11 @@ void ASB_ArrowVersion2::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SphereCollComp->OnComponentHit.AddDynamic(this, &ASB_ArrowVersion2::ArrowHeadHit);
-
 	if (HasAuthority()) {
 		ASB_Sova* MyPlayer = Cast<ASB_Sova>(GetOwner());
 		Multicast_InitComplete(MyPlayer);
 	}
-	/*if (HasAuthority()) {
-		if (APlayerController* Pc = Cast<APlayerController>(GetOwner())) {
-			if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
-				AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
-			}
-		}
-	}
-	else {
-	if(APlayerController* Pc = Cast<APlayerController>(GetOwner())){
-		if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
-			bool bResult = AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
-			if (bResult) {
-				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Succ"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-			}
-			else {
-				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> fail"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-			}
-		}
-	}*/
-	/*if (!HasAuthority()) {
-		if (APlayerController* Pc = Cast<APlayerController>(GetOwner())) {
-			if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
-				bool bResult = AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
-				if (bResult) {
-					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Succ"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-				}
-				else {
-					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> fail"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-				}
-			}
-		}
-
-	}*/
-	/*if (HasAuthority()) {
-		FAttachmentTransformRules AttachRule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
-		if (APlayerController* Pc = Cast<APlayerController>(GetOwner())) {
-			if (ASB_Sova* Sova = Cast<ASB_Sova>(Pc->GetPawn())) {
-				bool bResult = AttachToComponent(Sova->arrowMesh, AttachRule, TEXT("ArrowSocket"));
-				if (bResult) {
-					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Succ"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-				}
-				else {
-					GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> fail"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-				}
-			}
-		}
-
-	}*/
 }
-
 
 // Called every frame
 void ASB_ArrowVersion2::Tick(float DeltaTime)
@@ -108,6 +59,18 @@ void ASB_ArrowVersion2::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	// 움직임은 서버에서 처리
 	if (HasAuthority() && bMove) {
+		FVector startLoc = GetActorLocation();
+		FVector endLoc = startLoc + GetActorForwardVector() * DetectObjDistance;
+		FHitResult hitInfo;
+		FCollisionQueryParams params;
+
+		params.AddIgnoredActor(this);
+
+		if (GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECollisionChannel::ECC_WorldDynamic, params))
+		{
+			ArrowReflection(hitInfo);
+		}
+
 // 등가속도 운동 공식 : v = v0 + at  >> 현재 속력에 중력 가속도를 더함
 		Velocity = InitDirVector * InitSpeed;
 		zVelocity += CustomGravity * DeltaTime;
@@ -128,18 +91,11 @@ void ASB_ArrowVersion2::Tick(float DeltaTime)
 
 void ASB_ArrowVersion2::Multicast_InitComplete_Implementation(ASB_Sova* InPlayer)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Init Multicast"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	FAttachmentTransformRules rules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
 
 	if (InPlayer != nullptr)
 	{
-		bool bAttachResult = AttachToComponent(InPlayer->arrowMesh, rules, TEXT("ArrowSocket"));
-		if (bAttachResult) {
-			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> attach SU"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> attach Fai"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-		}
+		AttachToComponent(InPlayer->arrowMesh, rules, TEXT("ArrowSocket"));
 	}
 }
 
@@ -148,37 +104,13 @@ void ASB_ArrowVersion2::OnRep_LocAndRot()
 	SetActorLocation(P, true);
 	SetActorRotation(NewRotation);
 }
-// SphereCollComp->OnComponentHit.AddDynamic(this, &ASB_ArrowVersion2::ArrowHeadHit);
-void ASB_ArrowVersion2::ArrowHeadHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{ // 벽에 충돌시 반사각 계산
-	auto name =  Hit.GetActor()->GetName();
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Arrow hit name : %s"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S")), *name), true, FVector2D(1.5f, 1.5f));
-	if (HasAuthority()) {  // 서버에서만 충돌처리
-		if (currBounceCount < maxBounceCount) {
-			zVelocity = 0;
-			currBounceCount++;
-			// R(반사각) = L(입사각) + 2N(-L·N)
-			FVector ShootDir = Velocity.GetSafeNormal();
-			float Projection = FVector::DotProduct(-ShootDir, Hit.ImpactNormal);
-			FVector ReflectionVec = ShootDir + 2 * Hit.ImpactNormal * Projection;
-			InitDirVector = ReflectionVec;
-		}// 발사시 설정된 충돌 횟수만큼 충돌하면, 화살 움직임 정지 후 적군 벽 투시 스캔시작
-		else {
-			LastImpactNormal = Hit.ImpactNormal;
-			bMove = false;
-			SphereCollComp->SetSimulatePhysics(false);
-			SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			ServerSpawnScanObj_Implementation(GetOwner());
-		}
-	}
-}
 
-void ASB_ArrowVersion2::ServerSpawnScanObj_Implementation(AActor* ScanObjOwner)
+void ASB_ArrowVersion2::ServerSpawnScanObj_Implementation(class ASB_Sova* InOwnerSova)
 {
 	FActorSpawnParameters spawnConfig;
 	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
-	spawnConfig.Owner = ScanObjOwner;
+	spawnConfig.Owner = InOwnerSova;
 	auto doFunc = [this](AActor* ObjectToModify)
 		{
 			AScanObj* ScanObjModify = Cast<AScanObj>(ObjectToModify);
@@ -200,6 +132,51 @@ void ASB_ArrowVersion2::ServerSpawnScanObj_Implementation(AActor* ScanObjOwner)
 void ASB_ArrowVersion2::MulticastHideArrowMesh_Implementation()
 {
 	SMSovaArrow->SetVisibility(false);
+}
+
+void ASB_ArrowVersion2::Server_DetachArrow_Implementation()
+{
+	ASB_Sova* MyPlayer = Cast<ASB_Sova>(GetOwner());
+	Multicast_DetachArrow(MyPlayer);
+}
+
+void ASB_ArrowVersion2::Multicast_DetachArrow_Implementation(class ASB_Sova* InSova)
+{
+	FDetachmentTransformRules rules = FDetachmentTransformRules::KeepWorldTransform;
+	DetachFromActor(rules);
+}
+
+void ASB_ArrowVersion2::Server_ArrowShotInit_Implementation(float InInitSpeed, int32 BounceCount, FVector InDirVec)
+{
+	InitSpeed = InInitSpeed;
+	maxBounceCount = BounceCount;
+	InitDirVector = InDirVec;
+	bMove = true;
+}
+
+void ASB_ArrowVersion2::ArrowReflection(FHitResult& InHitInfo)
+{
+	if (HasAuthority()) {  // 서버에서만 충돌처리
+		SetActorLocation(InHitInfo.ImpactPoint);
+		if (currBounceCount < maxBounceCount) {
+			zVelocity = 0;
+			currBounceCount++;
+			// R(반사각) = L(입사각) + 2N(-L·N)
+			FVector ShootDir = Velocity.GetSafeNormal();
+			float Projection = FVector::DotProduct(-ShootDir, InHitInfo.ImpactNormal);
+			FVector ReflectionVec = ShootDir + 2 * InHitInfo.ImpactNormal * Projection;
+			InitDirVector = ReflectionVec;
+		}// 발사시 설정된 충돌 횟수만큼 충돌하면, 화살 움직임 정지 후 적군 벽 투시 스캔시작
+		else {
+			LastImpactNormal = InHitInfo.ImpactNormal;
+			bMove = false;
+			SphereCollComp->SetSimulatePhysics(false);
+			SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			if (ASB_Sova* MySova = Cast<ASB_Sova>(GetOwner())) {
+				ServerSpawnScanObj_Implementation(MySova);
+			}
+		}
+	}
 }
 
 void ASB_ArrowVersion2::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

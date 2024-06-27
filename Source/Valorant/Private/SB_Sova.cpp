@@ -376,26 +376,28 @@ void ASB_Sova::MouseLeftReleasedAction()
 		else {
 			fireComp->ServerStopFire();
 		}
-		//if (!bSniperOn) {
-			//DefaultShootRelease();
-		//}
-		//else {
-		//	// 스나이퍼 모드
-		//}
 		break;
 	case ESovaState::ScoutingArrow:
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(false);
+			if (CurrArrow) {
+				CurrArrow->Server_DetachArrow_Implementation();
+				CurrArrow->Server_ArrowShotInit_Implementation(scoutingArrowSpeed, skillBounceCount, GetArrowDirVec());
+			}
 		}
 		else {
 			Server_SetBoolScoutingArrow(false);
+			if (CurrArrow) {
+				CurrArrow->Server_DetachArrow();
+				CurrArrow->Server_ArrowShotInit(scoutingArrowSpeed, skillBounceCount, GetArrowDirVec());
+			}
 		}
 		gaugeCurrTime = 0;
 		if (ui_SB_ScoutingArrowInstance) {
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
 		}
-		ScoutingArrowShot();
-		//ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
+		PlayShotVoice();
+		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
 		InitScoutingArrow();
 		currState = ESovaState::DefaultAtk;
 		break;
@@ -477,9 +479,11 @@ void ASB_Sova::KeyE()
 		currState = ESovaState::DefaultAtk;
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(false);
+			Server_DestroyArrow_Implementation();
 		}
 		else {
 			Server_SetBoolScoutingArrow(false);
+			Server_DestroyArrow();
 		}
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
 		InitScoutingArrow();
@@ -612,7 +616,7 @@ void ASB_Sova::InitScoutingArrow()
 	ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 }
 
-void ASB_Sova::ScoutingArrowShot()
+FVector ASB_Sova::GetArrowDirVec()
 {
 	if (auto PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)) {
 		FVector TraceStartLoc = PlayerCam->GetCameraLocation();
@@ -631,56 +635,30 @@ void ASB_Sova::ScoutingArrowShot()
 		FVector ArrowDir = TraceEndLoc - ArrowSpawnLoc;
 		FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
 		FVector InDirVec = ArrowDir.GetSafeNormal();
-		if (auto MyController = GetWorld()->GetFirstPlayerController()) {
-			FTransform ArrowTransform = FTransform(ArrowSpawnRotator.Quaternion(), ArrowSpawnLoc, FVector(1));
-			/*if (HasAuthority()) {
-				Server_SpawnArrow_Implementation(MyController, ArrowTransform, skillBounceCount, InDirVec, scoutingArrowSpeed);
-			}
-			else {
-				Server_SpawnArrow(MyController, ArrowTransform, skillBounceCount, InDirVec, scoutingArrowSpeed);
-			}*/
-			int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 2);
-			switch (RanVal)
-			{
-			case 0:
-				UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice1);
-				break;
-			case 1:
-				UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice2);
-				break;
-			case 2:
-				UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice3);
-				break;
-			default:
-				break;
-			}
-		}
+		
+		return InDirVec;
 	}
+	return FVector(0);
 }
 
-//void ASB_Sova::Server_SpawnArrow_Implementation(APlayerController* MyPlayer, FTransform transform, int32 bounceCount, FVector InDirVec, float ArrowSpeed)
-//{
-//	FActorSpawnParameters spawnConfig;
-//	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-//	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
-//	spawnConfig.Owner = MyPlayer;
-//	auto doFunc = [ArrowSpeed, InDirVec](AActor* ObjectToModify)
-//		{
-//			ASB_ArrowVersion2* arrowToModify = Cast<ASB_ArrowVersion2>(ObjectToModify);
-//			if (arrowToModify)
-//			{
-//				arrowToModify->InitSpeed = ArrowSpeed;
-//				arrowToModify->InitDirVector = InDirVec;
-//			}
-//		};
-//
-//	spawnConfig.CustomPreSpawnInitalization = doFunc;
-//
-//	ASB_ArrowVersion2* arrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, transform.GetLocation(), FRotator::MakeFromEuler(transform.GetRotation().Euler()), spawnConfig);
-//	if (arrow) {
-//		arrow->maxBounceCount = bounceCount;
-//	}
-//}
+void ASB_Sova::PlayShotVoice()
+{
+	int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 2);
+	switch (RanVal)
+	{
+	case 0:
+		UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice1);
+		break;
+	case 1:
+		UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice2);
+		break;
+	case 2:
+		UGameplayStatics::PlaySound2D(GetWorld(), ScoutingArrowVoice3);
+		break;
+	default:
+		break;
+	}
+}
 
 void ASB_Sova::Server_SpawnArrow_Implementation(class ABaseCharacter* MyPlayer)
 {
@@ -690,10 +668,17 @@ void ASB_Sova::Server_SpawnArrow_Implementation(class ABaseCharacter* MyPlayer)
 	spawnConfig.Owner = MyPlayer;
 
 	FAttachmentTransformRules AttachRule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
-	ASB_ArrowVersion2* arrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, arrowMesh->GetSocketLocation(TEXT("ArrowSocket")), arrowMesh->GetSocketRotation(TEXT("ArrowSocket")), spawnConfig);
-	/*if (arrow) {
-		arrow->AttachToComponent(arrowMesh, AttachRule, TEXT("ArrowSocket"));
-	}*/
+	CurrArrow = GetWorld()->SpawnActor<ASB_ArrowVersion2>(ArrowVer2Factory, arrowMesh->GetSocketLocation(TEXT("ArrowSocket")), arrowMesh->GetSocketRotation(TEXT("ArrowSocket")), spawnConfig);
+}
+
+void ASB_Sova::Server_DestroyArrow_Implementation()
+{
+	if (CurrArrow) {
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+			CurrArrow->Destroy();
+		}), 0.5f, false);
+	}
 }
 
 // 화살 속도 조절
@@ -1125,5 +1110,6 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, airSmokeCurrCount);
 	DOREPLIFETIME(ASB_Sova, bThrowing);
 	DOREPLIFETIME(ASB_Sova, bCanGrappleAction);
+	DOREPLIFETIME(ASB_Sova, CurrArrow);
 }
 

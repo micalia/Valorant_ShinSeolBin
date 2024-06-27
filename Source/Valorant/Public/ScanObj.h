@@ -35,7 +35,8 @@ public:
 	int32 WaveCount = 3;
 	int32 CurrWaveCount;
 
-	APlayerController* MyPlayer;
+	class ASB_Sova* MyPlayer;
+	class ASB_Sova* OwnerPlayer;
 	class ASB_ArrowVersion2* ScanArrow;
 
 	UFUNCTION(Server, Reliable)

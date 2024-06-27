@@ -6,7 +6,7 @@
 #include "Materials/MaterialParameterCollection.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Net/UnrealNetwork.h"
-//#include "../Public/SB_Arrow.h"
+#include "../Public/SB_Sova.h"
 #include "../Public/SB_ArrowVersion2.h"
 
 // Sets default values
@@ -46,11 +46,12 @@ void AScanObj::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	MyPlayer = GetWorld()->GetFirstPlayerController();
+	MyPlayer = Cast<ASB_Sova>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	auto CurrPos = GetActorLocation();
 	FLinearColor SpawnPos = FLinearColor(CurrPos.X, CurrPos.Y, CurrPos.Z, 1);
 
-	if (MyPlayer == GetOwner()) {
+	OwnerPlayer = Cast<ASB_Sova>(GetOwner());
+	if (MyPlayer == OwnerPlayer) {
 		UKismetMaterialLibrary::SetVectorParameterValue(GetWorld(), MPCScanPos, TEXT("ScanPos"), SpawnPos);
 	}
 	else {
@@ -67,7 +68,7 @@ void AScanObj::Tick(float DeltaTime)
 		if (ScanCurrTime < ScanTime) {
 			float alpha = ScanCurrTime / ScanTime;
 			alpha *= 7;
-			if (MyPlayer == GetOwner()) {
+			if (MyPlayer != nullptr && OwnerPlayer != nullptr && MyPlayer == OwnerPlayer) {
 				UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), MPCScanObjRadius, TEXT("Radius"), alpha);
  			}
 			else {

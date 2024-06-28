@@ -17,7 +17,6 @@ ASB_ArrowVersion2::ASB_ArrowVersion2()
 
 	SphereCollComp = CreateDefaultSubobject<USphereComponent>(TEXT("CapsuleCollComp"));
 	SphereCollComp->SetupAttachment(RootComponent);
-	SphereCollComp->SetupAttachment(CollTransformComp);
 	SphereCollComp->SetSphereRadius(3.5);
 	SphereCollComp->SetCollisionProfileName(TEXT("ScoutingArrow"));
 	SphereCollComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);

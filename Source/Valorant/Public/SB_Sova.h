@@ -13,6 +13,7 @@ enum class ESovaState :uint8
 	ScoutingArrow,
 	AirSmoke,
 	Grenade,
+	DragonStrike
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRemoveSmokeMarkerUI);
@@ -35,6 +36,7 @@ public:
 	virtual void KeyQ() override; // 수류탄
 	virtual void KeyC() override; // 공중 연막
 	virtual void KeyF() override; // 로프 이동
+	virtual void KeyR() override; // 용의 일격
 	virtual void PossessedBy(AController* NewController) override;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
@@ -259,6 +261,7 @@ public:
 	void DebugSphere();
 
 public:
+	//********로프 이동********//
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASB_Hook> HookActorFactory;
 
@@ -313,4 +316,17 @@ public:
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bCanGrappleAction = true;
+
+public:
+	//********용의 일격********//
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ASB_DragonArrow> DragonArrowFactory;
+
+	UFUNCTION(Server, Reliable)
+	void Server_SpawnDragonArrow(class ABaseCharacter* MyPlayer);
+	UFUNCTION(Server, Reliable)
+	void Server_DestroyDragonArrow();
+
+	UPROPERTY(Replicated)
+	class ASB_DragonArrow* CurrDragonArrow;
 };

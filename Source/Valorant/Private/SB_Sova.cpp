@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "SB_Arrow.h"
+#include "SB_DragonArrow.h"
 #include <GameFramework/ProjectileMovementComponent.h>
 #include <Components/SplineComponent.h>
 #include "PlayerFireComponent.h"
@@ -256,6 +257,11 @@ ASB_Sova::ASB_Sova()
 	static ConstructorHelpers::FObjectFinder<USoundBase> tempGrappleShotSound(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/Grapple/GrappleShotSound.GrappleShotSound'"));
 	if (tempGrappleShotSound.Succeeded()) {
 		GrappleShotSound = tempGrappleShotSound.Object;
+	}
+
+	static ConstructorHelpers::FClassFinder<ASB_DragonArrow> tempDragonArrowFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_DragonArrow.BP_DragonArrow_C'"));
+	if (tempDragonArrowFactory.Succeeded()) {
+		DragonArrowFactory = tempDragonArrowFactory.Class;
 	}
 
 	bReplicates = true;
@@ -539,6 +545,34 @@ void ASB_Sova::KeyF()
 	if(bCanGrappleAction == false) return;
 	UGameplayStatics::PlaySound2D(GetWorld(), GrappleShotSound, 0.4f, 1, 0.1f);
 	GrappleAction();
+}
+
+void ASB_Sova::KeyR()
+{
+	if (IsLocallyControlled() == false) return;
+	if (currState == ESovaState::DefaultAtk) {
+		currState = ESovaState::DragonStrike;
+		ABaseCharacter* MyPlayer = Cast<ABaseCharacter>(this);
+		if (HasAuthority()) {
+			Server_SetBoolScoutingArrow_Implementation(true);
+			Server_SpawnDragonArrow_Implementation(MyPlayer);
+		}
+		else {
+			Server_SetBoolScoutingArrow(true);
+			Server_SpawnDragonArrow(MyPlayer);
+		}
+	}
+	else if (currState == ESovaState::DragonStrike) {
+		currState = ESovaState::DefaultAtk;
+		if (HasAuthority()) {
+			Server_DestroyDragonArrow_Implementation();
+		}
+		else {
+			Server_SetBoolScoutingArrow(false);
+			Server_DestroyDragonArrow();
+		}
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> RR"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 }
 
 void ASB_Sova::PossessedBy(AController* NewController)
@@ -1099,6 +1133,27 @@ void ASB_Sova::GrappleAction()
 	}
 }
 
+void ASB_Sova::Server_SpawnDragonArrow_Implementation(class ABaseCharacter* MyPlayer)
+{
+	FActorSpawnParameters spawnConfig;
+	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+	spawnConfig.Owner = MyPlayer;
+
+	FAttachmentTransformRules AttachRule = FAttachmentTransformRules(EAttachmentRule::KeepWorld, true);
+	CurrDragonArrow = GetWorld()->SpawnActor<ASB_DragonArrow>(DragonArrowFactory, arrowMesh->GetSocketLocation(TEXT("ArrowSocket")), arrowMesh->GetSocketRotation(TEXT("ArrowSocket")), spawnConfig);
+}
+
+void ASB_Sova::Server_DestroyDragonArrow_Implementation()
+{
+	if (CurrDragonArrow) {
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+			CurrDragonArrow->Destroy();
+			}), 0.5f, false);
+	}
+}
+
 void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -1111,5 +1166,6 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, bThrowing);
 	DOREPLIFETIME(ASB_Sova, bCanGrappleAction);
 	DOREPLIFETIME(ASB_Sova, CurrArrow);
+	DOREPLIFETIME(ASB_Sova, CurrDragonArrow);
 }
 

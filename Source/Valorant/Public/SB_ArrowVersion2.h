@@ -23,15 +23,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	class USceneComponent* RootComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class USceneComponent* ArrowHeadComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class USceneComponent* CollTransformComp;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* SphereCollComp;
 

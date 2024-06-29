@@ -44,11 +44,6 @@ ASB_DragonArrow::ASB_DragonArrow()
 		DragonActorFactory = tempDragonActorFactory.Class;
 	}
 
-	static ConstructorHelpers::FClassFinder<AActor> tempMiniDragonActorFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/DragonArrow/BP_2MiniDragonArrowSpawnMini.BP_2MiniDragonArrowSpawnMini_C'"));
-	if (tempMiniDragonActorFactory.Succeeded()) {
-		MiniDragonActorFactory = tempMiniDragonActorFactory.Class;
-	}
-
 	bReplicates = true;
 }
 
@@ -88,7 +83,6 @@ void ASB_DragonArrow::Tick(float DeltaTime)
 			if(bSpawnDragon == false) {
 				bSpawnDragon = true;
 				AActor* Dragon = GetWorld()->SpawnActor<AActor>(DragonActorFactory, GetActorLocation(), GetActorRotation());
-				AActor* MiniDragon = GetWorld()->SpawnActor<AActor>(MiniDragonActorFactory, GetActorLocation(), GetActorRotation());
 			}
 		}
 	}

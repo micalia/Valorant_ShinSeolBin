@@ -72,7 +72,7 @@ public:
 	TSubclassOf<AActor> MiniDragonActorFactory;
 
 	UPROPERTY(EditAnywhere)
-	float DragonSpawnDist = 500;
+	float DragonSpawnDist = 250;
 
 	bool bSpawnDragon;
 

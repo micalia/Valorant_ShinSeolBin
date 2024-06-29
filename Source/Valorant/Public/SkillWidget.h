@@ -60,4 +60,8 @@ public: // 조준 사격
 
 	void AimingPanelOn();
 	void AimingPanelOff();
+
+public:
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* PercentVal;
 };

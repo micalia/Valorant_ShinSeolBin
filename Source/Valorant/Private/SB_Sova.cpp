@@ -566,11 +566,12 @@ void ASB_Sova::KeyR()
 		currState = ESovaState::DefaultAtk;
 		if (HasAuthority()) {
 			Server_DestroyDragonArrow_Implementation();
+			Server_SetBoolScoutingArrow_Implementation(false);
 		}
 		else {
 			Server_SetBoolScoutingArrow(false);
-			Server_DestroyDragonArrow();
 		}
+		Server_DestroyDragonArrow();
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> RR"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 }
@@ -1167,5 +1168,6 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, bCanGrappleAction);
 	DOREPLIFETIME(ASB_Sova, CurrArrow);
 	DOREPLIFETIME(ASB_Sova, CurrDragonArrow);
+	DOREPLIFETIME(ASB_Sova, SkillGauge);
 }
 

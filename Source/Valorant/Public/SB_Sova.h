@@ -319,6 +319,9 @@ public:
 
 public:
 	//********용의 일격********//
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float SkillGauge = 0.25; // 1 = 100%
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASB_DragonArrow> DragonArrowFactory;
 

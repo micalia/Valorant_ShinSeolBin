@@ -72,4 +72,10 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* PercentVal;
+
+	UPROPERTY(meta = (BindWidget))
+	class USizeBox* SkillGaugeBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UOverlay* DragonArrowUI;
 };

@@ -330,8 +330,15 @@ public:
 	UPROPERTY(Replicated)
 	class ASB_DragonArrow* CurrDragonArrow;
 
+	UPROPERTY(EditAnywhere)
+	class USoundBase* SuperSkillGaugeFullChargeSound;
+
 	virtual void SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe) override;
+
+	void UltimateAvailable();
+	void UltimateGaugeInit();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSuperSkillGaugeUp(float InGaugeVal);
+
 };

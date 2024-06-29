@@ -38,6 +38,8 @@
 #include "../../Engine/Classes/GameFramework/CharacterMovementComponent.h"
 #include "SB_Hook.h"
 #include "../../UMG/Public/Components/TextBlock.h"
+#include "../../UMG/Public/Components/SizeBox.h"
+#include "../../UMG/Public/Components/Overlay.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -263,6 +265,11 @@ ASB_Sova::ASB_Sova()
 	static ConstructorHelpers::FClassFinder<ASB_DragonArrow> tempDragonArrowFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_DragonArrow.BP_DragonArrow_C'"));
 	if (tempDragonArrowFactory.Succeeded()) {
 		DragonArrowFactory = tempDragonArrowFactory.Class;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempSuperSkillGaugeFullChargeSound(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/DragonArrow/Ultimate-Charge.Ultimate-Charge'"));
+	if (tempSuperSkillGaugeFullChargeSound.Succeeded()) {
+		SuperSkillGaugeFullChargeSound = tempSuperSkillGaugeFullChargeSound.Object;
 	}
 
 	bReplicates = true;
@@ -1170,11 +1177,32 @@ void ASB_Sova::SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe
 	}
 }
 
+void ASB_Sova::UltimateAvailable()
+{ 
+	if(skillWigetInstance->DragonArrowUI->GetVisibility() == ESlateVisibility::Visible) return;
+	if (skillWigetInstance) {
+		skillWigetInstance->SkillGaugeBar->SetVisibility(ESlateVisibility::Hidden);
+		skillWigetInstance->DragonArrowUI->SetVisibility(ESlateVisibility::Visible);
+	}
+	UGameplayStatics::PlaySound2D(GetWorld(), SuperSkillGaugeFullChargeSound);
+}
+
+void ASB_Sova::UltimateGaugeInit()
+{
+	if (skillWigetInstance) {
+		skillWigetInstance->SkillGaugeBar->SetVisibility(ESlateVisibility::Visible);
+		skillWigetInstance->DragonArrowUI->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 void ASB_Sova::MulticastSuperSkillGaugeUp_Implementation(float InGaugeVal)
 {
 	if(IsLocallyControlled() == false || skillWigetInstance == nullptr) return;
 	if (skillWigetInstance->ProgressBarDynamicMat != nullptr) {
 		skillWigetInstance->ProgressBarDynamicMat->SetScalarParameterValue(TEXT("Percent"), InGaugeVal);
+	}
+	if (InGaugeVal >= 1) {
+		UltimateAvailable();
 	}
 	int32 PercentTextVal = InGaugeVal * 100; 
 	skillWigetInstance->PercentVal->SetText(FText::FromString(FString::FromInt(PercentTextVal)));

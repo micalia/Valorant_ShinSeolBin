@@ -6,6 +6,7 @@
 #include "Components/ChildActorComponent.h"
 #include "SB_Sova.h"
 #include "../../Engine/Classes/Particles/ParticleSystemComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASB_DragonArrow::ASB_DragonArrow()
@@ -38,6 +39,16 @@ ASB_DragonArrow::ASB_DragonArrow()
 	ChildActorComp->SetRelativeRotation(FRotator(-90, 0, 0));
 	ChildActorComp->SetRelativeScale3D(FVector(0.2, 0.2, 3));
 
+	static ConstructorHelpers::FClassFinder<AActor> tempDragonActorFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/DragonArrow/BP_2DragonArrowSpawn.BP_2DragonArrowSpawn_C'"));
+	if (tempDragonActorFactory.Succeeded()) {
+		DragonActorFactory = tempDragonActorFactory.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<AActor> tempMiniDragonActorFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/DragonArrow/BP_2MiniDragonArrowSpawnMini.BP_2MiniDragonArrowSpawnMini_C'"));
+	if (tempMiniDragonActorFactory.Succeeded()) {
+		MiniDragonActorFactory = tempMiniDragonActorFactory.Class;
+	}
+
 	bReplicates = true;
 }
 
@@ -49,6 +60,7 @@ void ASB_DragonArrow::BeginPlay()
 	if (HasAuthority()) {
 		ASB_Sova* MyPlayer = Cast<ASB_Sova>(GetOwner());
 		Multicast_InitComplete(MyPlayer);
+		SpawnPos = GetActorLocation();
 	}
 }
 
@@ -56,7 +68,30 @@ void ASB_DragonArrow::BeginPlay()
 void ASB_DragonArrow::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	// 움직임은 서버에서 처리
+	if (HasAuthority() && bMove) {
+		Velocity = InitDirVector * InitSpeed;
 
+		// 등속 운동 공식 : P = P0 + vt 
+		FVector P0 = GetActorLocation();
+		FVector VT = Velocity * DeltaTime;
+		P = P0 + VT;
+		SetActorLocation(P, true);
+		// 방향 벡터를 활용하여 화살이 움직이는 방향으로 화살 회전(자연스러운 움직임 구현)
+		FVector RotDirVec = (P - P0).GetSafeNormal();
+		FMatrix RotationMatrix = FRotationMatrix::MakeFromX(RotDirVec);
+		NewRotation = RotationMatrix.Rotator();
+		SetActorRotation(NewRotation);
+
+		FVector ShotDist = SpawnPos - GetActorLocation();
+		if (ShotDist.Length() > DragonSpawnDist) {
+			if(bSpawnDragon == false) {
+				bSpawnDragon = true;
+				AActor* Dragon = GetWorld()->SpawnActor<AActor>(DragonActorFactory, GetActorLocation(), GetActorRotation());
+				AActor* MiniDragon = GetWorld()->SpawnActor<AActor>(MiniDragonActorFactory, GetActorLocation(), GetActorRotation());
+			}
+		}
+	}
 }
 
 void ASB_DragonArrow::Multicast_InitComplete_Implementation(ASB_Sova* InPlayer)
@@ -67,4 +102,36 @@ void ASB_DragonArrow::Multicast_InitComplete_Implementation(ASB_Sova* InPlayer)
 	{
 		AttachToComponent(InPlayer->arrowMesh, rules, TEXT("ArrowSocket"));
 	}
+}
+
+void ASB_DragonArrow::Server_DetachArrow_Implementation()
+{
+	Multicast_DetachArrow();
+}
+
+void ASB_DragonArrow::Multicast_DetachArrow_Implementation()
+{
+	FDetachmentTransformRules rules = FDetachmentTransformRules::KeepWorldTransform;
+	DetachFromActor(rules);
+}
+
+void ASB_DragonArrow::Server_DragonArrowShot_Implementation(FVector InDirVec)
+{
+	InitDirVector = InDirVec;
+	bMove = true;
+}
+
+void ASB_DragonArrow::OnRep_LocAndRot()
+{
+	SetActorLocation(P, true);
+	SetActorRotation(NewRotation);
+}
+
+void ASB_DragonArrow::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASB_DragonArrow, bMove);
+	DOREPLIFETIME(ASB_DragonArrow, P);
+	DOREPLIFETIME(ASB_DragonArrow, NewRotation);
 }

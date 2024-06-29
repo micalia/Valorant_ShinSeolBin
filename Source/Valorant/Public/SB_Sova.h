@@ -331,6 +331,9 @@ public:
 	class ASB_DragonArrow* CurrDragonArrow;
 
 	UPROPERTY(EditAnywhere)
+	class USoundBase* DragonStrikeVoice;
+
+	UPROPERTY(EditAnywhere)
 	class USoundBase* SuperSkillGaugeFullChargeSound;
 
 	virtual void SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe) override;

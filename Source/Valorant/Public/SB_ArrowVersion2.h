@@ -72,7 +72,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_DetachArrow();
 	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_DetachArrow(class ASB_Sova* InSova);
+	void Multicast_DetachArrow();
 
 	UFUNCTION(Server, Reliable)
 	void Server_ArrowShotInit(float InInitSpeed, int32 BounceCount, FVector InDirVec);

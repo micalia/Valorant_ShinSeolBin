@@ -40,6 +40,7 @@
 #include "../../UMG/Public/Components/TextBlock.h"
 #include "../../UMG/Public/Components/SizeBox.h"
 #include "../../UMG/Public/Components/Overlay.h"
+#include "../../Engine/Classes/Engine/TimerHandle.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -272,6 +273,11 @@ ASB_Sova::ASB_Sova()
 		SuperSkillGaugeFullChargeSound = tempSuperSkillGaugeFullChargeSound.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempDragonStrikeVoice(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/DragonArrow/HanzoDragonArrowVoice.HanzoDragonArrowVoice'"));
+	if (tempDragonStrikeVoice.Succeeded()) {
+		DragonStrikeVoice = tempDragonStrikeVoice.Object;
+	}
+
 	bReplicates = true;
 }
 
@@ -419,7 +425,34 @@ void ASB_Sova::MouseLeftReleasedAction()
 		break;
 	case ESovaState::Grenade:
 		break;
-	default:
+	case ESovaState::DragonStrike:
+		UGameplayStatics::PlaySound2D(GetWorld(), DragonStrikeVoice);
+
+		FTimerHandle DragonStrikeDelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DragonStrikeDelayHandle, FTimerDelegate::CreateLambda([&]() {
+			if (HasAuthority()) {
+				Server_SetBoolScoutingArrow_Implementation(false);
+				if (CurrDragonArrow) {
+					CurrDragonArrow->Server_DetachArrow_Implementation();
+					CurrDragonArrow->Server_DragonArrowShot_Implementation(GetArrowDirVec());
+				}
+			}
+			else {
+				Server_SetBoolScoutingArrow(false);
+				if (CurrDragonArrow) {
+					CurrDragonArrow->Server_DetachArrow();
+					CurrDragonArrow->Server_DragonArrowShot(GetArrowDirVec());
+				}
+			}
+			
+			}), 1, false);
+
+		/*gaugeCurrTime = 0;
+		if (ui_SB_ScoutingArrowInstance) {
+			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
+		}
+		InitScoutingArrow();*/
+		currState = ESovaState::DefaultAtk;
 		break;
 	}
 }
@@ -581,7 +614,6 @@ void ASB_Sova::KeyR()
 		}
 		Server_DestroyDragonArrow();
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> RR"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 }
 
 void ASB_Sova::PossessedBy(AController* NewController)

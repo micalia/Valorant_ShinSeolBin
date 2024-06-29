@@ -37,4 +37,43 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_InitComplete(class ASB_Sova* InPlayer);
+
+	UFUNCTION(Server, Reliable)
+	void Server_DetachArrow();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_DetachArrow();
+
+	UFUNCTION(Server, Reliable)
+	void Server_DragonArrowShot(FVector InDirVec);
+
+public:
+	UFUNCTION()
+	void OnRep_LocAndRot();
+
+	UPROPERTY(Replicated)
+	bool bMove;
+	UPROPERTY(BlueprintReadWrite)
+	float InitSpeed = 2500;
+	FVector InitDirVector;
+
+	FVector Velocity;
+
+	UPROPERTY(ReplicatedUsing = OnRep_LocAndRot)
+	FVector P;
+	UPROPERTY(ReplicatedUsing = OnRep_LocAndRot)
+	FRotator NewRotation;
+
+	FVector SpawnPos;
+public:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> DragonActorFactory;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> MiniDragonActorFactory;
+
+	UPROPERTY(EditAnywhere)
+	float DragonSpawnDist = 500;
+
+	bool bSpawnDragon;
+
 };

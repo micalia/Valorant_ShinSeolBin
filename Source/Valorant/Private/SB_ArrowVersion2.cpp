@@ -135,11 +135,10 @@ void ASB_ArrowVersion2::MulticastHideArrowMesh_Implementation()
 
 void ASB_ArrowVersion2::Server_DetachArrow_Implementation()
 {
-	ASB_Sova* MyPlayer = Cast<ASB_Sova>(GetOwner());
-	Multicast_DetachArrow(MyPlayer);
+	Multicast_DetachArrow();
 }
 
-void ASB_ArrowVersion2::Multicast_DetachArrow_Implementation(class ASB_Sova* InSova)
+void ASB_ArrowVersion2::Multicast_DetachArrow_Implementation()
 {
 	FDetachmentTransformRules rules = FDetachmentTransformRules::KeepWorldTransform;
 	DetachFromActor(rules);

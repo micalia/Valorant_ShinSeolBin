@@ -15,6 +15,7 @@
 #include "Components/Image.h"
 #include "Components/CanvasPanel.h"
 #include "FireUserWidget.h"
+#include "../../Engine/Classes/Materials/MaterialInterface.h"
 
 void USkillWidget::NativeConstruct()
 {
@@ -40,6 +41,22 @@ void USkillWidget::NativeConstruct()
 		if (!ValorantPlayer->IsLocallyControlled()) {
 			AttackPlayer = ValorantPlayer;
 		}
+	}
+
+	if (SkillProgressBarImg->GetDynamicMaterial() == nullptr) {
+		FString MaterialPath = TEXT("/Script/Engine.MaterialInstanceConstant'/Game/SB/Images/SkillUI/SkillIcon/M_RoundProgressbar_Inst.M_RoundProgressbar_Inst'");
+		UMaterialInstance* MaterialInstance = LoadObject<UMaterialInstance>(nullptr, *MaterialPath);
+		if (MaterialInstance)
+		{
+			SkillProgressBarImg->SetBrushFromMaterial(MaterialInstance);
+			if (SkillProgressBarImg->GetDynamicMaterial()) {
+				ProgressBarDynamicMat = SkillProgressBarImg->GetDynamicMaterial();
+				ProgressBarDynamicMat->SetScalarParameterValue(TEXT("Percent"), 0);
+			}
+		}
+	}
+	else {
+		ProgressBarDynamicMat = SkillProgressBarImg->GetDynamicMaterial();
 	}
 }
 

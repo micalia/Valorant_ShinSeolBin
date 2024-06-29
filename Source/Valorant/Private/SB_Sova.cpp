@@ -37,6 +37,7 @@
 #include "../../UMG/Public/Blueprint/WidgetLayoutLibrary.h"
 #include "../../Engine/Classes/GameFramework/CharacterMovementComponent.h"
 #include "SB_Hook.h"
+#include "../../UMG/Public/Components/TextBlock.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -1093,7 +1094,7 @@ void ASB_Sova::ServerGrappleAction_Implementation()
 	GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
 		if (bCanGrappleAction == false && MyHook->bThrowHook == true) {
 			EndGrappleMove();
-			}
+		}
 		}), 2.0f, false);
 }
 
@@ -1155,6 +1156,30 @@ void ASB_Sova::Server_DestroyDragonArrow_Implementation()
 	}
 }
 
+void ASB_Sova::SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe)
+{
+	if (WhoHitMe != nullptr) {
+		float TempGaugeVal = WhoHitMe->SuperSkillGauge + (DamageVal * 1.7 / 100);
+		if (TempGaugeVal > 1) {
+			TempGaugeVal = 1;
+		}
+		WhoHitMe->SuperSkillGauge = TempGaugeVal;
+		if(ASB_Sova* HitMePlayer = Cast<ASB_Sova>(WhoHitMe)){
+			HitMePlayer->MulticastSuperSkillGaugeUp(WhoHitMe->SuperSkillGauge);
+		}
+	}
+}
+
+void ASB_Sova::MulticastSuperSkillGaugeUp_Implementation(float InGaugeVal)
+{
+	if(IsLocallyControlled() == false || skillWigetInstance == nullptr) return;
+	if (skillWigetInstance->ProgressBarDynamicMat != nullptr) {
+		skillWigetInstance->ProgressBarDynamicMat->SetScalarParameterValue(TEXT("Percent"), InGaugeVal);
+	}
+	int32 PercentTextVal = InGaugeVal * 100; 
+	skillWigetInstance->PercentVal->SetText(FText::FromString(FString::FromInt(PercentTextVal)));
+}
+
 void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -1168,6 +1193,5 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, bCanGrappleAction);
 	DOREPLIFETIME(ASB_Sova, CurrArrow);
 	DOREPLIFETIME(ASB_Sova, CurrDragonArrow);
-	DOREPLIFETIME(ASB_Sova, SkillGauge);
 }
 

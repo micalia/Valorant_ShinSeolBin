@@ -15,7 +15,6 @@ class VALORANT_API ABaseCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -275,4 +274,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_EndGame();
 
+public:
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	float SuperSkillGauge = 0; // 1 = 100%
+
+	virtual void SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe);
 };

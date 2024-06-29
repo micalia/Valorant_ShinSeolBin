@@ -308,6 +308,8 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 {
 	MulticastAttackEnemyIndicator();
 
+	SuperSkillGaugeUp(value, WhoKilledMe);
+
 	CurrHP = CurrHP - value;
 
 	if (CurrHP <= 0) {
@@ -575,6 +577,11 @@ void ABaseCharacter::Multicast_EndGame_Implementation()
 	}
 }
 
+void ABaseCharacter::SuperSkillGaugeUp(int32 DamageVal, ABaseCharacter* WhoHitMe)
+{
+
+}
+
 void ABaseCharacter::Multicast_ServerDie_Implementation()
 {
 	PlayDieMontage();
@@ -745,5 +752,5 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ABaseCharacter, TheEndGameOn);
 	DOREPLIFETIME(ABaseCharacter, Score);
 	DOREPLIFETIME(ABaseCharacter, bDieOn);
-
+	DOREPLIFETIME(ABaseCharacter, SuperSkillGauge);
 }

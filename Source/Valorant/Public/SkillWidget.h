@@ -13,7 +13,6 @@ UCLASS()
 class VALORANT_API USkillWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
@@ -62,6 +61,15 @@ public: // 조준 사격
 	void AimingPanelOff();
 
 public:
+	UPROPERTY()
+	class UMaterialInstance* SuperSkillProgressBarMat;
+
+	UPROPERTY()
+	class UMaterialInstanceDynamic* ProgressBarDynamicMat;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* SkillProgressBarImg;
+
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* PercentVal;
 };

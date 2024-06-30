@@ -84,7 +84,10 @@ void ASB_DragonArrow::Tick(float DeltaTime)
 				bSpawnDragon = true;
 				FVector SpawnP0 = GetActorLocation();
 				FVector SpawnP = SpawnP0 + GetActorForwardVector() * DragonActorSpawnDist;
-				AActor* Dragon = GetWorld()->SpawnActor<AActor>(DragonActorFactory, SpawnP, GetActorRotation());
+
+				FActorSpawnParameters SpawnConfig;
+				SpawnConfig.Owner = GetOwner();
+				AActor* Dragon = GetWorld()->SpawnActor<AActor>(DragonActorFactory, SpawnP, GetActorRotation(), SpawnConfig);
 			}
 		}
 	}

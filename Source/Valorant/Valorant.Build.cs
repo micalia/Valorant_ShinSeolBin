@@ -8,7 +8,7 @@ public class Valorant : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		CppStandard = CppStandardVersion.Cpp20;
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "OnlineSubsystem", "OnlineSubsystemSteam", "Slate", "SlateCore", "Niagara", "PhysicsCore", "AnimGraphRuntime", "CableComponent" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "OnlineSubsystem", "OnlineSubsystemSteam", "Slate", "SlateCore", "Niagara", "PhysicsCore", "AnimGraphRuntime", "CableComponent", "UnrealEd" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

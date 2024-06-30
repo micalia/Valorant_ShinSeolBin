@@ -82,7 +82,9 @@ void ASB_DragonArrow::Tick(float DeltaTime)
 		if (ShotDist.Length() > DragonSpawnDist) {
 			if(bSpawnDragon == false) {
 				bSpawnDragon = true;
-				AActor* Dragon = GetWorld()->SpawnActor<AActor>(DragonActorFactory, GetActorLocation(), GetActorRotation());
+				FVector SpawnP0 = GetActorLocation();
+				FVector SpawnP = SpawnP0 + GetActorForwardVector() * DragonActorSpawnDist;
+				AActor* Dragon = GetWorld()->SpawnActor<AActor>(DragonActorFactory, SpawnP, GetActorRotation());
 			}
 		}
 	}

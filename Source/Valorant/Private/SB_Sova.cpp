@@ -433,15 +433,15 @@ void ASB_Sova::MouseLeftReleasedAction()
 			if (HasAuthority()) {
 				Server_SetBoolScoutingArrow_Implementation(false);
 				if (CurrDragonArrow) {
-					CurrDragonArrow->Server_DetachArrow_Implementation();
 					CurrDragonArrow->Server_DragonArrowShot_Implementation(GetArrowDirVec());
+					CurrDragonArrow->Server_DetachArrow_Implementation();
 				}
 			}
 			else {
 				Server_SetBoolScoutingArrow(false);
 				if (CurrDragonArrow) {
-					CurrDragonArrow->Server_DetachArrow();
 					CurrDragonArrow->Server_DragonArrowShot(GetArrowDirVec());
+					CurrDragonArrow->Server_DetachArrow();
 				}
 			}
 			

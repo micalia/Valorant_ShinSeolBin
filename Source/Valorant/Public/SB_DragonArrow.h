@@ -76,4 +76,6 @@ public:
 
 	bool bSpawnDragon;
 
+	UPROPERTY(EditAnywhere)
+	float DragonActorSpawnDist = -200;
 };

@@ -155,6 +155,7 @@ public:
 	UPROPERTY()
 	class UUI_SB_ScoutingArrow* ui_SB_ScoutingArrowInstance;
 
+	FTimerHandle DestroyArrowDelayHandle;
 	//********수류탄********//
 	//몽타주
 	UPROPERTY()
@@ -279,6 +280,9 @@ public:
 
 	void HookNotify();
 
+	FTimerHandle HookDelayHandle;
+	FTimerHandle EndHookSkillHandle;
+
 	UFUNCTION(Server, Reliable)
 	void ServerGrappleAction();
 	void AttachHook(class ASB_Hook* HookPtr);
@@ -317,6 +321,7 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	bool bCanGrappleAction = true;
 
+	FTimerHandle GrappleMoveDelayHandle;
 public:
 	//********용의 일격********//
 	UPROPERTY(EditAnywhere)
@@ -343,5 +348,8 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSuperSkillGaugeUp(float InGaugeVal);
+
+	FTimerHandle DragonStrikeStartDelayHandle;
+	FTimerHandle DestroyDragonArrowDelayHandle;
 
 };

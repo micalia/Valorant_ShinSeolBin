@@ -428,8 +428,8 @@ void ASB_Sova::MouseLeftReleasedAction()
 	case ESovaState::DragonStrike:
 		UGameplayStatics::PlaySound2D(GetWorld(), DragonStrikeVoice);
 
-		FTimerHandle DragonStrikeDelayHandle;
-		GetWorld()->GetTimerManager().SetTimer(DragonStrikeDelayHandle, FTimerDelegate::CreateLambda([&]() {
+		GetWorld()->GetTimerManager().ClearTimer(DragonStrikeStartDelayHandle);
+		GetWorld()->GetTimerManager().SetTimer(DragonStrikeStartDelayHandle, FTimerDelegate::CreateLambda([&]() {
 			if (HasAuthority()) {
 				Server_SetBoolScoutingArrow_Implementation(false);
 				if (CurrDragonArrow) {
@@ -749,8 +749,8 @@ void ASB_Sova::Server_SpawnArrow_Implementation(class ABaseCharacter* MyPlayer)
 void ASB_Sova::Server_DestroyArrow_Implementation()
 {
 	if (CurrArrow) {
-		FTimerHandle DelayHandle;
-		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+		GetWorld()->GetTimerManager().ClearTimer(DestroyArrowDelayHandle);
+		GetWorld()->GetTimerManager().SetTimer(DestroyArrowDelayHandle, FTimerDelegate::CreateLambda([&]() {
 			CurrArrow->Destroy();
 		}), 0.5f, false);
 	}
@@ -1095,12 +1095,13 @@ void ASB_Sova::HookNotify()
 {
 	if (HasAuthority()) {
 		LaunchCharacter(FVector(0, 0, 500), true, true);
-		FTimerHandle DelayHandle;
-		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+		
+		GetWorld()->GetTimerManager().ClearTimer(HookDelayHandle);
+		GetWorld()->GetTimerManager().SetTimer(HookDelayHandle, FTimerDelegate::CreateLambda([&]() {
 			bThrowHook = true;
 		}), 0.2f, false);
-
-		FTimerHandle EndHookSkillHandle;
+		
+		GetWorld()->GetTimerManager().ClearTimer(EndHookSkillHandle);
 		GetWorld()->GetTimerManager().SetTimer(EndHookSkillHandle, FTimerDelegate::CreateLambda([&]() {
 			if (bCanGrappleAction == false && MyHook && MyHook->bThrowHook == false) {
 				EndGrappleMove();
@@ -1129,8 +1130,8 @@ void ASB_Sova::ServerGrappleAction_Implementation()
 
 	MyHook = GetWorld()->SpawnActor<ASB_Hook>(HookActorFactory, fpsMesh->GetSocketLocation(TEXT("L_Shoulder")), HookRot, spawnConfig);
 
-	FTimerHandle DelayHandle;
-	GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+	GetWorld()->GetTimerManager().ClearTimer(GrappleMoveDelayHandle);
+	GetWorld()->GetTimerManager().SetTimer(GrappleMoveDelayHandle, FTimerDelegate::CreateLambda([&]() {
 		if (bCanGrappleAction == false && MyHook->bThrowHook == true) {
 			EndGrappleMove();
 		}
@@ -1188,8 +1189,8 @@ void ASB_Sova::Server_SpawnDragonArrow_Implementation(class ABaseCharacter* MyPl
 void ASB_Sova::Server_DestroyDragonArrow_Implementation()
 {
 	if (CurrDragonArrow) {
-		FTimerHandle DelayHandle;
-		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+		GetWorld()->GetTimerManager().ClearTimer(DestroyDragonArrowDelayHandle);
+		GetWorld()->GetTimerManager().SetTimer(DestroyDragonArrowDelayHandle, FTimerDelegate::CreateLambda([&]() {
 			CurrDragonArrow->Destroy();
 			}), 0.5f, false);
 	}

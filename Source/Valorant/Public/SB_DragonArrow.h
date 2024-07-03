@@ -67,7 +67,7 @@ public:
 	FVector SpawnPos;
 public:
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> DragonActorFactory;
+	TSubclassOf<class ASB_TwoDragonArrowSpawn> DragonActorFactory;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> MiniDragonActorFactory;
 

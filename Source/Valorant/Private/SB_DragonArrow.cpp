@@ -7,6 +7,7 @@
 #include "SB_Sova.h"
 #include "../../Engine/Classes/Particles/ParticleSystemComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "SB_TwoDragonArrowSpawn.h"
 
 // Sets default values
 ASB_DragonArrow::ASB_DragonArrow()
@@ -39,7 +40,7 @@ ASB_DragonArrow::ASB_DragonArrow()
 	ChildActorComp->SetRelativeRotation(FRotator(-90, 0, 0));
 	ChildActorComp->SetRelativeScale3D(FVector(0.2, 0.2, 3));
 
-	static ConstructorHelpers::FClassFinder<AActor> tempDragonActorFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/DragonArrow/BP_2DragonArrowSpawn.BP_2DragonArrowSpawn_C'"));
+	static ConstructorHelpers::FClassFinder<ASB_TwoDragonArrowSpawn> tempDragonActorFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/DragonArrow/BP_2DragonArrowSpawn.BP_2DragonArrowSpawn_C'"));
 	if (tempDragonActorFactory.Succeeded()) {
 		DragonActorFactory = tempDragonActorFactory.Class;
 	}

@@ -173,6 +173,17 @@ ABaseCharacter::ABaseCharacter()
 		WinLoseWidgetFactory = tempWinLoseWidgetFactory.Class;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempWinSound(TEXT("/Script/Engine.SoundWave'/Game/PSH/Sounds/BackSound/09-Victory.09-Victory'"));
+	if (tempWinSound.Succeeded())
+	{
+		WinSound = tempWinSound.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempDefeatSound(TEXT("/Script/Engine.SoundWave'/Game/PSH/Sounds/BackSound/08-Defeat.08-Defeat'"));
+	if (tempDefeatSound.Succeeded())
+	{
+		DefeatSound = tempDefeatSound.Object;
+	}
 
 #pragma endregion
 }
@@ -513,17 +524,21 @@ void ABaseCharacter::Multicast_CheckWinLose_Implementation()
 			if (p->CurrHP <= 20) {
 				if (!TheEndGame) {
 					p->winloseInstance->StartLoseAnim();
+					UGameplayStatics::PlaySound2D(GetWorld(), DefeatSound);
 				}
 				else {
 					p->winloseInstance->StartLoseEndingAnim();
+					UGameplayStatics::PlaySound2D(GetWorld(), DefeatSound);
 				}
 			}
 			else {
 				if (!TheEndGame) {
 					p->winloseInstance->StartWinAnim();
+					UGameplayStatics::PlaySound2D(GetWorld(), WinSound);
 				}
 				else {
 					p->winloseInstance->StartWinEndingAnim();
+					UGameplayStatics::PlaySound2D(GetWorld(), WinSound);
 				}
 			}
 		}

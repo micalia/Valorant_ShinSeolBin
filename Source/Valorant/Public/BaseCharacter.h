@@ -81,7 +81,10 @@ public:
 
 	class APlayerController* PlayerController;
 
-	//class ANetPlayerController* NetPlayerController;
+	UPROPERTY(EditAnywhere)
+	class USoundBase* WinSound;
+	UPROPERTY(EditAnywhere)
+	class USoundBase* DefeatSound;
 
 protected:
 	/** Called for movement input */

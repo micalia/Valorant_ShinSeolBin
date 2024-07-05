@@ -39,14 +39,13 @@ void ASB_TwoDragonArrowSpawn::Tick(float DeltaTime)
 	if(ThisOwner != nullptr && HasAuthority()){
 		for (auto& Element : DamagedPlayers)
 		{
-			if(Element.bCanAttack){
+			if(Element.bCanAttack == false){
 				GetWorld()->GetTimerManager().ClearTimer(Element.DamageTermHandle);
-				Element.DamagedPlayer->ServerDamagedHealth_Implementation(1, ThisOwner);
-				Element.bCanAttack = false;
-				GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Dragon HIT!!!"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+				Element.DamagedPlayer->ServerDamagedHealth_Implementation(25, ThisOwner);
+				Element.bCanAttack = true;
 				GetWorld()->GetTimerManager().SetTimer(Element.DamageTermHandle, FTimerDelegate::CreateLambda([&]() {
-					Element.bCanAttack = true;
-				}), 0.8, false);
+					Element.bCanAttack = false;
+				}), 0.5, false);
 			}
 		}
 	}
@@ -54,28 +53,35 @@ void ASB_TwoDragonArrowSpawn::Tick(float DeltaTime)
 
 void ASB_TwoDragonArrowSpawn::OnAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(OtherActor)) {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> OnAttackOverlap"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-		FPlayerDamage DamagedPlayerInfo;
-		DamagedPlayerInfo.DamagedPlayer = DamagedPlayer;
-		if(DamagedPlayers.Find(DamagedPlayerInfo) == nullptr){
-			FTimerHandle TermHandle;
+	if (HasAuthority()) {
+		if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(OtherActor)) {
+		auto MyOwner = Cast<ABaseCharacter>(GetOwner());
+		if(MyOwner == DamagedPlayer) return;
+			FPlayerDamage DamagedPlayerInfo;
 			DamagedPlayerInfo.DamagedPlayer = DamagedPlayer;
-			DamagedPlayerInfo.bCanAttack = false;
-			DamagedPlayerInfo.DamageTermHandle = TermHandle;
-			DamagedPlayers.Add(DamagedPlayerInfo);
+			if(DamagedPlayers.Find(DamagedPlayerInfo) == nullptr){
+				FTimerHandle TermHandle;
+				DamagedPlayerInfo.DamagedPlayer = DamagedPlayer;
+				DamagedPlayerInfo.bCanAttack = false;
+				DamagedPlayerInfo.DamageTermHandle = TermHandle;
+				DamagedPlayers.Add(DamagedPlayerInfo);
+			}
 		}
 	}
 }
 
 void ASB_TwoDragonArrowSpawn::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(OtherActor)) {
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> OnEndOverlap"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-		FPlayerDamage DamagedPlayerInfo;
-		DamagedPlayerInfo.DamagedPlayer = DamagedPlayer;
-		if (DamagedPlayers.Find(DamagedPlayerInfo) == nullptr) {
-			DamagedPlayers.Remove(DamagedPlayerInfo);
+	if (HasAuthority()) {
+		if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(OtherActor)) {
+			auto MyOwner = Cast<ABaseCharacter>(GetOwner());
+			if (MyOwner == DamagedPlayer) return;
+			FPlayerDamage DamagedPlayerInfo;
+			DamagedPlayerInfo.DamagedPlayer = DamagedPlayer;
+
+			if (DamagedPlayers.Find(DamagedPlayerInfo) != nullptr) {
+				auto RemResult = DamagedPlayers.Remove(DamagedPlayerInfo);
+			}
 		}
 	}
 }

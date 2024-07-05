@@ -4,6 +4,7 @@
 #include "SB_TwoDragonArrowSpawn.h"
 #include "Components/CapsuleComponent.h"
 #include "BaseCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASB_TwoDragonArrowSpawn::ASB_TwoDragonArrowSpawn()
@@ -19,6 +20,8 @@ ASB_TwoDragonArrowSpawn::ASB_TwoDragonArrowSpawn()
 	AttackColl->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	AttackColl->SetCapsuleRadius(384);
 	AttackColl->SetCapsuleHalfHeight(830);
+
+	bReplicates = true;
 }
 
 // Called when the game starts or when spawned
@@ -41,7 +44,7 @@ void ASB_TwoDragonArrowSpawn::Tick(float DeltaTime)
 		{
 			if(Element.bCanAttack == false){
 				GetWorld()->GetTimerManager().ClearTimer(Element.DamageTermHandle);
-				Element.DamagedPlayer->ServerDamagedHealth_Implementation(25, ThisOwner);
+				Element.DamagedPlayer->ServerDamagedHealth_Implementation(20, ThisOwner, true);
 				Element.bCanAttack = true;
 				GetWorld()->GetTimerManager().SetTimer(Element.DamageTermHandle, FTimerDelegate::CreateLambda([&]() {
 					Element.bCanAttack = false;

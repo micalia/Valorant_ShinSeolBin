@@ -340,9 +340,16 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class USoundBase* SuperSkillGaugeFullChargeSound;
+	UPROPERTY(EditAnywhere)
+	class USoundBase* NotReadySuperSkill;
 
 	virtual void SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe) override;
+	void InitSuperSkillGauge();
 
+	UFUNCTION(Server, Reliable)
+	void Server_SetAvailableSuperSkill();
+	UFUNCTION(Server, Reliable)
+	void Server_SetNotAvailableSuperSkill();
 	void UltimateAvailable();
 	void UltimateGaugeInit();
 

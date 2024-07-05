@@ -148,7 +148,7 @@ void AGrenade::MulticastExplosion_Implementation()
 		{
 			if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(Element.GetActor())) {
 				if (ABaseCharacter* GrenadeOwner = Cast<ABaseCharacter>(GetOwner())) {
-					DamagedPlayer->ServerDamagedHealth_Implementation(ExplosionDamage, GrenadeOwner);
+					DamagedPlayer->ServerDamagedHealth(ExplosionDamage, GrenadeOwner);
 				}
 			}
 		}

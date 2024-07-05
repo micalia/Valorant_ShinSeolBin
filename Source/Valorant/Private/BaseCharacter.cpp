@@ -315,11 +315,13 @@ void ABaseCharacter::DefaultShootRelease()
 	}
 }
 
-void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharacter* WhoKilledMe)
+void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharacter* WhoKilledMe, bool IsSuperSkill)
 {
 	MulticastAttackEnemyIndicator();
 
-	SuperSkillGaugeUp(value, WhoKilledMe);
+	if (IsSuperSkill == false) {
+		SuperSkillGaugeUp(value, WhoKilledMe);
+	}
 
 	CurrHP = CurrHP - value;
 
@@ -768,4 +770,5 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(ABaseCharacter, Score);
 	DOREPLIFETIME(ABaseCharacter, bDieOn);
 	DOREPLIFETIME(ABaseCharacter, SuperSkillGauge);
+	DOREPLIFETIME(ABaseCharacter, bAvailableSuperSKill);
 }

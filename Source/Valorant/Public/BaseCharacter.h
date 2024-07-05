@@ -155,7 +155,7 @@ public:
 	void ServerAddHealth(int32 value);
 
 	UFUNCTION(Server, Reliable)
-	void ServerDamagedHealth(int32 value, ABaseCharacter* WhoKilledMe);
+	void ServerDamagedHealth(int32 value, ABaseCharacter* WhoKilledMe, bool IsSuperSkill = false);
 
 	//void DamagedHealth(int32 value, ABaseCharacter* WhoKilledMe);
 
@@ -282,4 +282,7 @@ public:
 	float SuperSkillGauge = 0; // 1 = 100%
 
 	virtual void SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe);
+
+	UPROPERTY(Replicated)
+	bool bAvailableSuperSKill;
 };

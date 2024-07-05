@@ -277,6 +277,11 @@ ASB_Sova::ASB_Sova()
 	if (tempDragonStrikeVoice.Succeeded()) {
 		DragonStrikeVoice = tempDragonStrikeVoice.Object;
 	}
+	
+	static ConstructorHelpers::FObjectFinder<USoundBase> tempNotReadySuperSkill(TEXT("/Script/Engine.SoundWave'/Game/SB/Sounds/DragonArrow/SovaNotReadyUltimate.SovaNotReadyUltimate'"));
+	if (tempNotReadySuperSkill.Succeeded()) {
+		NotReadySuperSkill = tempNotReadySuperSkill.Object;
+	}
 
 	bReplicates = true;
 }
@@ -284,6 +289,7 @@ ASB_Sova::ASB_Sova()
 void ASB_Sova::BeginPlay()
 {
 	Super::BeginPlay();
+	
 
 	soundKill = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/2_throw.2_throw'"));
 	expl = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/5_expl.5_expl'"));
@@ -427,6 +433,15 @@ void ASB_Sova::MouseLeftReleasedAction()
 		break;
 	case ESovaState::DragonStrike:
 		UGameplayStatics::PlaySound2D(GetWorld(), DragonStrikeVoice);
+
+		if (HasAuthority()) {
+			Server_SetNotAvailableSuperSkill_Implementation();
+		}
+		else {
+			Server_SetNotAvailableSuperSkill();
+		}
+
+		InitSuperSkillGauge();
 
 		GetWorld()->GetTimerManager().ClearTimer(DragonStrikeStartDelayHandle);
 		GetWorld()->GetTimerManager().SetTimer(DragonStrikeStartDelayHandle, FTimerDelegate::CreateLambda([&]() {
@@ -591,6 +606,10 @@ void ASB_Sova::KeyF()
 void ASB_Sova::KeyR()
 {
 	if (IsLocallyControlled() == false) return;
+	if(bAvailableSuperSKill == false) {
+		UGameplayStatics::PlaySound2D(GetWorld(), NotReadySuperSkill);
+		//return;
+	}
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::DragonStrike;
 		ABaseCharacter* MyPlayer = Cast<ABaseCharacter>(this);
@@ -702,10 +721,11 @@ FVector ASB_Sova::GetArrowDirVec()
 		param.AddIgnoredActor(GetOwner()); // 라인트레이스가 물체와 충돌하면 충돌한 위치에 액터 스폰
 		GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLoc, TraceEndLoc, ECC_GameTraceChannel4, param);
 
-		if (HitResult.bBlockingHit) {
+		/*if (HitResult.bBlockingHit) {
 			TraceEndLoc = HitResult.ImpactPoint;
 		}
-
+			DrawDebugSphere(GetWorld(), TraceStartLoc, 200, 26, FColor::Red, true, -1, 0, 2);
+			DrawDebugSphere(GetWorld(), TraceEndLoc, 200, 26, FColor::Blue, true, -1, 0, 2);*/
 		FVector ArrowSpawnLoc = ArrowFirePos->GetComponentLocation();
 		FVector ArrowDir = TraceEndLoc - ArrowSpawnLoc;
 		FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
@@ -1198,16 +1218,37 @@ void ASB_Sova::Server_DestroyDragonArrow_Implementation()
 
 void ASB_Sova::SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe)
 {
-	if (WhoHitMe != nullptr) {
-		float TempGaugeVal = WhoHitMe->SuperSkillGauge + (DamageVal * 1.7 / 100);
+	if (WhoHitMe != nullptr) { // 게이지가 올라가는 수치
+		float TempGaugeVal = WhoHitMe->SuperSkillGauge + (DamageVal * 1.7 / 100) + 100;
 		if (TempGaugeVal > 1) {
 			TempGaugeVal = 1;
-		}
+		} // 나를 때린사람은 게이지가 올라가야 함.
 		WhoHitMe->SuperSkillGauge = TempGaugeVal;
 		if(ASB_Sova* HitMePlayer = Cast<ASB_Sova>(WhoHitMe)){
 			HitMePlayer->MulticastSuperSkillGaugeUp(WhoHitMe->SuperSkillGauge);
 		}
 	}
+}
+
+void ASB_Sova::InitSuperSkillGauge()
+{
+	SuperSkillGauge = 0;
+	if (skillWigetInstance != nullptr && skillWigetInstance->ProgressBarDynamicMat != nullptr) {
+		skillWigetInstance->PercentVal->SetText(FText::FromString(FString::FromInt(0)));
+		skillWigetInstance->ProgressBarDynamicMat->SetScalarParameterValue(TEXT("Percent"), 0);
+		skillWigetInstance->SkillGaugeBar->SetVisibility(ESlateVisibility::Visible);
+		skillWigetInstance->DragonArrowUI->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void ASB_Sova::Server_SetAvailableSuperSkill_Implementation()
+{
+	bAvailableSuperSKill = true;
+}
+
+void ASB_Sova::Server_SetNotAvailableSuperSkill_Implementation()
+{
+	bAvailableSuperSKill = false;
 }
 
 void ASB_Sova::UltimateAvailable()
@@ -1217,6 +1258,7 @@ void ASB_Sova::UltimateAvailable()
 		skillWigetInstance->SkillGaugeBar->SetVisibility(ESlateVisibility::Hidden);
 		skillWigetInstance->DragonArrowUI->SetVisibility(ESlateVisibility::Visible);
 	}
+	Server_SetAvailableSuperSkill();
 	UGameplayStatics::PlaySound2D(GetWorld(), SuperSkillGaugeFullChargeSound);
 }
 

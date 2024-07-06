@@ -141,6 +141,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DefaultShootRelease();
 
+	bool bCameraShake = false;
 public:
 	//stat
 

@@ -39,6 +39,17 @@ public:
 	virtual void KeyR() override; // 용의 일격
 	virtual void PossessedBy(AController* NewController) override;
 public:
+//카메라 쉐이크
+	UPROPERTY(EditAnywhere)
+	float cameraShakeTime = 0.1;
+	float camCurrTime;
+
+	FVector cameraOriginPos;
+	FRotator cameraOriginRot;
+	void CameraShakeRandom();
+
+	APlayerCameraManager* PlayerCam;
+//********************************
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	bool isGun = true;
 

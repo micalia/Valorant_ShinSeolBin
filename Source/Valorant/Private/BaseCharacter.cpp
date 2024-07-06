@@ -526,21 +526,21 @@ void ABaseCharacter::Multicast_CheckWinLose_Implementation()
 			if (p->CurrHP <= 20) {
 				if (!TheEndGame) {
 					p->winloseInstance->StartLoseAnim();
-					UGameplayStatics::PlaySound2D(GetWorld(), DefeatSound);
+					UGameplayStatics::PlaySound2D(GetWorld(), DefeatSound, 0.5);
 				}
 				else {
 					p->winloseInstance->StartLoseEndingAnim();
-					UGameplayStatics::PlaySound2D(GetWorld(), DefeatSound);
+					UGameplayStatics::PlaySound2D(GetWorld(), DefeatSound, 0.5);
 				}
 			}
 			else {
 				if (!TheEndGame) {
 					p->winloseInstance->StartWinAnim();
-					UGameplayStatics::PlaySound2D(GetWorld(), WinSound);
+					UGameplayStatics::PlaySound2D(GetWorld(), WinSound, 0.5);
 				}
 				else {
 					p->winloseInstance->StartWinEndingAnim();
-					UGameplayStatics::PlaySound2D(GetWorld(), WinSound);
+					UGameplayStatics::PlaySound2D(GetWorld(), WinSound, 0.5);
 				}
 			}
 		}

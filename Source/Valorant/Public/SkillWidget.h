@@ -78,4 +78,16 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UOverlay* DragonArrowUI;
+
+	FLinearColor  CoolTimeColor = FLinearColor::FromSRGBColor(FColor(0x5D, 0x5D, 0x5D, 0xFF));
+	FLinearColor  SkillAvailableColor = FLinearColor::FromSRGBColor(FColor(0x5F, 0xEE, 0xB8, 0xFF));
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* CSkill_Cool_Img;
+	UPROPERTY(meta = (BindWidget))
+	class UImage* QSkill_Cool_Img;
+	UPROPERTY(meta = (BindWidget))
+	class UImage* XSkill_Cool_Img;
+	UPROPERTY(meta = (BindWidget))
+	class UImage* ESkill_Cool_Img;
 };

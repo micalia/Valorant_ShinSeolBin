@@ -58,6 +58,11 @@ void USkillWidget::NativeConstruct()
 	else {
 		ProgressBarDynamicMat = SkillProgressBarImg->GetDynamicMaterial();
 	}
+
+	CSkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
+	QSkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
+	XSkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
+	ESkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
 }
 
 void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)

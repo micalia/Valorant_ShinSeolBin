@@ -181,7 +181,8 @@ void UPlayerFireComponent::Fire()
 	{
 		return;
 	}
-
+	
+	me->bCameraShake = true;
 	me->GetWorldTimerManager().ClearTimer(fireDelay);
 	me->GetWorldTimerManager().SetTimer(fireDelay, FTimerDelegate::CreateLambda([&]() {
 		bInDelay = false;

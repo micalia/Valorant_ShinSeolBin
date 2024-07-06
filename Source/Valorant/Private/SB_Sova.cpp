@@ -41,6 +41,7 @@
 #include "../../UMG/Public/Components/SizeBox.h"
 #include "../../UMG/Public/Components/Overlay.h"
 #include "../../Engine/Classes/Engine/TimerHandle.h"
+#include "../../Engine/Classes/Camera/CameraShakeBase.h"
 
 ASB_Sova::ASB_Sova()
 {
@@ -290,7 +291,6 @@ void ASB_Sova::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
 	soundKill = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/2_throw.2_throw'"));
 	expl = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/5_expl.5_expl'"));
 
@@ -309,6 +309,8 @@ void ASB_Sova::BeginPlay()
 		CableComp->SetRenderCustomDepth(true);
 		CableComp->CustomDepthStencilValue = 1;
 	}
+
+	PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 }
 
 void ASB_Sova::Tick(float DeltaTime)
@@ -347,6 +349,7 @@ void ASB_Sova::Tick(float DeltaTime)
 	}
 	// ASB_Sova::Tick 매 프레임마다 궤적을 생성함
 	if (bThrowing) ShowProjectilePath();
+	if (bCameraShake == true) CameraShakeRandom();
 }
 
 void ASB_Sova::MouseLeftAction()
@@ -358,13 +361,14 @@ void ASB_Sova::MouseLeftAction()
 	case ESovaState::DefaultAtk:
 		if (fireComp && !fireComp->bReloadOn) {
 			if (!bSniperOn) {
+				//auto controller = GetWorld()->GetFirstPlayerController();
+				//controller->PlayerCameraManager->StartCameraShake(CameraShake);
 				if (HasAuthority()) {
 					ServerDefaultShootPress_Implementation();
 				}
 				else {
 					ServerDefaultShootPress();
 				}
-				//DefaultShootPress();
 			}
 			else {
 				fireComp->SniperShot();
@@ -608,7 +612,7 @@ void ASB_Sova::KeyR()
 	if (IsLocallyControlled() == false) return;
 	if(bAvailableSuperSKill == false) {
 		UGameplayStatics::PlaySound2D(GetWorld(), NotReadySuperSkill);
-		//return;
+		return;
 	}
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::DragonStrike;
@@ -712,7 +716,7 @@ void ASB_Sova::InitScoutingArrow()
 
 FVector ASB_Sova::GetArrowDirVec()
 {
-	if (auto PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)) {
+	if (PlayerCam) {
 		FVector TraceStartLoc = PlayerCam->GetCameraLocation();
 		FVector TraceEndLoc = TraceStartLoc + (PlayerCam->GetActorForwardVector() * 5000);
 
@@ -721,11 +725,6 @@ FVector ASB_Sova::GetArrowDirVec()
 		param.AddIgnoredActor(GetOwner()); // 라인트레이스가 물체와 충돌하면 충돌한 위치에 액터 스폰
 		GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLoc, TraceEndLoc, ECC_GameTraceChannel4, param);
 
-		/*if (HitResult.bBlockingHit) {
-			TraceEndLoc = HitResult.ImpactPoint;
-		}
-			DrawDebugSphere(GetWorld(), TraceStartLoc, 200, 26, FColor::Red, true, -1, 0, 2);
-			DrawDebugSphere(GetWorld(), TraceEndLoc, 200, 26, FColor::Blue, true, -1, 0, 2);*/
 		FVector ArrowSpawnLoc = ArrowFirePos->GetComponentLocation();
 		FVector ArrowDir = TraceEndLoc - ArrowSpawnLoc;
 		FRotator ArrowSpawnRotator = ArrowDir.GetSafeNormal().Rotation();
@@ -1298,3 +1297,17 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, CurrDragonArrow);
 }
 
+void ASB_Sova::CameraShakeRandom()
+{
+	if (camCurrTime < cameraShakeTime) {
+		camCurrTime += GetWorld()->GetDeltaSeconds();
+		float RanRotVal = UKismetMathLibrary::RandomFloatInRange(-0.3, 0.3);
+		
+		FollowCamera->SetRelativeRotation(cameraOriginRot + FRotator(RanRotVal, 0, 0));
+	}
+	else {
+		bCameraShake = false;
+		FollowCamera->SetRelativeRotation(cameraOriginRot);
+		camCurrTime = 0;
+	}
+}

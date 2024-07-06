@@ -391,6 +391,7 @@ void ASB_Sova::MouseLeftAction()
 		}
 		if (skillWigetInstance) {
 			skillWigetInstance->Q_CoolTime->SetVisibility(ESlateVisibility::Visible);
+			skillWigetInstance->QSkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->CoolTimeColor);
 		}
 		GrenadeCoolCurrTime = 0;
 		break;
@@ -436,6 +437,7 @@ void ASB_Sova::MouseLeftReleasedAction()
 		PlayShotVoice();
 		if (skillWigetInstance) {
 			skillWigetInstance->E_CoolTime->SetVisibility(ESlateVisibility::Visible);
+			skillWigetInstance->ESkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->CoolTimeColor);
 		}
 		ScoutingArrowCoolCurrTime = 0;
 
@@ -635,6 +637,7 @@ void ASB_Sova::KeyF()
 	else {
 		HookCoolCurrTime = 0;
 		skillWigetInstance->F_CoolTime->SetVisibility(ESlateVisibility::Visible);
+		skillWigetInstance->FSkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->CoolTimeColor);
 	}
 	if(bCanGrappleAction == false) return;
 	UGameplayStatics::PlaySound2D(GetWorld(), GrappleShotSound, 0.4f, 1, 0.1f);
@@ -727,6 +730,7 @@ void ASB_Sova::CoolTimeCalculate(float InDeltaTime)
 	else {
 		ScoutingArrowCoolCurrTime = ScoutingArrowCoolTime;
 		skillWigetInstance->E_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+		skillWigetInstance->ESkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->SkillAvailableColor);
 	}
 	
 	if (GrenadeCoolTime > GrenadeCoolCurrTime) {
@@ -735,6 +739,7 @@ void ASB_Sova::CoolTimeCalculate(float InDeltaTime)
 	else {
 		GrenadeCoolCurrTime = GrenadeCoolTime;
 		skillWigetInstance->Q_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+		skillWigetInstance->QSkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->SkillAvailableColor);
 	}
 	
 	if (AirSmokeCoolTime > AirSmokeCoolCurrTime) {
@@ -743,6 +748,7 @@ void ASB_Sova::CoolTimeCalculate(float InDeltaTime)
 	else {
 		AirSmokeCoolCurrTime = AirSmokeCoolTime;
 		skillWigetInstance->C_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+		skillWigetInstance->CSkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->SkillAvailableColor);
 	}
 
 	if (HookCoolTime > HookCoolCurrTime) {
@@ -751,6 +757,7 @@ void ASB_Sova::CoolTimeCalculate(float InDeltaTime)
 	else {
 		HookCoolCurrTime = HookCoolTime;
 		skillWigetInstance->F_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+		skillWigetInstance->FSkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->SkillAvailableColor);
 	}
 }
 
@@ -1156,6 +1163,7 @@ void ASB_Sova::AirSmokeLogic()
 		AirSmokeCoolCurrTime = 0;
 		if (skillWigetInstance) {
 			skillWigetInstance->C_CoolTime->SetVisibility(ESlateVisibility::Visible);
+			skillWigetInstance->CSkill_Cool_Img->SetColorAndOpacity(skillWigetInstance->CoolTimeColor);
 		}
 	}
 }

@@ -104,7 +104,14 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bSniperRecoil = false;
 
+	void CoolTimeCalculate(float InDeltaTime);
+	void SetCoolTimeUI();
+
 	//********정찰용화살********//
+	UPROPERTY(EditAnywhere)
+	float ScoutingArrowCoolTime = 5;
+	float ScoutingArrowCoolCurrTime = ScoutingArrowCoolTime;
+	
 	UPROPERTY()
 	class USoundBase* ScoutingArrowVoice1;
 	UPROPERTY()
@@ -168,6 +175,9 @@ public:
 
 	FTimerHandle DestroyArrowDelayHandle;
 	//********수류탄********//
+	UPROPERTY(EditAnywhere)
+	float GrenadeCoolTime = 5;
+	float GrenadeCoolCurrTime = GrenadeCoolTime;
 	//몽타주
 	UPROPERTY()
 	class UAnimMontage* SovaGrenadeMongtage;
@@ -215,6 +225,9 @@ public:
 	class USoundBase* GrenadeSound2;
 
 	//********공중연막********//
+	UPROPERTY(EditAnywhere)
+	float AirSmokeCoolTime = 5;
+	float AirSmokeCoolCurrTime = AirSmokeCoolTime;
 	UPROPERTY()
 	class USoundBase* SovaAirSmokeVoice1;
 	UPROPERTY()
@@ -274,6 +287,10 @@ public:
 
 public:
 	//********로프 이동********//
+	UPROPERTY(EditAnywhere)
+	float HookCoolTime = 2;
+	float HookCoolCurrTime = HookCoolTime;
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASB_Hook> HookActorFactory;
 

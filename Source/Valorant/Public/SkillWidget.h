@@ -85,9 +85,18 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* CSkill_Cool_Img;
 	UPROPERTY(meta = (BindWidget))
+	class UImage* ESkill_Cool_Img;
+	UPROPERTY(meta = (BindWidget))
 	class UImage* QSkill_Cool_Img;
 	UPROPERTY(meta = (BindWidget))
-	class UImage* XSkill_Cool_Img;
+	class UImage* FSkill_Cool_Img;
+
 	UPROPERTY(meta = (BindWidget))
-	class UImage* ESkill_Cool_Img;
+	class UTextBlock* C_CoolTime;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* E_CoolTime;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Q_CoolTime;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* F_CoolTime;
 };

@@ -61,7 +61,7 @@ void USkillWidget::NativeConstruct()
 
 	CSkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
 	QSkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
-	XSkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
+	FSkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
 	ESkill_Cool_Img->SetColorAndOpacity(SkillAvailableColor);
 }
 

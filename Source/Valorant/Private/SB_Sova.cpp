@@ -317,6 +317,9 @@ void ASB_Sova::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	CoolTimeCalculate(DeltaTime);
+	SetCoolTimeUI();
+
 	if (HasAuthority() && bThrowHook && MyHook != nullptr) {
 		FVector MoveDir = UKismetMathLibrary::GetDirectionUnitVector(GetActorLocation(), MyHook->GetActorLocation());
 		GetCharacterMovement()->AddForce(MoveDir * GrappleMovePower);
@@ -386,6 +389,10 @@ void ASB_Sova::MouseLeftAction()
 		else {
 			ServerGrenadeThrowAction();
 		}
+		if (skillWigetInstance) {
+			skillWigetInstance->Q_CoolTime->SetVisibility(ESlateVisibility::Visible);
+		}
+		GrenadeCoolCurrTime = 0;
 		break;
 	default:
 		break;
@@ -427,6 +434,11 @@ void ASB_Sova::MouseLeftReleasedAction()
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
 		}
 		PlayShotVoice();
+		if (skillWigetInstance) {
+			skillWigetInstance->E_CoolTime->SetVisibility(ESlateVisibility::Visible);
+		}
+		ScoutingArrowCoolCurrTime = 0;
+
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
 		InitScoutingArrow();
 		currState = ESovaState::DefaultAtk;
@@ -528,6 +540,12 @@ void ASB_Sova::MouseRightReleasedAction()
 void ASB_Sova::KeyE()
 {
 	if (IsLocallyControlled() == false) return;
+	if (ScoutingArrowCoolTime > ScoutingArrowCoolCurrTime) {
+		return;
+	}
+	else {
+		ScoutingArrowCoolCurrTime = 0;
+	}
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::ScoutingArrow;
 		ABaseCharacter* MyPlayer = Cast<ABaseCharacter>(this);
@@ -559,6 +577,12 @@ void ASB_Sova::KeyE()
 void ASB_Sova::KeyQ()
 {
 	if (IsLocallyControlled() == false) return;
+	if (GrenadeCoolTime > GrenadeCoolCurrTime) {
+		return;
+	}
+	else {
+		GrenadeCoolCurrTime = 0;
+	}
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::Grenade;
 		APlayerController* MyController = GetWorld()->GetFirstPlayerController();
@@ -589,6 +613,9 @@ void ASB_Sova::KeyQ()
 void ASB_Sova::KeyC()
 {
 	if (IsLocallyControlled() == false) return;
+	if (AirSmokeCoolTime > AirSmokeCoolCurrTime) {
+		return;
+	}
 	if (currState == ESovaState::DefaultAtk) {
 		currState = ESovaState::AirSmoke;
 		ActiveAirSmoke();
@@ -602,6 +629,13 @@ void ASB_Sova::KeyC()
 void ASB_Sova::KeyF()
 {
 	if (IsLocallyControlled() == false) return;
+	if (HookCoolTime > HookCoolCurrTime) {
+		return;
+	}
+	else {
+		HookCoolCurrTime = 0;
+		skillWigetInstance->F_CoolTime->SetVisibility(ESlateVisibility::Visible);
+	}
 	if(bCanGrappleAction == false) return;
 	UGameplayStatics::PlaySound2D(GetWorld(), GrappleShotSound, 0.4f, 1, 0.1f);
 	GrappleAction();
@@ -682,6 +716,89 @@ void ASB_Sova::Server_SetCurrState_Implementation(ESovaState paramCurrState)
 void ASB_Sova::Multicast_SetCurrState_Implementation(ESovaState paramCurrState)
 {
 	currState = paramCurrState;
+}
+
+void ASB_Sova::CoolTimeCalculate(float InDeltaTime)
+{
+	if(skillWigetInstance == nullptr) return;
+	if (ScoutingArrowCoolTime > ScoutingArrowCoolCurrTime) {
+		ScoutingArrowCoolCurrTime += InDeltaTime;
+	}
+	else {
+		ScoutingArrowCoolCurrTime = ScoutingArrowCoolTime;
+		skillWigetInstance->E_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+	if (GrenadeCoolTime > GrenadeCoolCurrTime) {
+		GrenadeCoolCurrTime += InDeltaTime;
+	}
+	else {
+		GrenadeCoolCurrTime = GrenadeCoolTime;
+		skillWigetInstance->Q_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
+	if (AirSmokeCoolTime > AirSmokeCoolCurrTime) {
+		AirSmokeCoolCurrTime += InDeltaTime;
+	}
+	else {
+		AirSmokeCoolCurrTime = AirSmokeCoolTime;
+		skillWigetInstance->C_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (HookCoolTime > HookCoolCurrTime) {
+		HookCoolCurrTime += InDeltaTime;
+	}
+	else {
+		HookCoolCurrTime = HookCoolTime;
+		skillWigetInstance->F_CoolTime->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void ASB_Sova::SetCoolTimeUI()
+{
+	if (skillWigetInstance) {
+		FNumberFormattingOptions NumberFormat;
+		NumberFormat.MinimumIntegralDigits = 1;
+		NumberFormat.MaximumIntegralDigits = 10;
+		NumberFormat.MinimumFractionalDigits = 1;
+		NumberFormat.MaximumFractionalDigits = 1;
+
+		float Ccool = FMath::Clamp(AirSmokeCoolTime - AirSmokeCoolCurrTime, 0, 10);
+		if (Ccool > 1) {
+			skillWigetInstance->C_CoolTime->SetText(FText::FromString(FString::FromInt(Ccool)));
+		}
+		else {
+			FText cFormattedText = FText::AsNumber(Ccool, &NumberFormat);
+			skillWigetInstance->C_CoolTime->SetText(cFormattedText);
+		}
+
+		float Qcool = FMath::Clamp(GrenadeCoolTime - GrenadeCoolCurrTime, 0, 10);
+		if (Qcool > 1) {
+			skillWigetInstance->Q_CoolTime->SetText(FText::FromString(FString::FromInt(Qcool)));
+		}
+		else {
+			FText qFormattedText = FText::AsNumber(Qcool, &NumberFormat);
+			skillWigetInstance->Q_CoolTime->SetText(qFormattedText);
+		}
+
+		float Ecool = FMath::Clamp(ScoutingArrowCoolTime - ScoutingArrowCoolCurrTime, 0, 10);
+		if (Ecool > 1) {
+			skillWigetInstance->E_CoolTime->SetText(FText::FromString(FString::FromInt(Ecool)));
+		}
+		else {
+			FText eFormattedText = FText::AsNumber(Ecool, &NumberFormat);
+			skillWigetInstance->E_CoolTime->SetText(eFormattedText);
+		}
+
+		float Fcool = FMath::Clamp(HookCoolTime - HookCoolCurrTime, 0, 10);
+		if (Fcool > 1) {
+			skillWigetInstance->F_CoolTime->SetText(FText::FromString(FString::FromInt(Fcool)));
+		}
+		else {
+			FText fFormattedText = FText::AsNumber(Fcool, &NumberFormat);
+			skillWigetInstance->F_CoolTime->SetText(fFormattedText);
+		}
+	}
 }
 
 void ASB_Sova::Server_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
@@ -1036,6 +1153,10 @@ void ASB_Sova::AirSmokeLogic()
 		}
 		SmokeSkillUI->SpawnSmokePos.Empty();
 		DeactiveAirSmoke();
+		AirSmokeCoolCurrTime = 0;
+		if (skillWigetInstance) {
+			skillWigetInstance->C_CoolTime->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
 }
 

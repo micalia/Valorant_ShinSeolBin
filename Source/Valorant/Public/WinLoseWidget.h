@@ -94,4 +94,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UUMGSequencePlayer* WinPlayer;
+
+public:
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class UTextBlock* WinnerNick;
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class UTextBlock* LoserNick;
+
+	FTimerHandle SetWinLoseNickDelay;
+	FString MyNick;
 };

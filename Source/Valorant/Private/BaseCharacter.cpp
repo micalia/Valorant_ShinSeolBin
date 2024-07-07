@@ -548,7 +548,6 @@ void ABaseCharacter::Multicast_CheckWinLose_Implementation()
 
 }
 
-
 void ABaseCharacter::NotifyRestarted()
 {
 	Super::NotifyRestarted();
@@ -576,7 +575,6 @@ void ABaseCharacter::NotifyRestarted()
 	}
 }
 
-
 void ABaseCharacter::Server_EndGame_Implementation()
 {
 	Multicast_EndGame_Implementation();
@@ -603,8 +601,6 @@ void ABaseCharacter::Multicast_ServerDie_Implementation()
 {
 	PlayDieMontage();
 }
-
-
 
 void ABaseCharacter::ServerAddHealth_Implementation(int32 value)
 {

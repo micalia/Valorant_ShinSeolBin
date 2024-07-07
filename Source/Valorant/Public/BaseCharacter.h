@@ -203,7 +203,7 @@ public:
 	float Score = 0;
 
 	UPROPERTY(EditAnywhere)
-	int32 EndGameScore = 6;
+	int32 EndGameScore = 1;
 
 	UFUNCTION(Server, Reliable)
 	void Server_WinLose();

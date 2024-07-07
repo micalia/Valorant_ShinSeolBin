@@ -10,6 +10,8 @@
 #include "EngineUtils.h"
 #include <Sound/SoundBase.h>
 #include "Animation/UMGSequencePlayer.h"
+#include "../../Engine/Classes/GameFramework/PlayerState.h"
+#include "../../UMG/Public/Components/TextBlock.h"
 
 void UWinLoseWidget::NativeConstruct()
 {
@@ -30,9 +32,13 @@ void UWinLoseWidget::NativeConstruct()
 
 	AnimFinshed.BindDynamic(this, &UWinLoseWidget::onDestory);
 	BindToAnimationFinished(LossAnimation, AnimFinshed);
-
-	/*AnimFinshed.BindDynamic(this, &UWinLoseWidget::EndWinLoseAnim);
-	BindToAnimationFinished(WinBackGroundAnim, AnimFinshed);*/
+	GetWorld()->GetTimerManager().ClearTimer(SetWinLoseNickDelay);
+	GetWorld()->GetTimerManager().SetTimer(SetWinLoseNickDelay, FTimerDelegate::CreateLambda([&]() {
+		APlayerController* MyCon = UGameplayStatics::GetPlayerController(this, 0);
+		MyNick = MyCon->GetPawn()->GetPlayerState()->GetPlayerName();
+		WinnerNick->SetText(FText::FromString(MyNick));
+		LoserNick->SetText(FText::FromString(MyNick));
+	}), 1.0f, false);
 }
 
 void UWinLoseWidget::StartLoseAnim() // 졌을때 위에 나오는 UI
@@ -56,11 +62,6 @@ void UWinLoseWidget::onDestory()
 
 void UWinLoseWidget::StartWinAnim() // 이겼을때 위에 나오는 UI
 {
-	//soundV = LoadObject<USoundBase>(nullptr, TEXT("/Game/LMH/Sounds/09-Victory.09-Victory"));
-	/*if (soundV) {
-		UGameplayStatics::PlaySound2D(GetWorld(),soundV);
-
-	}*/
 	OV_Win->SetVisibility(ESlateVisibility::Visible);
 
 	PlayAnimation(WinAnimation);
@@ -90,14 +91,7 @@ void UWinLoseWidget::StartWinBackAnim() //이겼을떄 백그라운드 UI
 		SequencePlayer = PlayAnimationReverse(WinBackGroundAnim);
 		OV_WinBack->SetVisibility(ESlateVisibility::Hidden);
 		SequencePlayer->OnSequenceFinishedPlaying().AddUObject(this, &UWinLoseWidget::OnSequenceFinished);
-		
-
-//		FinishDel.AddUFunction(this, TEXT("EndWidgetAnim"));
 		}), 3.0f, false);
-
-	/*FWidgetAnimationDynamicEvent EndWidget;
-	EndWidget.BindDynamic(this, &UWinLoseWidget::EndWinLoseAnim);
-	WinBackGroundAnim->BindToAnimationFinished(this, EndWidget);*/
 }
 
 void UWinLoseWidget::StartWinEndingAnim()
@@ -109,7 +103,7 @@ void UWinLoseWidget::StartWinEndingAnim()
 void UWinLoseWidget::StartLoseEndingAnim()
 {
 	OV_LoseEnding->SetVisibility(ESlateVisibility::HitTestInvisible);
-	PlayAnimationForward(LoseEndingAnim);
+	PlayAnimationForward(LoseEndingAnim); 
 }
 
 void UWinLoseWidget::OnSequenceFinished(class UUMGSequencePlayer& InSequencePlayer)

@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SkillWidget.h"
 #include "PlayerFireComponent.h"
 #include "Components/TextBlock.h"
@@ -16,6 +15,7 @@
 #include "Components/CanvasPanel.h"
 #include "FireUserWidget.h"
 #include "../../Engine/Classes/Materials/MaterialInterface.h"
+#include "WinLoseWidget.h"
 
 void USkillWidget::NativeConstruct()
 {
@@ -90,8 +90,11 @@ void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			for (APlayerState* p : players)
 			{
 				auto a = MyPlayerController->GetPawn();
-				if (a) {
+				if (a) { 
 					if (p != MyPlayerController->GetPawn()->GetPlayerState()) {
+						if (UiOwner != nullptr && UiOwner->winloseInstance != nullptr) {
+							UiOwner->winloseInstance->WinnerEnemyNick->SetText(FText::FromString(FString::Printf(TEXT("%s"), *p->GetPlayerName())));
+						}
 						WB_TopUI->EnemyName_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *p->GetPlayerName())));
 						WB_TopUI->EnemyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)p->GetScore())));
 					}

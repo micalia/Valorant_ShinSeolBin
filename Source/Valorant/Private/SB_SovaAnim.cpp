@@ -47,7 +47,9 @@ void USB_SovaAnim::AnimNotify_Die()
 		me->EnableInput(me->GetController<APlayerController>());
 	}
 	
-	me->RestartProcess();
+	if (!me->TheEndGame) {
+		me->RestartProcess();
+	}
 }
 
 void USB_SovaAnim::AnimNotify_FadeOut()

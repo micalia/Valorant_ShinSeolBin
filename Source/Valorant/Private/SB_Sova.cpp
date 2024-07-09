@@ -311,6 +311,11 @@ void ASB_Sova::BeginPlay()
 	}
 
 	PlayerCam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+
+	if(auto PC = GetWorld()->GetFirstPlayerController()) {
+		PC->SetShowMouseCursor(false);
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC);
+	}
 }
 
 void ASB_Sova::Tick(float DeltaTime)

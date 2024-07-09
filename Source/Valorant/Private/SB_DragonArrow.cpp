@@ -29,13 +29,13 @@ ASB_DragonArrow::ASB_DragonArrow()
 	SMSovaArrow->SetRelativeRotation(FRotator(0, 0, 0));
 	SMSovaArrow->SetCastShadow(false);
 
-	static ConstructorHelpers::FClassFinder<AActor> tempSparkEffectFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Effect/DragonArrow/BP_ArrowSparkEffect.BP_ArrowSparkEffect_C'"));
+	/*ConstructorHelpers::FClassFinder<AActor> tempSparkEffectFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Effect/DragonArrow/BP_ArrowSparkEffect.BP_ArrowSparkEffect_C'"));
 	if (tempSparkEffectFactory.Succeeded()) {
 		SparkEffectFactory = tempSparkEffectFactory.Class;
-	}
+	}*/
 	ChildActorComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorComp"));
 	ChildActorComp->SetupAttachment(RootComp);
-	ChildActorComp->SetChildActorClass(SparkEffectFactory);
+	//ChildActorComp->SetChildActorClass(SparkEffectFactory);
 	ChildActorComp->SetRelativeLocation(FVector(-80, 0, 0));
 	ChildActorComp->SetRelativeRotation(FRotator(-90, 0, 0));
 	ChildActorComp->SetRelativeScale3D(FVector(0.2, 0.2, 3));

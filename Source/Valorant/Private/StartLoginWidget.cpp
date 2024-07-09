@@ -36,7 +36,6 @@ void UStartLoginWidget::NativeConstruct()
 	bt_nameNext->OnClicked.AddDynamic(this, &UStartLoginWidget::NameNext);
 	
 	btn_CreateSession->OnClicked.AddDynamic(this, &UStartLoginWidget::OnClickCreateButton);
-	slider_playerCount->OnValueChanged.AddDynamic(this, &UStartLoginWidget::OnSliderMoved);
 	btn_CreateSelection->OnClicked.AddDynamic(this, &UStartLoginWidget::OnClickedCreateSelection);
 	btn_FindSelection->OnClicked.AddDynamic(this, &UStartLoginWidget::OnClickedFindSelection);
 	btn_FindSession->OnClicked.AddDynamic(this, &UStartLoginWidget::OnClickFindButton);
@@ -70,18 +69,14 @@ void UStartLoginWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 void UStartLoginWidget::OnClickCreateButton()
 {
-	SwitchCanvas(5);
-	PlayAnimationForward(BeginAnim);
-	/*UGameplayStatics::PlaySound2D(this, SelectionSound);*/
-	/*if (gi != nullptr && !edit_roomName->GetText().IsEmpty())
-	{
-		gi->CreateMySession(edit_roomName->GetText(), (int32)slider_playerCount->GetValue());
-	}*/
+	EnterInGame();
+	//SwitchCanvas(5);
+	//PlayAnimationForward(BeginAnim);
 }
 
 void UStartLoginWidget::OnSliderMoved(float value)
 {
-	text_sliderCount->SetText(FText::AsNumber((int32)value));
+	//text_sliderCount->SetText(FText::AsNumber((int32)value));
 }
 
 
@@ -123,7 +118,7 @@ void UStartLoginWidget::AddRoomSlot(struct FSessionSlotInfo slotInfo)
 		sessionSlot->text_RoomName->SetText(FText::FromString(slotInfo.roomName));
 		sessionSlot->text_HostName->SetText(FText::FromString(slotInfo.hostName));
 		sessionSlot->text_PlayerCount->SetText(FText::FromString(slotInfo.playerCount));
-		sessionSlot->text_PingSpeed->SetText(FText::AsNumber(slotInfo.pingSpeed));
+		//sessionSlot->text_PingSpeed->SetText(FText::AsNumber(slotInfo.pingSpeed));
 		sessionSlot->sessionIndex = slotInfo.sessionIndex;
 		
 		// 생성한 슬롯 위젯을 스크롤 박스에 자식으로 추가한다.
@@ -220,8 +215,8 @@ void UStartLoginWidget::EnterInGame()
 		if (gi) {
 			if (!edit_roomName->GetText().IsEmpty())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Edit Room Name : %s / PlayerCOunt: %d"), *edit_roomName->GetText().ToString(), (int32)slider_playerCount->GetValue())
-				gi->CreateMySession(edit_roomName->GetText(), (int32)slider_playerCount->GetValue());
+				//UE_LOG(LogTemp, Warning, TEXT("Edit Room Name : %s / PlayerCOunt: %d"), *edit_roomName->GetText().ToString(), (int32)slider_playerCount->GetValue())
+				gi->CreateMySession(edit_roomName->GetText(), 2);
 			}
 		}
 	}

@@ -286,4 +286,9 @@ public:
 
 	UPROPERTY(Replicated)
 	bool bAvailableSuperSKill;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void LoadLobby();
+
 };

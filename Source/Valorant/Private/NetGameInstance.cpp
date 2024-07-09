@@ -8,14 +8,14 @@
 
 UNetGameInstance::UNetGameInstance()
 {
-	mySessionName=TEXT("Implant");
+	mySessionName=TEXT("Jelly");
 
 }
 
 void UNetGameInstance::Init()
 {
 	Super::Init();
-
+	UE_LOG(LogTemp, Warning, TEXT("Instance INIT"));
 	if (IOnlineSubsystem* subsys = IOnlineSubsystem::Get())
 	{
 		// Online Session Interface API 접근용 인스턴스 가져오기
@@ -25,6 +25,7 @@ void UNetGameInstance::Init()
 		//파라미터 2개쓰는 일반 델리게이트
 
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnCreatedMySession);
+		sessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnDestroyMySession);
 		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UNetGameInstance::OnFindOtherSessions);
 		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnJoinSelectedSession);
 
@@ -32,33 +33,40 @@ void UNetGameInstance::Init()
 }
 void UNetGameInstance::CreateMySession(FText roomName, int32 playerCount)
 {
-	FOnlineSessionSettings sessionSettings;
+	if(sessionInterface == nullptr) return;
 
-	// 1. LAN 연결인지 DEDICATED 연결인지 설정한다.
-	sessionSettings.bIsDedicated = false;
-	sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == FName("NULL");
+	InputRoomName = roomName;
+	auto ExistSession = sessionInterface->GetNamedSession(FName(*mySessionName));
+	if (ExistSession) {
+		UE_LOG(LogTemp, Warning, TEXT("Exist Session. Delete this Sesion And Create New Session!")); sessionInterface->DestroySession(FName(*mySessionName));
+	}
+	else {
+		FOnlineSessionSettings sessionSettings;
+	
+		// 1. LAN 연결인지 DEDICATED 연결인지 설정한다.
+		sessionSettings.bIsDedicated = false;
+		sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == FName("NULL");
 
-	// 2. 검색 가능한 방으로 설정한다.
-	sessionSettings.bShouldAdvertise = true;
+		// 2. 검색 가능한 방으로 설정한다.
+		sessionSettings.bShouldAdvertise = true;
 
-	// 3. 자기 정보를 전달될 수 있게 설정한다.
-	sessionSettings.bUsesPresence = true;
+		// 3. 자기 정보를 전달될 수 있게 설정한다.
+		sessionSettings.bUsesPresence = true;
 
-	// 4. 다른 유저의 중간 입장을 허용한다.
-	sessionSettings.bAllowJoinInProgress = true;
-	sessionSettings.bAllowJoinViaPresence = true;
+		// 4. 다른 유저의 중간 입장을 허용한다.
+		sessionSettings.bAllowJoinInProgress = true;
+		sessionSettings.bAllowJoinViaPresence = true;
 
-	// 5. 입장 가능 인원을 설정한다.
-	sessionSettings.NumPublicConnections = playerCount;
+		// 5. 입장 가능 인원을 설정한다.
+		sessionSettings.NumPublicConnections = playerCount;
 
-	//// 6. 세션에 추가 설정을 넣는다.
-	sessionSettings.Set(FName("ROOM_NAME"), roomName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	sessionSettings.Set(FName("HOST_NAME"), mySessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		//// 6. 세션에 추가 설정을 넣는다.
+		sessionSettings.Set(FName("ROOM_NAME"), InputRoomName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		sessionSettings.Set(FName("HOST_NAME"), mySessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
-	bool isSuccess = sessionInterface->CreateSession(0, FName(roomName.ToString()), sessionSettings);
-	UE_LOG(LogTemp, Warning, TEXT("Session Create Result: %s"), isSuccess ? *FString("Success") : *FString("Failed..."));
-
-
+		bool isSuccess = sessionInterface->CreateSession(0, FName(*mySessionName), sessionSettings);
+		UE_LOG(LogTemp, Warning, TEXT("Session Create Result: %s"), isSuccess ? *FString("Success") : *FString("Failed..."));
+	}
 }
 void UNetGameInstance::OnCreatedMySession(FName sessionName, bool bWasSuccessful)
 {
@@ -67,6 +75,14 @@ void UNetGameInstance::OnCreatedMySession(FName sessionName, bool bWasSuccessful
 		//listen -> listen server의 주체로서 서버트레블
 		bool result = GetWorld()->ServerTravel("/Game/Map/JellyGameMap?Listen", true);
 		UE_LOG(LogTemp, Warning, TEXT("Travel Result: %s"), result ? *FString("Success") : *FString("Failed..."));
+	}
+}
+
+void UNetGameInstance::OnDestroyMySession(FName sessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful) {
+		CreateMySession(InputRoomName, 2);
+		UE_LOG(LogTemp, Warning, TEXT("Destroy Success"))
 	}
 }
 

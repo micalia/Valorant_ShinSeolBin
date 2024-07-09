@@ -237,6 +237,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 			TheEndGameOn = true;
 		}
+		auto PC = GetWorld()->GetFirstPlayerController();
+		PC->SetShowMouseCursor(true);
 	}
 
 	if (CurrHP <= 0) {
@@ -290,12 +292,6 @@ void ABaseCharacter::Multicast_Lose_Implementation()
 
 void ABaseCharacter::DefaultShootPress()
 {
-	if (HasAuthority()) {
-		
-	}
-	else {
-
-	}
 	if (fireComp) {
 		fireComp->isFire = true;
 	}
@@ -531,6 +527,10 @@ void ABaseCharacter::Multicast_CheckWinLose_Implementation()
 				else {
 					p->winloseInstance->StartLoseEndingAnim();
 					UGameplayStatics::PlaySound2D(GetWorld(), DefeatSound, 0.5);
+					if (auto PC = GetWorld()->GetFirstPlayerController()) {
+						PC->SetShowMouseCursor(true);
+						UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PC, winloseInstance);
+					}
 				}
 			}
 			else {
@@ -541,6 +541,10 @@ void ABaseCharacter::Multicast_CheckWinLose_Implementation()
 				else {
 					p->winloseInstance->StartWinEndingAnim();
 					UGameplayStatics::PlaySound2D(GetWorld(), WinSound, 0.5);
+					if (auto PC = GetWorld()->GetFirstPlayerController()) {
+						PC->SetShowMouseCursor(true);
+						UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PC, winloseInstance);
+					}
 				}
 			}
 		}
@@ -595,6 +599,13 @@ void ABaseCharacter::Multicast_EndGame_Implementation()
 void ABaseCharacter::SuperSkillGaugeUp(int32 DamageVal, ABaseCharacter* WhoHitMe)
 {
 
+}
+
+void ABaseCharacter::LoadLobby()
+{
+	if(auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0)){
+		PC->ClientTravel("/Game/Map/StartLobyMap?listen", ETravelType::TRAVEL_Absolute);
+	}
 }
 
 void ABaseCharacter::Multicast_ServerDie_Implementation()

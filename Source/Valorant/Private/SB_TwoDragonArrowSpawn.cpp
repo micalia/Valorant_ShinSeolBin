@@ -44,7 +44,7 @@ void ASB_TwoDragonArrowSpawn::Tick(float DeltaTime)
 		{
 			if(Element.bCanAttack == false){
 				GetWorld()->GetTimerManager().ClearTimer(Element.DamageTermHandle);
-				Element.DamagedPlayer->ServerDamagedHealth_Implementation(20, ThisOwner, true);
+				Element.DamagedPlayer->ServerDamagedHealth_Implementation(34, ThisOwner, true);
 				Element.bCanAttack = true;
 				GetWorld()->GetTimerManager().SetTimer(Element.DamageTermHandle, FTimerDelegate::CreateLambda([&]() {
 					Element.bCanAttack = false;

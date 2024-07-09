@@ -50,6 +50,7 @@ public:
 	//ufuction ¾²¸é ¾ÈµÊ
 	void CreateMySession(FText roomName, int32 playerCount);
 	void OnCreatedMySession(FName sessionName, bool bWasSuccessful);
+	void OnDestroyMySession(FName sessionName, bool bWasSuccessful);
 	void FindOtherSession();
 	void OnFindOtherSessions(bool bWasSuccessful);
 	void JoinSelectedSession(int32 index);
@@ -57,6 +58,8 @@ public:
 	//void JoinSelectedSession(int32 index);
 	//void OnJoinSelectedSession(FName sessionName, EOnJoinSessionCompleteResult::Type result);
 	
+	FText InputRoomName;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int selectCharacterIndex;
 };

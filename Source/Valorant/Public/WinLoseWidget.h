@@ -99,8 +99,13 @@ public:
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	class UTextBlock* WinnerNick;
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	class UTextBlock* LoserNick;
+	class UTextBlock* WinnerEnemyNick;
 
-	FTimerHandle SetWinLoseNickDelay;
+	//FTimerHandle SetWinLoseNickDelay;
 	FString MyNick;
+
+	UPROPERTY(meta = (BindWidget))
+	class UButton* WinExit_btn;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* DefeatExit_btn;
 };

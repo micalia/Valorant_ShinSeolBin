@@ -52,8 +52,8 @@ public:
 		//새로추가 SB
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
 	class UButton* btn_CreateSession;
-	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
-	class USlider* slider_playerCount;
+	/*UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
+	class USlider* slider_playerCount;*/
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
 	class UButton* btn_CreateSelection;
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
@@ -73,8 +73,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
 	class UEditableText* edit_roomName;
-	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
-	class UTextBlock* text_sliderCount;
+	/*UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
+	class UTextBlock* text_sliderCount;*/
 
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category=MySettings)
 	class UScrollBox* sb_RoomListBox;

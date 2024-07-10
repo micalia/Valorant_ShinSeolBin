@@ -127,7 +127,8 @@ void UNetGameInstance::OnFindOtherSessions(bool bWasSuccessful)
 
 			// 구조체 변수에 찾은 세션 정보를 입력한다.
 			FSessionSlotInfo slotInfo;
-			slotInfo.Set(roomName, hostName, FString::Printf(TEXT("(%d/%d)"), maxNumber - openNumber, maxNumber), pingSpeed, i);
+			//slotInfo.Set(roomName, hostName, FString::Printf(TEXT("(%d/%d)"), maxNumber - openNumber, maxNumber), pingSpeed, i);
+			slotInfo.Set(roomName, hostName, FString::Printf(TEXT("(%d/%d)"), 1, maxNumber), pingSpeed, i);
 
 			// 세션 정보를 델리게이트로 전파한다.
 			onSearchCompleted.Broadcast(slotInfo);

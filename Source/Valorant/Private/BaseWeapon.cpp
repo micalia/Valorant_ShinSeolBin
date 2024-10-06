@@ -42,19 +42,19 @@ ABaseWeapon::ABaseWeapon()
 	MuzzleFlashComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("MuzzleFlashComp"));
 	MuzzleFlashComp->SetupAttachment(meshComp, TEXT("FirePos"));
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempMuzzleFlash(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_Pistol_MuzzleFlash_01.P_Pistol_MuzzleFlash_01'"));
+	ConstructorHelpers::FObjectFinder<UParticleSystem> tempMuzzleFlash(TEXT("/Script/Engine.ParticleSystem'/Game/PSH/MilitaryWeapSilver/FX/P_Pistol_MuzzleFlash_01.P_Pistol_MuzzleFlash_01'"));
 	if (tempMuzzleFlash.Succeeded()) {
 		MuzzleFlash = tempMuzzleFlash.Object;
 	}
 
 	MuzzleFlashComp->SetTemplate(MuzzleFlash);
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempReloadMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Gun/AM_SniperReload.AM_SniperReload'"));
+	 ConstructorHelpers::FObjectFinder<UAnimMontage> tempReloadMontage(TEXT("/Script/Engine.AnimMontage'/Game/SB/Animations/Gun/AM_SniperReload.AM_SniperReload'"));
 	if (tempReloadMontage.Succeeded()) {
 		ReloadMontage = tempReloadMontage.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempSniperFireMontage(TEXT("/Script/Engine.AnimMontage'/Game/Marketplace/MilitaryWeapDark/Weapons/Anims/AM_SniperFire.AM_SniperFire'"));
+	 ConstructorHelpers::FObjectFinder<UAnimMontage> tempSniperFireMontage(TEXT("/Script/Engine.AnimMontage'/Game/Marketplace/MilitaryWeapDark/Weapons/Anims/AM_SniperFire.AM_SniperFire'"));
 	if (tempSniperFireMontage.Succeeded()) {
 		SniperFireMontage = tempSniperFireMontage.Object;
 	}

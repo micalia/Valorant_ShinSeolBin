@@ -13,7 +13,7 @@ struct FPlayerDamage {
 	UPROPERTY()
 	class ABaseCharacter* DamagedPlayer = nullptr;
 	UPROPERTY()
-	bool bCanAttack;
+	bool bCanAttack = false;
 
 	UPROPERTY()
 	FTimerHandle DamageTermHandle;

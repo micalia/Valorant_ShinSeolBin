@@ -38,7 +38,7 @@ AGrenade::AGrenade()
 		GrenadeMeshComp->SetSkeletalMesh(tempGrenadeMesh.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> tempExplosionEffect(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Explosion.P_Explosion'"));
+	ConstructorHelpers::FObjectFinder<UParticleSystem> tempExplosionEffect(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Explosion.P_Explosion'"));
 	if (tempExplosionEffect.Succeeded()) {
 		ExplosionEffect = tempExplosionEffect.Object;
 	}

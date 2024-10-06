@@ -5,6 +5,7 @@
 #include "UI_SB_ScoutingArrow.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
+#include "BaseWeapon.h"
 #include "SB_Arrow.h"
 #include "SB_DragonArrow.h"
 #include <GameFramework/ProjectileMovementComponent.h>
@@ -104,17 +105,17 @@ ASB_Sova::ASB_Sova()
 		fpsMesh->SetAnimInstanceClass(tempSovaFpsAnim.Class);
 	}
 
-	static ConstructorHelpers::FClassFinder<AActor> tempBaseWeaponFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_BaseWeapon.BP_BaseWeapon_C'"));
+	/*ConstructorHelpers::FClassFinder<ABaseWeapon> tempBaseWeaponFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_BaseWeapon.BP_BaseWeapon_C'"));
 	if (tempBaseWeaponFactory.Succeeded()) {
 		BaseWeaponFactory = tempBaseWeaponFactory.Class;
-	}
+	}*/
 
 	BaseWeapon = CreateDefaultSubobject<UChildActorComponent>(TEXT("BaseWeapon"));
 	BaseWeapon->SetupAttachment(fpsMesh, TEXT("WeaponLoc"));
 	BaseWeapon->SetRelativeLocation(FVector(1.700801, -9.536563, 0.029019));
 	BaseWeapon->SetRelativeRotation(FRotator(0, -11, 208));
 	BaseWeapon->SetRelativeScale3D(FVector(1.17));
-	BaseWeapon->SetChildActorClass(BaseWeaponFactory);
+	//BaseWeapon->SetChildActorClass(BaseWeaponFactory);
 
 	arrowMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("arrowObj"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> tempArrowMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SB/Models/BowAndArrow/Bow_and_arrow.Bow_and_arrow'"));
@@ -221,14 +222,14 @@ ASB_Sova::ASB_Sova()
 	CableComp->CableGravityScale = 0;
 	CableComp->CastShadow = false;
 
-	static ConstructorHelpers::FClassFinder<AActor> tempDeathCameraFactory(TEXT("/Script/Engine.Blueprint'/Game/LMH/BP/BP_DeathCamera.BP_DeathCamera_C'"));
+	/*static ConstructorHelpers::FClassFinder<AActor> tempDeathCameraFactory(TEXT("/Script/Engine.Blueprint'/Game/LMH/BP/BP_DeathCamera.BP_DeathCamera_C'"));
 	if (tempDeathCameraFactory.Succeeded()) {
 		DeathCameraFactory = tempDeathCameraFactory.Class;
-	}
+	}*/
 
 	DeathCamera = CreateDefaultSubobject<UChildActorComponent>(TEXT("DeathCamera"));
 	DeathCamera->SetupAttachment(RootComponent);
-	DeathCamera->SetChildActorClass(DeathCameraFactory);
+	//DeathCamera->SetChildActorClass(DeathCameraFactory);
 	DeathCamera->SetRelativeLocation(FVector(-187, 0, 121));
 	DeathCamera->SetRelativeRotation(FRotator(-70, 0, 0));
 
@@ -290,7 +291,7 @@ ASB_Sova::ASB_Sova()
 void ASB_Sova::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	UE_LOG(LogTemp, Warning, TEXT("Sova Init!!!!!!!!!"));
 	soundKill = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/2_throw.2_throw'"));
 	expl = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/5_expl.5_expl'"));
 
@@ -485,11 +486,11 @@ void ASB_Sova::MouseLeftReleasedAction()
 			
 			}), 1, false);
 
-		/*gaugeCurrTime = 0;
-		if (ui_SB_ScoutingArrowInstance) {
+		gaugeCurrTime = 0;
+		/*if (ui_SB_ScoutingArrowInstance) {
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
-		}
-		InitScoutingArrow();*/
+		}*/
+
 		currState = ESovaState::DefaultAtk;
 		break;
 	}
@@ -1352,13 +1353,16 @@ void ASB_Sova::Server_DestroyDragonArrow_Implementation()
 void ASB_Sova::SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe)
 {
 	if (WhoHitMe != nullptr) { // 게이지가 올라가는 수치
-		float TempGaugeVal = WhoHitMe->SuperSkillGauge + (DamageVal * 1.7 / 100) + 100;
+		float TempGaugeVal = WhoHitMe->SuperSkillGauge + (DamageVal * 1.7 / 100);
 		if (TempGaugeVal > 1) {
 			TempGaugeVal = 1;
 		} // 나를 때린사람은 게이지가 올라가야 함.
 		WhoHitMe->SuperSkillGauge = TempGaugeVal;
 		if(ASB_Sova* HitMePlayer = Cast<ASB_Sova>(WhoHitMe)){
 			HitMePlayer->MulticastSuperSkillGaugeUp(WhoHitMe->SuperSkillGauge);
+		}
+		if (WhoHitMe->SuperSkillGauge >= 1) {
+			WhoHitMe->SuperSkillGauge = 0;
 		}
 	}
 }

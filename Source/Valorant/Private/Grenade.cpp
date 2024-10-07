@@ -13,6 +13,8 @@
 #include "Particles/ParticleSystem.h"
 #include "BaseCharacter.h"
 #include "../../Engine/Classes/Sound/SoundCue.h"
+#include "../../Engine/Classes/GameFramework/PlayerState.h"
+#include "../../Engine/Classes/GameFramework/PlayerController.h"
 
 // Sets default values
 AGrenade::AGrenade()
@@ -141,15 +143,19 @@ void AGrenade::MulticastExplosion_Implementation()
 		EDrawDebugTrace::None,
 		OutHits,
 		true
-	);
-
-	if (bResult) {
-		for (auto& Element : OutHits)
-		{
-			if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(Element.GetActor())) {
-				if (ABaseCharacter* GrenadeOwner = Cast<ABaseCharacter>(GetOwner())) {
-					if(GrenadeOwner->IsLocallyControlled()) return;
-					DamagedPlayer->ServerDamagedHealth(ExplosionDamage, GrenadeOwner);
+	); 
+	if (HasAuthority()) {
+		APlayerController* MyCon = GetWorld()->GetFirstPlayerController();
+		if (bResult) {
+			for (auto& Element : OutHits)
+			{
+				if (ABaseCharacter* DamagedPlayer = Cast<ABaseCharacter>(Element.GetActor())) {
+					if (ABaseCharacter* GrenadeOwner = Cast<ABaseCharacter>(GetOwner())) { 
+						auto DamagedPlayerName = DamagedPlayer->GetPlayerState()->GetPlayerName();
+						auto ownerName = GrenadeOwner->GetPlayerState()->GetPlayerName();
+						if(DamagedPlayerName == ownerName) return;
+						DamagedPlayer->ServerDamagedHealth(ExplosionDamage, GrenadeOwner);
+					}
 				}
 			}
 		}

@@ -291,4 +291,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadLobby();
 
+private:
+	float CheckZposTime = 2;
+	float currCheckZposTime=0;
+
+	void RandomSpawn();
 };

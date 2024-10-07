@@ -266,6 +266,17 @@ void ABaseCharacter::Tick(float DeltaTime)
 			}
 		}
 	}
+
+	currCheckZposTime+=DeltaTime;
+	if (currCheckZposTime < CheckZposTime) {
+		currCheckZposTime = 0;
+		FVector currPos = GetActorLocation();
+		if (currPos.Z < -110 ||
+			currPos.X > 19410 || currPos.X < -6500 ||
+			currPos.Y > 8400 || currPos.Y < -14000) {
+			RandomSpawn();
+		}
+	}
 }
 void ABaseCharacter::ServerWin_Implementation()
 {
@@ -310,7 +321,7 @@ void ABaseCharacter::DefaultShootRelease()
 		fireComp->StopFire();
 	}
 }
-
+// 데미지를 받았을때 실행되는 함수
 void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharacter* WhoKilledMe, bool IsSuperSkill)
 {
 	MulticastAttackEnemyIndicator();
@@ -318,13 +329,32 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 	if (IsSuperSkill == false) {
 		SuperSkillGaugeUp(value, WhoKilledMe);
 	}
+	auto myName = GetPlayerState()->GetPlayerName();
+	auto myScore = GetPlayerState()->GetScore();
 
+	auto WhoKilledMeName = WhoKilledMe->GetPlayerState()->GetPlayerName();
+	auto WhoKilledMeScore = WhoKilledMe->GetPlayerState()->GetScore();
+
+	// Park 은 Kim을 죽인다. 그러면 Park의 점수가 호출돼야한다.
 	CurrHP = CurrHP - value;
+
+	auto myHP = GetHP();
+	auto WhoKilledMeHP = WhoKilledMe->GetHP();
 
 	if (CurrHP <= 0) {
 		if (HasAuthority()) {
 			if (WhoKilledMe) {
+				UE_LOG(LogTemp, Warning, TEXT("My Pos : %s"), *GetActorLocation().ToString())
+				//GetPlayerState()->SetScore(GetPlayerState()->GetScore() + 1);
 				WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
+
+
+				auto myName2 = GetPlayerState()->GetPlayerName();
+				auto myScore2 = GetPlayerState()->GetScore();
+
+				auto WhoKilledMeName2 = WhoKilledMe->GetPlayerState()->GetPlayerName();
+				auto WhoKilledMeScore2 = WhoKilledMe->GetPlayerState()->GetScore();
+
 
 				if (WhoKilledMe->GetPlayerState()->GetScore() >= EndGameScore)
 				{
@@ -605,6 +635,17 @@ void ABaseCharacter::LoadLobby()
 {
 	if(auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0)){
 		PC->ClientTravel("/Game/Map/StartLobyMap?listen", ETravelType::TRAVEL_Absolute);
+	}
+}
+
+void ABaseCharacter::RandomSpawn()
+{
+	auto ranVal = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+	if (ranVal == 1) {
+		SetActorLocation(FVector(-1330, -5347, 343));
+	}
+	else {
+		SetActorLocation(FVector(251, 7259, 488));
 	}
 }
 

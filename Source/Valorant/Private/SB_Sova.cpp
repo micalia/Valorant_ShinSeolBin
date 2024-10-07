@@ -404,7 +404,7 @@ void ASB_Sova::MouseLeftAction()
 	case ESovaState::AirSmoke:
 		break;
 	case ESovaState::Grenade:
-		if(MyGrenade == nullptr) return;
+		//if(MyGrenade == nullptr) return;
 		if(bThrowing == false) return;
 		if (HasAuthority()) {
 			ServerGrenadeThrowAction_Implementation();
@@ -1018,6 +1018,13 @@ void ASB_Sova::IncreaseBounceCount()
 
 void ASB_Sova::ServerGrenadeThrowReady_Implementation(APlayerController* MyPlayerController) {
 	MulticastGrenadeThrowReady(MyPlayerController);
+
+	FActorSpawnParameters spawnConfig;
+	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ASB_Sova* MySova = Cast<ASB_Sova>(MyPlayerController->GetPawn());
+	spawnConfig.Owner = MySova;
+
+	MyGrenade = GetWorld()->SpawnActor<AGrenade>(GrenadeFactory, MySova->fpsMesh->GetSocketLocation(TEXT("Grenade")), FRotator(0), spawnConfig);
 }
 
 void ASB_Sova::MulticastGrenadeThrowReady_Implementation(APlayerController* MyPlayerController)
@@ -1027,9 +1034,9 @@ void ASB_Sova::MulticastGrenadeThrowReady_Implementation(APlayerController* MyPl
 	auto TpsAnim = GetMesh()->GetAnimInstance();
 	TpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
 
-	if (HasAuthority()) {
+	/*if (HasAuthority()) {
 		ServerSpawnGrenade_Implementation(MyPlayerController);
-	}
+	}*/
 }
 
 void ASB_Sova::ShowProjectilePath()

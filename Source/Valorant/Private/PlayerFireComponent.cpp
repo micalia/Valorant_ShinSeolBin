@@ -93,11 +93,11 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
+	if (mySova == nullptr) {
+		mySova = Cast<ASB_Sova>(me);
+	}
 	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::LeftMouseButton))
 	{
-		if (mySova == nullptr) {
-			mySova = Cast<ASB_Sova>(me);
-		}
 		if (mySova != nullptr && mySova->GetCurrState() == ESovaState::DefaultAtk && mySova->GetSniperOn() == false) {
 			Fire();
 		}

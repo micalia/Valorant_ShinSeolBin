@@ -9,6 +9,7 @@
 UENUM(BlueprintType)
 enum class ESovaState :uint8
 {
+	Reload,
 	DefaultAtk,
 	ScoutingArrow,
 	AirSmoke,
@@ -90,6 +91,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	ESovaState currState = ESovaState::DefaultAtk;
 
+	void ChangeCurrState(ESovaState InCurrState);
+
+	FORCEINLINE ESovaState GetCurrState(){return currState;}
+
 	UFUNCTION(Server, Reliable)
 	void Server_SetCurrState(ESovaState paramCurrState);
 	UFUNCTION(NetMulticast, Reliable)
@@ -101,6 +106,9 @@ public:
 	void SniperRecoilCameraEffect();
 
 	bool bSniperOn = false;
+	void SetSniperOn(bool InSniperOn);
+	FORCEINLINE bool GetSniperOn(){return bSniperOn;}
+
 	UPROPERTY(BlueprintReadWrite)
 	bool bSniperRecoil = false;
 
@@ -132,6 +140,11 @@ public:
 	void Server_SetBoolScoutingArrow(bool bScoutingChk);
 	UFUNCTION(NetMulticast, Reliable)
 	void Mulitcast_SetBoolScoutingArrow(bool bScoutingChk);
+private:
+	bool bCanScouting = false;
+public:
+	void SetBoolScoutingArrow(bool InScoutingState){bCanScouting = InScoutingState;}
+	bool GetBoolScoutingArrow(){return bCanScouting;}
 
 	UPROPERTY(Replicated)
 	class ASB_ArrowVersion2* CurrArrow;
@@ -192,7 +205,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerGrenadeThrowAction();
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastGrenadeThrowAction();
+	void MulticastGrenadeThrowAction(bool bThrow);
 
 	UPROPERTY(EditAnywhere)
 	float ThrowPower = 1700;

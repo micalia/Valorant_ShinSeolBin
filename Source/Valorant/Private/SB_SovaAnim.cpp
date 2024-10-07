@@ -36,6 +36,7 @@ void USB_SovaAnim::AnimNotify_ReloadComplete()
 	else {
 		me->fireComp->ServerReloadComplete();
 	}
+	me->ChangeCurrState(ESovaState::DefaultAtk);
 }
 
 void USB_SovaAnim::AnimNotify_Die()
@@ -73,5 +74,11 @@ void USB_SovaAnim::AnimNotify_ShotComplete()
 	me->isGun = true;
 	me->arrowMesh->SetVisibility(false);
 	me->BaseWeapon->SetVisibility(true);
+	me->ChangeCurrState(ESovaState::DefaultAtk);
+}
+
+void USB_SovaAnim::AnimNotify_CanScoutingArrow()
+{
+	me->SetBoolScoutingArrow(true);
 }
 

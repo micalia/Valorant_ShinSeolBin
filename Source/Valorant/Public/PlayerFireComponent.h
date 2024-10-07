@@ -34,6 +34,8 @@ public:
 	FORCEINLINE void SetAmmo(int32 count) { ammo = count; }
 	FORCEINLINE void SetAttckPower(int32 damage) { attackPower = damage; }
 public:
+	class ASB_Sova* mySova = nullptr;
+
 UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class ABaseWeapon> _weapon;
 
@@ -94,6 +96,8 @@ UPROPERTY(EditAnyWhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 ammo = 20;
 		int32 FullAmmoCount = ammo;
+
+	FORCEINLINE int32 GetAmmoCnt(){return ammo;}
 
 	UPROPERTY(EditAnywhere, Replicated)
 		int32 attackPower = 5;

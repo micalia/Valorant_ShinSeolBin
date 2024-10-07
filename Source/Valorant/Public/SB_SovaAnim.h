@@ -40,6 +40,8 @@ public:
 	void AnimNotify_PullArrow();
 	UFUNCTION()
 	void AnimNotify_ShotComplete();
+	UFUNCTION()
+	void AnimNotify_CanScoutingArrow();
 
 	//UPROPERTY(EditAnywhere)
 	//TSubclassOf<class USkillWidget> SkillWidgetFactory;

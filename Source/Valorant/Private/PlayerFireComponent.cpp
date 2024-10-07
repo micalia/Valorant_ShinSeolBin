@@ -93,9 +93,14 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
-	if (isFire)
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::LeftMouseButton))
 	{
-		Fire();
+		if (mySova == nullptr) {
+			mySova = Cast<ASB_Sova>(me);
+		}
+		if (mySova != nullptr && mySova->GetCurrState() == ESovaState::DefaultAtk && mySova->GetSniperOn() == false) {
+			Fire();
+		}
 	}
 }
 
@@ -108,6 +113,8 @@ void UPlayerFireComponent::SetupInputBinding(class UInputComponent* PlayerInputC
 
 void UPlayerFireComponent::Reload()
 {
+	bReloadOn = true;
+	mySova->Server_SetCurrState(ESovaState::Reload);
 	if (me->HasAuthority()) {
 		Server_Reload_Implementation();
 	}
@@ -168,6 +175,7 @@ void UPlayerFireComponent::MulticastReloadComplete_Implementation(int32 AmmoCnt)
 {
 	if (me && me->IsLocallyControlled()) {
 		OnAmmoCntChanged.Broadcast(AmmoCnt);
+		bReloadOn = false;
 	}
 }
 
@@ -181,7 +189,7 @@ void UPlayerFireComponent::Fire()
 	{
 		return;
 	}
-	
+
 	me->bCameraShake = true;
 	me->GetWorldTimerManager().ClearTimer(fireDelay);
 	me->GetWorldTimerManager().SetTimer(fireDelay, FTimerDelegate::CreateLambda([&]() {
@@ -236,6 +244,7 @@ void UPlayerFireComponent::ServerFire_Implementation()
 		bool bReloadChk;
 		if (ammo <= 0) {
 			bReloadChk = true;
+			mySova->ChangeCurrState(ESovaState::Reload);
 		}
 		else {
 			bReloadChk = false;
@@ -436,12 +445,14 @@ void UPlayerFireComponent::ServerSniperShot_Implementation()
 		bool ReloadChk;
 		if (ammo <= 0) {
 			ReloadChk = true;
+			mySova->ChangeCurrState(ESovaState::Reload);
+			
 		}
 		else {
 			ReloadChk = false;
 		}
 		MulticastSniperShot(ReloadChk, ammo);
-		if (ReloadChk)Server_Reload_Implementation();
+		if (ReloadChk)Reload();
 	}
 }
 

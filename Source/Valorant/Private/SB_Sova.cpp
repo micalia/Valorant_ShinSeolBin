@@ -340,12 +340,23 @@ void ASB_Sova::Tick(float DeltaTime)
 
 	ToGrappleDeltaTime = DeltaTime;
 
-	if (mouseLeftClick) {
-		switch (currState)
+		switch (GetCurrState())
 		{
+		case ESovaState::Reload:
+		{
+			SetSniperOn(false);
+		}
+			break;
 		case ESovaState::DefaultAtk:
+			if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::RightMouseButton)) {
+				SetSniperOn(true);
+			} else
+			{
+				SetSniperOn(false);
+			}
 			break;
 		case ESovaState::ScoutingArrow:
+			if (GetBoolScoutingArrow() == false) return;
 			ArrowPowerGaugeUp();
 			break;
 		case ESovaState::AirSmoke:
@@ -355,7 +366,7 @@ void ASB_Sova::Tick(float DeltaTime)
 		default:
 			break;
 		}
-	}
+
 	// ASB_Sova::Tick 매 프레임마다 궤적을 생성함
 	if (bThrowing) ShowProjectilePath();
 	if (bCameraShake == true) CameraShakeRandom();
@@ -364,11 +375,14 @@ void ASB_Sova::Tick(float DeltaTime)
 void ASB_Sova::MouseLeftAction()
 {
 	if (IsLocallyControlled() == false) return;
+	if (fireComp->bReloadOn == true) return;
 	mouseLeftClick = true;
-	switch (currState)
+	switch (GetCurrState())
 	{
 	case ESovaState::DefaultAtk:
-		if (fireComp && !fireComp->bReloadOn) {
+	{
+		auto ammoCnt = fireComp->GetAmmoCnt();
+		if (fireComp && ammoCnt >= 1) {
 			if (!bSniperOn) {
 				//auto controller = GetWorld()->GetFirstPlayerController();
 				//controller->PlayerCameraManager->StartCameraShake(CameraShake);
@@ -383,12 +397,15 @@ void ASB_Sova::MouseLeftAction()
 				fireComp->SniperShot();
 			}
 		}
+	}
 		break;
 	case ESovaState::ScoutingArrow:
 		break;
 	case ESovaState::AirSmoke:
 		break;
 	case ESovaState::Grenade:
+		if(MyGrenade == nullptr) return;
+		if(bThrowing == false) return;
 		if (HasAuthority()) {
 			ServerGrenadeThrowAction_Implementation();
 		}
@@ -409,9 +426,10 @@ void ASB_Sova::MouseLeftAction()
 void ASB_Sova::MouseLeftReleasedAction()
 {
 	if (IsLocallyControlled() == false) return;
+	if (fireComp->bReloadOn == true) return;
 	mouseLeftClick = false;
 
-	switch (currState)
+	switch (GetCurrState())
 	{
 	case ESovaState::DefaultAtk:
 		if (HasAuthority()) {
@@ -422,6 +440,8 @@ void ASB_Sova::MouseLeftReleasedAction()
 		}
 		break;
 	case ESovaState::ScoutingArrow:
+		if(GetBoolScoutingArrow() == false) return;
+		SetBoolScoutingArrow(false);
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(false);
 			if (CurrArrow) {
@@ -449,7 +469,6 @@ void ASB_Sova::MouseLeftReleasedAction()
 
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Hidden);
 		InitScoutingArrow();
-		currState = ESovaState::DefaultAtk;
 		break;
 	case ESovaState::AirSmoke:
 		break;
@@ -491,7 +510,7 @@ void ASB_Sova::MouseLeftReleasedAction()
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
 		}*/
 
-		currState = ESovaState::DefaultAtk;
+		ChangeCurrState(ESovaState::DefaultAtk);
 		break;
 	}
 }
@@ -499,7 +518,8 @@ void ASB_Sova::MouseLeftReleasedAction()
 void ASB_Sova::MouseRightAction()
 {
 	if (IsLocallyControlled() == false) return;
-	switch (currState)
+	if (fireComp->bReloadOn == true) return;
+	switch (GetCurrState())
 	{
 	case ESovaState::DefaultAtk:
 		bSniperOn = true;
@@ -524,7 +544,8 @@ void ASB_Sova::MouseRightAction()
 
 void ASB_Sova::MouseRightReleasedAction()
 {
-	switch (currState)
+	if (fireComp->bReloadOn == true) return;
+	switch (GetCurrState())
 	{
 	case ESovaState::DefaultAtk:
 		bSniperOn = false;
@@ -537,6 +558,7 @@ void ASB_Sova::MouseRightReleasedAction()
 	case ESovaState::ScoutingArrow:
 		break;
 	case ESovaState::AirSmoke:
+		ChangeCurrState(ESovaState::DefaultAtk);
 		break;
 	case ESovaState::Grenade:
 		break;
@@ -548,14 +570,16 @@ void ASB_Sova::MouseRightReleasedAction()
 void ASB_Sova::KeyE()
 {
 	if (IsLocallyControlled() == false) return;
+	if (fireComp->bReloadOn == true) return;
+	UE_LOG(LogTemp, Warning, TEXT("KeyE"));
 	if (ScoutingArrowCoolTime > ScoutingArrowCoolCurrTime) {
 		return;
 	}
 	else {
 		ScoutingArrowCoolCurrTime = 0;
 	}
-	if (currState == ESovaState::DefaultAtk) {
-		currState = ESovaState::ScoutingArrow;
+	if (GetCurrState() == ESovaState::DefaultAtk) {
+		ChangeCurrState(ESovaState::ScoutingArrow);
 		ABaseCharacter* MyPlayer = Cast<ABaseCharacter>(this);
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(true);
@@ -567,8 +591,8 @@ void ASB_Sova::KeyE()
 		}
 		ui_SB_ScoutingArrowInstance->SetVisibility(ESlateVisibility::Visible);
 	}
-	else if (currState == ESovaState::ScoutingArrow) {
-		currState = ESovaState::DefaultAtk;
+	else if (GetCurrState() == ESovaState::ScoutingArrow) {
+		ChangeCurrState(ESovaState::DefaultAtk);
 		if (HasAuthority()) {
 			Server_SetBoolScoutingArrow_Implementation(false);
 			Server_DestroyArrow_Implementation();
@@ -585,51 +609,53 @@ void ASB_Sova::KeyE()
 void ASB_Sova::KeyQ()
 {
 	if (IsLocallyControlled() == false) return;
+	if (fireComp->bReloadOn == true) return;
 	if (GrenadeCoolTime > GrenadeCoolCurrTime) {
 		return;
 	}
 	else {
 		GrenadeCoolCurrTime = 0;
 	}
-	if (currState == ESovaState::DefaultAtk) {
-		currState = ESovaState::Grenade;
+	if (GetCurrState() == ESovaState::DefaultAtk) {
+		ChangeCurrState(ESovaState::Grenade);
 		APlayerController* MyController = GetWorld()->GetFirstPlayerController();
 		if (HasAuthority()) {
-			Server_SetCurrState_Implementation(currState);
+			Server_SetCurrState_Implementation(GetCurrState());
 			ServerGrenadeThrowReady_Implementation(MyController);
 		}
 		else {
-			Server_SetCurrState(currState);
+			Server_SetCurrState(GetCurrState());
 			ServerGrenadeThrowReady(MyController);
 		}
 	}
-	else if (currState == ESovaState::Grenade) {
-		currState = ESovaState::DefaultAtk;
+	else if (GetCurrState() == ESovaState::Grenade) {
 		if (HasAuthority()) {
-			Server_SetCurrState_Implementation(currState);
+			Server_SetCurrState_Implementation(GetCurrState());
 			ServerCancelGrenade_Implementation();
 		}
 		else {
-			Server_SetCurrState(currState);
+			Server_SetCurrState(GetCurrState());
 			ServerCancelGrenade();
 		}
 		ClearPath();
 		bThrowing = false;
+		ChangeCurrState(ESovaState::DefaultAtk);
 	}
 }
 
 void ASB_Sova::KeyC()
 {
 	if (IsLocallyControlled() == false) return;
+	if (fireComp->bReloadOn == true) return;
 	if (AirSmokeCoolTime > AirSmokeCoolCurrTime) {
 		return;
 	}
-	if (currState == ESovaState::DefaultAtk) {
-		currState = ESovaState::AirSmoke;
+	if (GetCurrState() == ESovaState::DefaultAtk) {
+		ChangeCurrState(ESovaState::AirSmoke);
 		ActiveAirSmoke();
 	}
-	else if (currState == ESovaState::AirSmoke) {
-		currState = ESovaState::DefaultAtk;
+	else if (GetCurrState() == ESovaState::AirSmoke) {
+		ChangeCurrState(ESovaState::DefaultAtk);
 		DeactiveAirSmoke();
 	}
 }
@@ -637,6 +663,7 @@ void ASB_Sova::KeyC()
 void ASB_Sova::KeyF()
 {
 	if (IsLocallyControlled() == false) return;
+	if (fireComp->bReloadOn == true) return;
 	if (HookCoolTime > HookCoolCurrTime) {
 		return;
 	}
@@ -653,11 +680,12 @@ void ASB_Sova::KeyF()
 void ASB_Sova::KeyR()
 {
 	if (IsLocallyControlled() == false) return;
+	if (fireComp->bReloadOn == true) return;
 	if(bAvailableSuperSKill == false) {
 		UGameplayStatics::PlaySound2D(GetWorld(), NotReadySuperSkill);
 		return;
 	}
-	if (currState == ESovaState::DefaultAtk) {
+	if (GetCurrState() == ESovaState::DefaultAtk) {
 		currState = ESovaState::DragonStrike;
 		ABaseCharacter* MyPlayer = Cast<ABaseCharacter>(this);
 		if (HasAuthority()) {
@@ -669,7 +697,7 @@ void ASB_Sova::KeyR()
 			Server_SpawnDragonArrow(MyPlayer);
 		}
 	}
-	else if (currState == ESovaState::DragonStrike) {
+	else if (GetCurrState() == ESovaState::DragonStrike) {
 		currState = ESovaState::DefaultAtk;
 		if (HasAuthority()) {
 			Server_DestroyDragonArrow_Implementation();
@@ -717,6 +745,27 @@ void ASB_Sova::MeshVisible()
 	GetMesh()->SetVisibility(false);
 }
 
+void ASB_Sova::ChangeCurrState(ESovaState InCurrState)
+{
+	switch (InCurrState)
+	{
+	case ESovaState::DefaultAtk:
+		break;
+	case ESovaState::ScoutingArrow:
+		break;
+	case ESovaState::AirSmoke:
+		break;
+	case ESovaState::Grenade:
+		break;
+	case ESovaState::DragonStrike:
+		break;
+	default:
+		break;
+	}
+	currState = InCurrState;
+	UE_LOG(LogTemp, Warning, TEXT("ChagneCurrstate"));
+}
+
 void ASB_Sova::Server_SetCurrState_Implementation(ESovaState paramCurrState)
 {
 	Multicast_SetCurrState(paramCurrState);
@@ -724,7 +773,27 @@ void ASB_Sova::Server_SetCurrState_Implementation(ESovaState paramCurrState)
 
 void ASB_Sova::Multicast_SetCurrState_Implementation(ESovaState paramCurrState)
 {
-	currState = paramCurrState;
+	ChangeCurrState(paramCurrState);
+}
+
+void ASB_Sova::SetSniperOn(bool InSniperOn)
+{
+	if(bSniperOn == InSniperOn) return;
+	bSniperOn = InSniperOn;
+	if (bSniperOn) {
+		if (skillWigetInstance) {
+			skillWigetInstance->AimingPanelOn();
+			BaseWeapon->SetHiddenInGame(true);
+			fpsMesh->SetHiddenInGame(true);
+		}
+	}
+	else {
+		if (skillWigetInstance) {
+			skillWigetInstance->AimingPanelOff();
+			BaseWeapon->SetHiddenInGame(false);
+			fpsMesh->SetHiddenInGame(false);
+		}
+	}
 }
 
 void ASB_Sova::CoolTimeCalculate(float InDeltaTime)
@@ -1046,8 +1115,19 @@ void ASB_Sova::ClearPath() {
 
 void ASB_Sova::ServerCancelGrenade_Implementation()
 {
+	auto FpsAnim = fpsMesh->GetAnimInstance();
+	FpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
+	FpsAnim->Montage_JumpToSection(TEXT("End"), SovaGrenadeMongtage);
+
+	auto TpsAnim = GetMesh()->GetAnimInstance();
+	TpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
+	TpsAnim->Montage_JumpToSection(TEXT("End"), SovaGrenadeMongtage);
 	if (MyGrenade) {
 		MyGrenade->Destroy();
+	}
+	if (IsLocallyControlled()) {
+		ClearPath();
+		bThrowing = false;
 	}
 }
 
@@ -1064,7 +1144,7 @@ void ASB_Sova::ServerSpawnGrenade_Implementation(APlayerController* MyPlayerCont
 void ASB_Sova::ServerGrenadeThrowAction_Implementation()
 {
 	if (bThrowing) {
-		MulticastGrenadeThrowAction();
+		MulticastGrenadeThrowAction(bThrowing);
 		bThrowing = false;
 		if (MyGrenade) {
 			if (HasAuthority()) {
@@ -1076,13 +1156,14 @@ void ASB_Sova::ServerGrenadeThrowAction_Implementation()
 		}
 	}
 	else {
-		if (MyGrenade) {
+		MulticastGrenadeThrowAction(false);
+		/*if (MyGrenade) {
 			MyGrenade->Destroy();
-		}
+		}*/
 	}
 }
 
-void ASB_Sova::MulticastGrenadeThrowAction_Implementation()
+void ASB_Sova::MulticastGrenadeThrowAction_Implementation(bool bThrow)
 {
 	auto FpsAnim = fpsMesh->GetAnimInstance();
 	FpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
@@ -1093,14 +1174,16 @@ void ASB_Sova::MulticastGrenadeThrowAction_Implementation()
 	TpsAnim->Montage_JumpToSection(TEXT("End"), SovaGrenadeMongtage);
 
 	int RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 1);
-	switch (RanVal)
-	{
-	case 0:
-		UGameplayStatics::PlaySound2D(GetWorld(), GrenadeSound1);
-		break;
-	case 1:
-		UGameplayStatics::PlaySound2D(GetWorld(), GrenadeSound2);
-		break;
+	if (bThrow) {
+		switch (RanVal)
+		{
+		case 0:
+			UGameplayStatics::PlaySound2D(GetWorld(), GrenadeSound1);
+			break;
+		case 1:
+			UGameplayStatics::PlaySound2D(GetWorld(), GrenadeSound2);
+			break;
+		}
 	}
 	if (IsLocallyControlled()) {
 		ClearPath();
@@ -1137,7 +1220,7 @@ void ASB_Sova::DeactiveAirSmoke()
 			OnRemoveSmokerUI.Broadcast();
 			if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
 				SmokeSkillUI->SpawnSmokePos.Empty();
-				currState = ESovaState::DefaultAtk;
+				ChangeCurrState(ESovaState::DefaultAtk);
 			}
 		}
 	}

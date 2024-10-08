@@ -93,6 +93,7 @@ void UPlayerFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if (owningWeapon == nullptr)return;
 	if (me == nullptr)return;
+	if(me->TheEndGame) return;
 	if (mySova == nullptr) {
 		mySova = Cast<ASB_Sova>(me);
 	}
@@ -181,6 +182,7 @@ void UPlayerFireComponent::MulticastReloadComplete_Implementation(int32 AmmoCnt)
 
 void UPlayerFireComponent::Fire()
 {
+	if (me->TheEndGame) return;
 	if (owningWeapon == nullptr)
 		return;
 	if (!me->IsLocallyControlled() || bReloadOn)return;
@@ -374,6 +376,7 @@ void UPlayerFireComponent::SetAmmoCountTextInit(USkillWidget* SkillUI)
 
 void UPlayerFireComponent::SniperShot()
 {
+	if (me->TheEndGame) return;
 	if (!me->IsLocallyControlled() || bReloadOn)return;
 
 	if (bInSniperDelay)

@@ -170,7 +170,7 @@ public:
 public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UWinLoseWidget> WinLoseWidgetFactory;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class UWinLoseWidget* winloseInstance;
 
 	UPROPERTY(EditAnywhere)
@@ -193,6 +193,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool TheEndGame = false;
+
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool TheEndGameOn = false;

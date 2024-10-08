@@ -29,4 +29,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 playerCount = 0;
+	
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void EndGame();
 };

@@ -33,6 +33,7 @@
 #include "SB_Sova.h"
 #include "SkillWidget.h"
 #include "Components/Image.h"
+#include "../../Engine/Classes/GameFramework/PlayerController.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
@@ -217,8 +218,28 @@ void ABaseCharacter::BeginPlay()
 
 void ABaseCharacter::Tick(float DeltaTime)
 {
-	if (IsLocallyControlled() == false) return;
 	Super::Tick(DeltaTime);
+
+	currCheckZposTime += DeltaTime;
+	if (currCheckZposTime < CheckZposTime) {
+		currCheckZposTime = 0;
+		FVector currPos = GetActorLocation();
+		if (currPos.Z < -110 ||
+			currPos.X > 19410 || currPos.X < -6500 ||
+			currPos.Y > 8400 || currPos.Y < -14000) {
+			if (HasAuthority()) {
+				auto ranVal = UKismetMathLibrary::RandomIntegerInRange(0, 1);
+				if (ranVal == 1) {
+					SetActorLocation(FVector(-1330, -5347, 343));
+				}
+				else {
+					SetActorLocation(FVector(251, 7259, 488));
+				}
+			}
+		}
+	}
+
+	if (IsLocallyControlled() == false) return;
 	APlayerController* MyPlayerController = GetWorld()->GetFirstPlayerController();
 	int32 ControllerIndex = MyPlayerController->GetLocalPlayer()->GetControllerId();
 
@@ -236,9 +257,11 @@ void ABaseCharacter::Tick(float DeltaTime)
 			}
 
 			TheEndGameOn = true;
+			/*auto GS = Cast<ANetGameStateBase>(GetWorld()->GetGameState());
+			GS->EndGame();*/
+			auto PC = GetWorld()->GetFirstPlayerController();
+			PC->SetShowMouseCursor(true);
 		}
-		auto PC = GetWorld()->GetFirstPlayerController();
-		PC->SetShowMouseCursor(true);
 	}
 
 	if (CurrHP <= 0) {
@@ -267,16 +290,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 		}
 	}
 
-	currCheckZposTime+=DeltaTime;
-	if (currCheckZposTime < CheckZposTime) {
-		currCheckZposTime = 0;
-		FVector currPos = GetActorLocation();
-		if (currPos.Z < -110 ||
-			currPos.X > 19410 || currPos.X < -6500 ||
-			currPos.Y > 8400 || currPos.Y < -14000) {
-			RandomSpawn();
-		}
-	}
 }
 void ABaseCharacter::ServerWin_Implementation()
 {
@@ -324,6 +337,7 @@ void ABaseCharacter::DefaultShootRelease()
 // 데미지를 받았을때 실행되는 함수
 void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharacter* WhoKilledMe, bool IsSuperSkill)
 {
+	if(bDieOn == true) return;
 	MulticastAttackEnemyIndicator();
 
 	if (IsSuperSkill == false) {
@@ -345,8 +359,8 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 		if (HasAuthority()) {
 			if (WhoKilledMe) {
 				UE_LOG(LogTemp, Warning, TEXT("My Pos : %s"), *GetActorLocation().ToString())
-				//GetPlayerState()->SetScore(GetPlayerState()->GetScore() + 1);
-				WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
+					//GetPlayerState()->SetScore(GetPlayerState()->GetScore() + 1);
+					WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
 
 
 				auto myName2 = GetPlayerState()->GetPlayerName();
@@ -456,12 +470,12 @@ void ABaseCharacter::PlayDieMontage()
 
 void ABaseCharacter::DieProcess()
 {
-	if (HasAuthority()) {
+	/*if (HasAuthority()) {
 		Server_NoCollision_Implementation();
 	}
 	else {
 		Server_NoCollision();
-	}
+	}*/
 
 	if (GetController() != nullptr && GetController()->IsLocalPlayerController())
 	{
@@ -633,7 +647,7 @@ void ABaseCharacter::SuperSkillGaugeUp(int32 DamageVal, ABaseCharacter* WhoHitMe
 
 void ABaseCharacter::LoadLobby()
 {
-	if(auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0)){
+	if (auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0)) {
 		PC->ClientTravel("/Game/Map/StartLobyMap?listen", ETravelType::TRAVEL_Absolute);
 	}
 }

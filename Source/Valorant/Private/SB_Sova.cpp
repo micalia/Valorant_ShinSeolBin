@@ -317,6 +317,8 @@ void ASB_Sova::BeginPlay()
 		PC->SetShowMouseCursor(false);
 		UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC);
 	}
+
+	SkillCoolTimeInit();
 }
 
 void ASB_Sova::Tick(float DeltaTime)
@@ -356,8 +358,13 @@ void ASB_Sova::Tick(float DeltaTime)
 			}
 			break;
 		case ESovaState::ScoutingArrow:
+		{
 			if (GetBoolScoutingArrow() == false) return;
-			ArrowPowerGaugeUp();
+			if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::LeftMouseButton))
+			{
+				ArrowPowerGaugeUp();
+			}
+		}
 			break;
 		case ESovaState::AirSmoke:
 			break;
@@ -374,7 +381,8 @@ void ASB_Sova::Tick(float DeltaTime)
 
 void ASB_Sova::MouseLeftAction()
 {
-	if (IsLocallyControlled() == false) return;
+	if(TheEndGame) return;
+	if (IsLocallyControlled() == false)  return;
 	if (fireComp->bReloadOn == true) return;
 	mouseLeftClick = true;
 	switch (GetCurrState())
@@ -425,6 +433,7 @@ void ASB_Sova::MouseLeftAction()
 
 void ASB_Sova::MouseLeftReleasedAction()
 {
+	if (TheEndGame) return;
 	if (IsLocallyControlled() == false) return;
 	if (fireComp->bReloadOn == true) return;
 	mouseLeftClick = false;
@@ -475,6 +484,8 @@ void ASB_Sova::MouseLeftReleasedAction()
 	case ESovaState::Grenade:
 		break;
 	case ESovaState::DragonStrike:
+		if(bDragonArrowOn) return;
+		bDragonArrowOn =true;
 		UGameplayStatics::PlaySound2D(GetWorld(), DragonStrikeVoice);
 
 		if (HasAuthority()) {
@@ -509,8 +520,6 @@ void ASB_Sova::MouseLeftReleasedAction()
 		/*if (ui_SB_ScoutingArrowInstance) {
 			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
 		}*/
-
-		ChangeCurrState(ESovaState::DefaultAtk);
 		break;
 	}
 }
@@ -758,8 +767,11 @@ void ASB_Sova::ChangeCurrState(ESovaState InCurrState)
 	case ESovaState::Grenade:
 		break;
 	case ESovaState::DragonStrike:
+		bDragonArrowOn = false;
 		break;
 	default:
+		bDragonArrowOn = false;
+		SetBoolScoutingArrow(false);
 		break;
 	}
 	currState = InCurrState;
@@ -881,6 +893,14 @@ void ASB_Sova::SetCoolTimeUI()
 			skillWigetInstance->F_CoolTime->SetText(fFormattedText);
 		}
 	}
+}
+
+void ASB_Sova::SkillCoolTimeInit()
+{
+	ScoutingArrowCoolCurrTime = ScoutingArrowCoolTime;
+	GrenadeCoolCurrTime = GrenadeCoolTime;
+	AirSmokeCoolCurrTime = AirSmokeCoolTime;
+	HookCoolCurrTime = HookCoolTime;
 }
 
 void ASB_Sova::Server_SetBoolScoutingArrow_Implementation(bool bScoutingChk)

@@ -115,6 +115,8 @@ public:
 	void CoolTimeCalculate(float InDeltaTime);
 	void SetCoolTimeUI();
 
+	void SkillCoolTimeInit();
+
 	//********정찰용화살********//
 	UPROPERTY(EditAnywhere)
 	float ScoutingArrowCoolTime = 5;
@@ -347,8 +349,8 @@ public:
 	UPROPERTY(BlueprintReadOnly);
 	FVector HookLocation;
 
-	UPROPERTY(EditAnywhere)
-	float GrappleHookCoolDown = 1;
+	/*UPROPERTY(EditAnywhere)
+	float GrappleHookCoolDown = 1;*/
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShootGrappleHook();
@@ -365,6 +367,7 @@ public:
 	FTimerHandle GrappleMoveDelayHandle;
 public:
 	//********용의 일격********//
+	bool bDragonArrowOn = false;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASB_DragonArrow> DragonArrowFactory;
 

@@ -239,6 +239,31 @@ void ABaseCharacter::Tick(float DeltaTime)
 		}
 	}
 
+	if (CurrHP <= 0) {
+		if (!bDieOn) {
+			if (soundKill) {
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), soundKill, GetActorLocation());
+			}
+			if (GetController() != nullptr)
+			{
+				if (GetController()->IsLocalPlayerController())
+				{
+					GetMesh()->SetVisibility(true);
+					fpsMesh->SetVisibility(false);
+				}
+				if (HasAuthority()) {
+					ServerDie_Implementation();
+				}
+				else {
+					ServerDie();
+				}
+				DieProcess();
+
+				bDieOn = true;
+			}
+		}
+	}
+
 	if (IsLocallyControlled() == false) return;
 	APlayerController* MyPlayerController = GetWorld()->GetFirstPlayerController();
 	int32 ControllerIndex = MyPlayerController->GetLocalPlayer()->GetControllerId();
@@ -264,31 +289,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 		}
 	}
 
-	if (CurrHP <= 0) {
-
-		if (!bDieOn) {
-			if (soundKill) {
-				UGameplayStatics::PlaySoundAtLocation(GetWorld(), soundKill, GetActorLocation());
-			}
-			if (GetController() != nullptr)
-			{
-				if (GetController()->IsLocalPlayerController())
-				{
-					GetMesh()->SetVisibility(true);
-					fpsMesh->SetVisibility(false);
-				}
-				if (HasAuthority()) {
-					ServerDie_Implementation();
-				}
-				else {
-					ServerDie();
-				}
-				DieProcess();
-
-				bDieOn = true;
-			}
-		}
-	}
 
 }
 void ABaseCharacter::ServerWin_Implementation()

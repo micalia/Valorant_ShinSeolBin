@@ -567,7 +567,7 @@ void ASB_Sova::MouseRightReleasedAction()
 	case ESovaState::ScoutingArrow:
 		break;
 	case ESovaState::AirSmoke:
-		ChangeCurrState(ESovaState::DefaultAtk);
+		//ChangeCurrState(ESovaState::DefaultAtk);
 		break;
 	case ESovaState::Grenade:
 		break;
@@ -1247,7 +1247,11 @@ void ASB_Sova::DeactiveAirSmoke()
 			OnRemoveSmokerUI.Broadcast();
 			if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
 				SmokeSkillUI->SpawnSmokePos.Empty();
-				ChangeCurrState(ESovaState::DefaultAtk);
+				FTimerHandle DelayHandle;
+				GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]() {
+					ChangeCurrState(ESovaState::DefaultAtk);
+				}), 0.6f, false);
+
 			}
 		}
 	}
@@ -1257,6 +1261,14 @@ void ASB_Sova::AirSmokeLogic()
 {
 	AirSmokeVoice(); // 소바 스킬 시전 효과음 : "시야를 차단해"
 	if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
+		if (airSmokeCurrCount == 0) {
+			if (HasAuthority()) {
+				ServerSpawnSmokeObj_Implementation(GetActorLocation());
+			}
+			else {
+				ServerSpawnSmokeObj(GetActorLocation());
+			}
+		}
 		for (auto& SpawnSmokePosVal : SmokeSkillUI->SpawnSmokePos)
 		{
 			FVector StartLoc = FVector(SpawnSmokePosVal.X, SpawnSmokePosVal.Y, 5000);
@@ -1286,7 +1298,7 @@ void ASB_Sova::AirSmokeLogic()
 
 void ASB_Sova::AirSmokeVoice()
 {
-	if (airSmokeCurrCount > 0) {
+	if (airSmokeCurrCount >= 0) {
 		int32 RanVal = UKismetMathLibrary::RandomIntegerInRange(0, 1);
 		switch (RanVal)
 		{

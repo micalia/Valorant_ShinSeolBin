@@ -61,7 +61,6 @@ void ASB_Hook::Tick(float DeltaTime)
 		FVector endLoc = startLoc + GetActorForwardVector() * DetectObjDistance;
 		FHitResult hitInfo;
 		FCollisionQueryParams params;
-
 		params.AddIgnoredActor(this);
 		
 		if (GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECollisionChannel::ECC_WorldDynamic, params))
@@ -76,7 +75,7 @@ void ASB_Hook::Tick(float DeltaTime)
 		ServerNewLocation = HookP0 + HookVT;
 		SetActorLocation(ServerNewLocation, true);
 	}
-	else {
+	else { // 클라이언트 위치 값 보간
 		ClientTimeSinceUpdate += DeltaTime;
 		if (ClientTimeBetweenLastUpdate < KINDA_SMALL_NUMBER)
 		{

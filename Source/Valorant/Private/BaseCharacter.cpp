@@ -356,6 +356,7 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 	auto WhoKilledMeHP = WhoKilledMe->GetHP();
 
 	if (CurrHP <= 0) {
+		CurrHP = 0;
 		if (HasAuthority()) {
 			if (WhoKilledMe) {
 				UE_LOG(LogTemp, Warning, TEXT("My Pos : %s"), *GetActorLocation().ToString())

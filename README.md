@@ -21,3 +21,11 @@
 ![air1](https://github.com/user-attachments/assets/1797dfad-6b4e-4b87-b91e-b5db935c75d8)
 ![air2](https://github.com/user-attachments/assets/3c4c39d1-d0d4-48a0-bfe8-630bcf3ae3f0)
 
+# Point 5. 서버 데미지 처리
+[BaseCharacter.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/BaseCharacter.cpp#L338)
+![구현설명](https://github.com/user-attachments/assets/721b1747-bf4e-4b31-a0da-de583cc3c629)
+
+# Point 6. 가상함수를 활용한 궁극기 게이지 증가
+[SB_Sova.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_Sova.cpp#L1448)
+![virtualFunctionExecute](https://github.com/user-attachments/assets/22db9c4a-0e2b-4fa6-b9e1-261f36baf36f)
+

@@ -80,6 +80,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Velocity= 500;
 
+	float Power = 34;
+
 	ABaseCharacter* ThisOwner;
 
 	TSet<FPlayerDamage> DamagedPlayers;

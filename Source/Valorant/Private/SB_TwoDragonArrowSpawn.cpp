@@ -91,13 +91,13 @@ void ASB_TwoDragonArrowSpawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(ThisOwner != nullptr && HasAuthority()){
-		for (auto& Element : DamagedPlayers)
+	if(ThisOwner != nullptr && HasAuthority()){ // 서버에서 데미지 처리
+		for (auto& Element : DamagedPlayers) // 콜리전과 충돌된 플레이어들 순회
 		{
-			if(Element.bCanAttack == false){
+			if(Element.bCanAttack == false){ // 플레이어에게 데미지를 줄 수 있는 상태인가?
 				GetWorld()->GetTimerManager().ClearTimer(Element.DamageTermHandle);
-				Element.DamagedPlayer->ServerDamagedHealth_Implementation(34, ThisOwner, true);
-				Element.bCanAttack = true;
+				Element.DamagedPlayer->ServerDamagedHealth_Implementation(Power, ThisOwner, true);
+				Element.bCanAttack = true; // 플레이어가 용의 콜리전과 충돌하고 있더라도 0.5초에 한번씩 데미지를 입힘 
 				GetWorld()->GetTimerManager().SetTimer(Element.DamageTermHandle, FTimerDelegate::CreateLambda([&]() {
 					Element.bCanAttack = false;
 				}), 0.5, false);

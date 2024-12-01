@@ -104,18 +104,12 @@ ASB_Sova::ASB_Sova()
 	if (tempSovaFpsAnim.Succeeded()) {
 		fpsMesh->SetAnimInstanceClass(tempSovaFpsAnim.Class);
 	}
-
-	/*ConstructorHelpers::FClassFinder<ABaseWeapon> tempBaseWeaponFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/BP_BaseWeapon.BP_BaseWeapon_C'"));
-	if (tempBaseWeaponFactory.Succeeded()) {
-		BaseWeaponFactory = tempBaseWeaponFactory.Class;
-	}*/
-
+	
 	BaseWeapon = CreateDefaultSubobject<UChildActorComponent>(TEXT("BaseWeapon"));
 	BaseWeapon->SetupAttachment(fpsMesh, TEXT("WeaponLoc"));
 	BaseWeapon->SetRelativeLocation(FVector(1.700801, -9.536563, 0.029019));
 	BaseWeapon->SetRelativeRotation(FRotator(0, -11, 208));
 	BaseWeapon->SetRelativeScale3D(FVector(1.17));
-	//BaseWeapon->SetChildActorClass(BaseWeaponFactory);
 
 	arrowMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("arrowObj"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> tempArrowMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/SB/Models/BowAndArrow/Bow_and_arrow.Bow_and_arrow'"));
@@ -222,14 +216,8 @@ ASB_Sova::ASB_Sova()
 	CableComp->CableGravityScale = 0;
 	CableComp->CastShadow = false;
 
-	/*static ConstructorHelpers::FClassFinder<AActor> tempDeathCameraFactory(TEXT("/Script/Engine.Blueprint'/Game/LMH/BP/BP_DeathCamera.BP_DeathCamera_C'"));
-	if (tempDeathCameraFactory.Succeeded()) {
-		DeathCameraFactory = tempDeathCameraFactory.Class;
-	}*/
-
 	DeathCamera = CreateDefaultSubobject<UChildActorComponent>(TEXT("DeathCamera"));
 	DeathCamera->SetupAttachment(RootComponent);
-	//DeathCamera->SetChildActorClass(DeathCameraFactory);
 	DeathCamera->SetRelativeLocation(FVector(-187, 0, 121));
 	DeathCamera->SetRelativeRotation(FRotator(-70, 0, 0));
 
@@ -291,7 +279,6 @@ ASB_Sova::ASB_Sova()
 void ASB_Sova::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Sova Init!!!!!!!!!"));
 	soundKill = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/2_throw.2_throw'"));
 	expl = LoadObject<USoundBase>(nullptr, TEXT("/Script/Engine.SoundWave'/Game/LMH/Sounds/5_expl.5_expl'"));
 
@@ -392,8 +379,6 @@ void ASB_Sova::MouseLeftAction()
 		auto ammoCnt = fireComp->GetAmmoCnt();
 		if (fireComp && ammoCnt >= 1) {
 			if (!bSniperOn) {
-				//auto controller = GetWorld()->GetFirstPlayerController();
-				//controller->PlayerCameraManager->StartCameraShake(CameraShake);
 				if (HasAuthority()) {
 					ServerDefaultShootPress_Implementation();
 				}
@@ -412,7 +397,6 @@ void ASB_Sova::MouseLeftAction()
 	case ESovaState::AirSmoke:
 		break;
 	case ESovaState::Grenade:
-		//if(MyGrenade == nullptr) return;
 		if(bThrowing == false) return;
 		if (HasAuthority()) {
 			ServerGrenadeThrowAction_Implementation();
@@ -517,9 +501,6 @@ void ASB_Sova::MouseLeftReleasedAction()
 			}), 1, false);
 
 		gaugeCurrTime = 0;
-		/*if (ui_SB_ScoutingArrowInstance) {
-			ui_SB_ScoutingArrowInstance->PowerGaugeBar->SetPercent(0);
-		}*/
 		break;
 	}
 }
@@ -567,7 +548,6 @@ void ASB_Sova::MouseRightReleasedAction()
 	case ESovaState::ScoutingArrow:
 		break;
 	case ESovaState::AirSmoke:
-		//ChangeCurrState(ESovaState::DefaultAtk);
 		break;
 	case ESovaState::Grenade:
 		break;
@@ -1053,10 +1033,6 @@ void ASB_Sova::MulticastGrenadeThrowReady_Implementation(APlayerController* MyPl
 	FpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
 	auto TpsAnim = GetMesh()->GetAnimInstance();
 	TpsAnim->Montage_Play(SovaGrenadeMongtage, 1.0f);
-
-	/*if (HasAuthority()) {
-		ServerSpawnGrenade_Implementation(MyPlayerController);
-	}*/
 }
 
 void ASB_Sova::ShowProjectilePath()
@@ -1184,9 +1160,6 @@ void ASB_Sova::ServerGrenadeThrowAction_Implementation()
 	}
 	else {
 		MulticastGrenadeThrowAction(false);
-		/*if (MyGrenade) {
-			MyGrenade->Destroy();
-		}*/
 	}
 }
 

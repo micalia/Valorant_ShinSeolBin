@@ -5,6 +5,8 @@
 #include "Components/CapsuleComponent.h"
 #include "BaseCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ASB_TwoDragonArrowSpawn::ASB_TwoDragonArrowSpawn()
@@ -21,6 +23,34 @@ ASB_TwoDragonArrowSpawn::ASB_TwoDragonArrowSpawn()
 	AttackColl->SetCapsuleRadius(384);
 	AttackColl->SetCapsuleHalfHeight(830);
 
+	static ConstructorHelpers::FClassFinder<AActor> tempSpawnDragonArrowEffectFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/DragonArrow/BP_SpawnDragonArrowEffect.BP_SpawnDragonArrowEffect_C'"));
+	if (tempSpawnDragonArrowEffectFactory.Succeeded()) {
+		SpawnDragonArrowEffectFactory = tempSpawnDragonArrowEffectFactory.Class;
+	}
+
+	DragonComp = CreateDefaultSubobject<USphereComponent>(TEXT("DragonComp"));
+	DragonComp->SetupAttachment(RootComp);
+	DragonComp->SetRelativeRotation(FRotator(0, 0, 60));
+	DragonComp->SetSphereRadius(32);
+	DragonComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	DragonBoxColl1 = CreateDefaultSubobject<UBoxComponent>(TEXT("DragonBoxColl1"));
+	DragonBoxColl1->SetupAttachment(DragonComp);
+	DragonBoxColl1->SetRelativeRotation(FRotator(0, 0, -90));
+	DragonBoxColl1->SetBoxExtent(FVector(32));
+	DragonComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	DragonBoxColl2 = CreateDefaultSubobject<UBoxComponent>(TEXT("DragonBoxColl2"));
+	DragonBoxColl2->SetRelativeRotation(FRotator(0, 0, 90));
+	DragonBoxColl2->SetupAttachment(DragonComp);
+	DragonBoxColl2->SetBoxExtent(FVector(32));
+	DragonComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	static ConstructorHelpers::FClassFinder<AActor> tempDragonMeshActorFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Blueprints/DragonArrow/BP_DragonMeshActor.BP_DragonMeshActor_C'"));
+	if (tempDragonMeshActorFactory.Succeeded()) {
+		DragonMeshActorFactory = tempDragonMeshActorFactory.Class;
+	}
+
 	bReplicates = true;
 }
 
@@ -32,6 +62,28 @@ void ASB_TwoDragonArrowSpawn::BeginPlay()
 	ThisOwner = Cast<ABaseCharacter>(GetOwner());
 	AttackColl->OnComponentBeginOverlap.AddDynamic(this, &ASB_TwoDragonArrowSpawn::OnAttackOverlap);
 	AttackColl->OnComponentEndOverlap.AddDynamic(this, &ASB_TwoDragonArrowSpawn::OnEndOverlap);
+
+	if (HasAuthority()) {
+		FVector SpawnLoc = GetActorForwardVector() * DragonSpawnDist + GetActorLocation();
+		FActorSpawnParameters SpawnConfig;
+		SpawnConfig.Owner = GetOwner();
+
+		FTransform SpawnTransform;
+		SpawnTransform.SetLocation(SpawnLoc);
+		SpawnTransform.SetScale3D(FVector(4));
+		GetWorld()->SpawnActor<AActor>(SpawnDragonArrowEffectFactory, SpawnTransform, SpawnConfig);
+		AttackColl->SetWorldLocation(SpawnLoc);
+
+		FTransform DragonSpawnTransform1 = DragonBoxColl1->GetComponentTransform();
+		DragonSpawnTransform1.SetScale3D(FVector(EffectScale));
+		Dragon1 = GetWorld()->SpawnActor<AActor>(DragonMeshActorFactory, DragonSpawnTransform1, SpawnConfig);
+
+		FTransform DragonSpawnTransform2 = DragonBoxColl2->GetComponentTransform();
+		DragonSpawnTransform2.SetScale3D(FVector(EffectScale));
+		Dragon2 = GetWorld()->SpawnActor<AActor>(DragonMeshActorFactory, DragonSpawnTransform2, SpawnConfig);
+
+		SetLifeSpan(DelayDestroyTime);
+	}
 }
 
 // Called every frame
@@ -51,6 +103,12 @@ void ASB_TwoDragonArrowSpawn::Tick(float DeltaTime)
 				}), 0.5, false);
 			}
 		}
+		#pragma region AttackCollisionMove
+		FVector Dragon1BoneLoc = Dragon1->GetComponentByClass<USkeletalMeshComponent>()->GetSocketLocation(TEXT("Bone011"));
+		FVector Dragon2BoneLoc = Dragon2->GetComponentByClass<USkeletalMeshComponent>()->GetSocketLocation(TEXT("Bone011"));
+		FVector NewDragonCenterLoc = ((Dragon1BoneLoc + Dragon2BoneLoc) / 2 ) + (GetActorForwardVector() * Velocity) * DeltaTime;
+		AttackColl->SetWorldLocation(NewDragonCenterLoc);
+		#pragma endregion
 	}
 }
 

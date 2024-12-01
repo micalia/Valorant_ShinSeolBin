@@ -45,10 +45,40 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> SpawnDragonArrowEffectFactory;
+
+	UPROPERTY(EditAnywhere)
+	float DragonSpawnDist = 1200;
+
+	UPROPERTY(EditAnywhere)
 	class USceneComponent* RootComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCapsuleComponent* AttackColl;
+
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* DragonComp;
+
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* DragonBoxColl1;
+
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* DragonBoxColl2;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> DragonMeshActorFactory;
+	
+	UPROPERTY(EditAnywhere)
+	float EffectScale = 5;
+
+	AActor* Dragon1 = nullptr;
+	AActor* Dragon2 = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	float DelayDestroyTime = 12;
+
+	UPROPERTY(EditAnywhere)
+	float Velocity= 500;
 
 	ABaseCharacter* ThisOwner;
 

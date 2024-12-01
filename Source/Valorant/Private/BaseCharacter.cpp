@@ -349,7 +349,6 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 	auto WhoKilledMeName = WhoKilledMe->GetPlayerState()->GetPlayerName();
 	auto WhoKilledMeScore = WhoKilledMe->GetPlayerState()->GetScore();
 
-	// Park 은 Kim을 죽인다. 그러면 Park의 점수가 호출돼야한다.
 	CurrHP = CurrHP - value;
 
 	auto myHP = GetHP();
@@ -359,10 +358,7 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 		CurrHP = 0;
 		if (HasAuthority()) {
 			if (WhoKilledMe) {
-				UE_LOG(LogTemp, Warning, TEXT("My Pos : %s"), *GetActorLocation().ToString())
-					//GetPlayerState()->SetScore(GetPlayerState()->GetScore() + 1);
-					WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
-
+				WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
 
 				auto myName2 = GetPlayerState()->GetPlayerName();
 				auto myScore2 = GetPlayerState()->GetScore();
@@ -370,11 +366,10 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 				auto WhoKilledMeName2 = WhoKilledMe->GetPlayerState()->GetPlayerName();
 				auto WhoKilledMeScore2 = WhoKilledMe->GetPlayerState()->GetScore();
 
-
 				if (WhoKilledMe->GetPlayerState()->GetScore() >= EndGameScore)
 				{
 					TheEndGame = true;
-					WhoKilledMe->TheEndGame = true; // ºγ !!
+					WhoKilledMe->TheEndGame = true;
 					ANetGameStateBase* sb = GetWorld()->GetGameState<ANetGameStateBase>();
 					sb->endGame = true;
 					if (HasAuthority()) {

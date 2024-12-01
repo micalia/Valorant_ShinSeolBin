@@ -35,6 +35,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> SparkEffectFactory;
 
+public:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_InitComplete(class ASB_Sova* InPlayer);
 

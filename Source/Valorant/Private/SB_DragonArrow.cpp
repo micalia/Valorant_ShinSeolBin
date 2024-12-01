@@ -29,10 +29,6 @@ ASB_DragonArrow::ASB_DragonArrow()
 	SMSovaArrow->SetRelativeRotation(FRotator(0, 0, 0));
 	SMSovaArrow->SetCastShadow(false);
 
-	/*ConstructorHelpers::FClassFinder<AActor> tempSparkEffectFactory(TEXT("/Script/Engine.Blueprint'/Game/SB/Effect/DragonArrow/BP_ArrowSparkEffect.BP_ArrowSparkEffect_C'"));
-	if (tempSparkEffectFactory.Succeeded()) {
-		SparkEffectFactory = tempSparkEffectFactory.Class;
-	}*/
 	ChildActorComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActorComp"));
 	ChildActorComp->SetupAttachment(RootComp);
 	//ChildActorComp->SetChildActorClass(SparkEffectFactory);

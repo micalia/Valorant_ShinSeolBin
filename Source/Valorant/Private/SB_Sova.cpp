@@ -1478,7 +1478,7 @@ void ASB_Sova::SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe
 		float TempGaugeVal = WhoHitMe->SuperSkillGauge + (DamageVal * 1.7 / 100);
 		if (TempGaugeVal > 1) {
 			TempGaugeVal = 1;
-		} // 나를 때린사람은 게이지가 올라가야 함.
+		} // 공격한 플레이어의 스킬게이지가 올라가야 함
 		WhoHitMe->SuperSkillGauge = TempGaugeVal;
 		if(ASB_Sova* HitMePlayer = Cast<ASB_Sova>(WhoHitMe)){
 			HitMePlayer->MulticastSuperSkillGaugeUp(WhoHitMe->SuperSkillGauge);

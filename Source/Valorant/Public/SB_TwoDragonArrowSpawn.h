@@ -50,6 +50,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCapsuleComponent* AttackColl;
 
+	UPROPERTY(EditAnywhere)
+	float Power = 34;
+
 	ABaseCharacter* ThisOwner;
 
 	TSet<FPlayerDamage> DamagedPlayers;

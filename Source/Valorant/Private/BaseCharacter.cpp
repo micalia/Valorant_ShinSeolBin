@@ -338,58 +338,40 @@ void ABaseCharacter::DefaultShootRelease()
 void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharacter* WhoKilledMe, bool IsSuperSkill)
 {
 	if(bDieOn == true) return;
-	MulticastAttackEnemyIndicator();
+	MulticastAttackEnemyIndicator(); // 현재 이 캐릭터를 Possess하고 있는 플레이어는 피격 방향 UI를 보여줌
 
-	if (IsSuperSkill == false) {
-		SuperSkillGaugeUp(value, WhoKilledMe);
+	if (IsSuperSkill == false) { // 궁극기로 데미지를 입힐때는 궁극기 게이지 증가를 하지 않음
+		SuperSkillGaugeUp(value, WhoKilledMe); // 데미지를 입힐때마다 궁극기 게이지를 증가 시킴
 	}
-	auto myName = GetPlayerState()->GetPlayerName();
-	auto myScore = GetPlayerState()->GetScore();
 
-	auto WhoKilledMeName = WhoKilledMe->GetPlayerState()->GetPlayerName();
-	auto WhoKilledMeScore = WhoKilledMe->GetPlayerState()->GetScore();
-
-	// Park 은 Kim을 죽인다. 그러면 Park의 점수가 호출돼야한다.
 	CurrHP = CurrHP - value;
 
-	auto myHP = GetHP();
-	auto WhoKilledMeHP = WhoKilledMe->GetHP();
-
-	if (CurrHP <= 0) {
-		CurrHP = 0;
+	if (CurrHP <= 0) { // 만약 자신이 죽었다면
+		CurrHP = 0;		// 데미지 음수가 되는 것을 방지
 		if (HasAuthority()) {
-			if (WhoKilledMe) {
-				UE_LOG(LogTemp, Warning, TEXT("My Pos : %s"), *GetActorLocation().ToString())
-					//GetPlayerState()->SetScore(GetPlayerState()->GetScore() + 1);
-					WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
+			if (WhoKilledMe) {	// 나를 죽인 플레이어의 점수는 1을 증가 시킴
+				WhoKilledMe->GetPlayerState()->SetScore(WhoKilledMe->GetPlayerState()->GetScore() + 1);
 
-
-				auto myName2 = GetPlayerState()->GetPlayerName();
-				auto myScore2 = GetPlayerState()->GetScore();
-
-				auto WhoKilledMeName2 = WhoKilledMe->GetPlayerState()->GetPlayerName();
-				auto WhoKilledMeScore2 = WhoKilledMe->GetPlayerState()->GetScore();
-
-
+				// 나를 죽인 플레이어의 점수가 게임이 종료되는 점수와 같거나 높다면 게임 종료
 				if (WhoKilledMe->GetPlayerState()->GetScore() >= EndGameScore)
 				{
 					TheEndGame = true;
-					WhoKilledMe->TheEndGame = true; // ºγ !!
+					WhoKilledMe->TheEndGame = true; 
 					ANetGameStateBase* sb = GetWorld()->GetGameState<ANetGameStateBase>();
 					sb->endGame = true;
-					if (HasAuthority()) {
+					if (HasAuthority()) { // 게임이 종료됐다면 서버에서는 게임 종료 함수를 실행시킴
 						Server_EndGame_Implementation();
 					}
 					else {
 						Server_EndGame();
 					}
 				}
-			}
+			} // 캐릭터 죽는 애니메이션 실행
 			ServerDie_Implementation();
 		}
 		else ServerDie();
 
-		FTimerHandle WinLoseTimer;
+		FTimerHandle WinLoseTimer; // 승리/패배 UI 애니메이션 실행
 		GetWorld()->GetTimerManager().SetTimer(WinLoseTimer, FTimerDelegate::CreateLambda([&]() {
 			if (HasAuthority()) {
 				Server_CheckWinLose_Implementation();
@@ -397,12 +379,9 @@ void ABaseCharacter::ServerDamagedHealth_Implementation(int32 value, ABaseCharac
 			else {
 				Server_CheckWinLose();
 			}
-
-			}), 0.1f, false);
+		}), 0.1f, false);
 	}
 }
-
-
 
 void ABaseCharacter::Server_AllEndGame_Implementation()
 {
@@ -471,13 +450,6 @@ void ABaseCharacter::PlayDieMontage()
 
 void ABaseCharacter::DieProcess()
 {
-	/*if (HasAuthority()) {
-		Server_NoCollision_Implementation();
-	}
-	else {
-		Server_NoCollision();
-	}*/
-
 	if (GetController() != nullptr && GetController()->IsLocalPlayerController())
 	{
 		DisableInput(GetController<APlayerController>());
@@ -494,6 +466,7 @@ void ABaseCharacter::DieProcess()
 		}
 	}
 }
+
 void ABaseCharacter::ServerDie_Implementation()
 {
 	Multicast_ServerDie();

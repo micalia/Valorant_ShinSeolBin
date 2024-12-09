@@ -10,7 +10,7 @@
 
 # Point 2. 물리공식을 활용한 움직임
 [SB_ArrowVersion2.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_ArrowVersion2.cpp#L56)
-![gravi](https://github.com/user-attachments/assets/f01edccd-e491-46da-812f-fc6b5af423e0)
+![actorGravity](https://github.com/user-attachments/assets/3a417945-148b-4abb-a6e4-b6aa83bf946e)
 
 # Point 3. 네트워크 동기화 보간처리
 [SB_Hook.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_Hook.cpp#L55)

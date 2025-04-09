@@ -2,7 +2,7 @@
 개발기간 : 2023.08.01 ~ 2023.08.28 (28일) + (추후 약 1달간 개인적으로 스킬 추가 및 디버깅 진행)<br>
 작인원 : 6명 (기획 2 + 프로그래머 3 + 그래픽 1)<br>
 담당작업 : 소바 캐릭터 전담<br>
-시연 링크 : https://youtu.be/0xMOAtAt0-o <br>
+시연 링크 : https://youtu.be/yQRHP7y51Mk <br>
 
 # Point 1. 물리공식을 활용한 움직임
 [SB_ArrowVersion2.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_ArrowVersion2.cpp#L56)

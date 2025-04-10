@@ -4,23 +4,23 @@
 담당작업 : 소바 캐릭터 전담<br>
 시연 링크 : https://youtu.be/yQRHP7y51Mk <br>
 
-# Point 1. 물리공식을 활용한 움직임
+## Point 1. 물리공식을 활용한 움직임
 [SB_ArrowVersion2.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_ArrowVersion2.cpp#L56)
 
-# Point 2. 튕김효과
+## Point 2. 튕김효과
 [SB_ArrowVersion2.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_ArrowVersion2.cpp#L155)
 
-# Point 3. 네트워크 동기화 보간처리
+## Point 3. 네트워크 동기화 보간처리
 [SB_Hook.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_Hook.cpp#L55)
 
-# Point 4. 마우스 좌표에 대응하는 월드 좌표 구하기
+## Point 4. 마우스 좌표에 대응하는 월드 좌표 구하기
 [AirSmokeMinimapWidget.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/AirSmokeMinimapWidget.cpp#L26)
 
-# Point 5. 서버 데미지 처리
+## Point 5. 서버 데미지 처리
 [BaseCharacter.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/BaseCharacter.cpp#L338)
 
-# Point 6. 가상함수를 활용한 궁극기 게이지 증가
+## Point 6. 가상함수를 활용한 궁극기 게이지 증가
 [SB_Sova.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_Sova.cpp#L1448)
 
-# Point 7. 궁극기(용의일격) - TSet컨테이너를 활용한 데미지 처리
+## Point 7. 궁극기(용의일격) - TSet컨테이너를 활용한 데미지 처리
 [SB_TwoDragonArrowSpawn.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_TwoDragonArrowSpawn.cpp#L43)

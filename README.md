@@ -21,3 +21,6 @@
 
 # Point 6. 가상함수를 활용한 궁극기 게이지 증가
 [SB_Sova.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_Sova.cpp#L1448)
+
+# Point 7. 궁극기(용의일격) - TSet컨테이너를 활용한 데미지 처리
+[SB_TwoDragonArrowSpawn.cpp](https://github.com/micalia/Valorant_ShinSeolBin/blob/main/Source/Valorant/Private/SB_TwoDragonArrowSpawn.cpp#L43)

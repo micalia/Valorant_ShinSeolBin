@@ -328,4 +328,8 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* R_Hip;
+
+public:
+	UPROPERTY()
+	TMap<FName, class UBoxComponent*> HitCollisionBoxes;
 };

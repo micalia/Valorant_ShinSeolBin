@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
+#include "LagCompensationComponent.h"
 #include "SB_Sova.generated.h"
 
 UENUM(BlueprintType)
@@ -409,4 +410,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetCrounch();
+
+	UPROPERTY(VisibleAnywhere)
+	ULagCompensationComponent* LagCompensation;
+
 };

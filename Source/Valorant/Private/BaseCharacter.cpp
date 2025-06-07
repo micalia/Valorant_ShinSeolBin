@@ -82,34 +82,42 @@ ABaseCharacter::ABaseCharacter()
 	Head = CreateDefaultSubobject<UBoxComponent>(TEXT("Head"));
 	Head->SetupAttachment(GetMesh(), FName("Head"));
 	Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("Head"), Head);
 
 	Spine3 = CreateDefaultSubobject<UBoxComponent>(TEXT("Spine3"));
 	Spine3->SetupAttachment(GetMesh(), FName("Spine3"));
 	Spine3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("Spine3"), Spine3);
 
 	L_Elbow = CreateDefaultSubobject<UBoxComponent>(TEXT("L_Elbow"));
 	L_Elbow->SetupAttachment(GetMesh(), FName("L_Elbow"));
 	L_Elbow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("L_Elbow"), L_Elbow);
 
 	R_Elbow = CreateDefaultSubobject<UBoxComponent>(TEXT("R_Elbow"));
 	R_Elbow->SetupAttachment(GetMesh(), FName("R_Elbow"));
 	R_Elbow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("R_Elbow"), R_Elbow);
 
 	L_Knee = CreateDefaultSubobject<UBoxComponent>(TEXT("L_Knee"));
 	L_Knee->SetupAttachment(GetMesh(), FName("L_Knee"));
 	L_Knee->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("L_Knee"), L_Knee);
 
 	R_Knee = CreateDefaultSubobject<UBoxComponent>(TEXT("R_Knee"));
 	R_Knee->SetupAttachment(GetMesh(), FName("R_Knee"));
 	R_Knee->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("R_Knee"), R_Knee);
 	
 	L_Hip = CreateDefaultSubobject<UBoxComponent>(TEXT("L_Hip"));
 	L_Hip->SetupAttachment(GetMesh(), FName("L_Hip"));
 	L_Hip->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("L_Hip"), L_Hip);
 	
 	R_Hip = CreateDefaultSubobject<UBoxComponent>(TEXT("R_Hip"));
 	R_Hip->SetupAttachment(GetMesh(), FName("R_Hip"));
 	R_Hip->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("R_Hip"), R_Hip);
 	
 #pragma region Constructor
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> tempIMC(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/ThirdPerson/Input/IMC_Default.IMC_Default'"));
@@ -232,7 +240,6 @@ void ABaseCharacter::BeginPlay()
 	//Add Input Mapping Context
 	APlayerController* pc = GetController<APlayerController>();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), pc == nullptr ? *FString("NULL") : *FString("PC Have"));
-
 
 	if (pc != nullptr)
 	{

@@ -266,6 +266,8 @@ ASB_Sova::ASB_Sova()
 		NotReadySuperSkill = tempNotReadySuperSkill.Object;
 	}
 
+	LagCompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensation"));
+	
 	bReplicates = true;
 }
 

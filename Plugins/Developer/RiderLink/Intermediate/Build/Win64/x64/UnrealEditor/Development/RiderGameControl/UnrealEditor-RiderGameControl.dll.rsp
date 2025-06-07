@@ -35,7 +35,7 @@
 /NODEFAULTLIB:"LIBCD"
 /NODEFAULTLIB:"LIBCPD"
 /FUNCTIONPADMIN:6
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\RiderGameControl.cpp.obj"
+"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Module.RiderGameControl.cpp.obj"
 "J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderGameControl\Default.rc2.res"
 "J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RD\UnrealEditor-RD.lib"
 "J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLink\UnrealEditor-RiderLink.lib"

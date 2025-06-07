@@ -6,6 +6,6 @@
 /NAME:"UnrealEditor-RiderLC.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLC\RiderLC.cpp.obj"
+"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLC\Module.RiderLC.cpp.obj"
 "J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLC\Default.rc2.res"
 /OUT:"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderLC\UnrealEditor-RiderLC.lib"

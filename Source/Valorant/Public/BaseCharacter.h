@@ -309,11 +309,23 @@ protected:
 	UBoxComponent* Head;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* Spine2;
+	UBoxComponent* Spine3;
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* L_Knee;
+	
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* L_Elbow;
+	
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* R_Elbow;
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* R_Knee;
+	
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* L_Hip;
+	
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* R_Hip;
 };

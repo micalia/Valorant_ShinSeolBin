@@ -18,11 +18,11 @@ void UNetGameInstance::Init()
 	UE_LOG(LogTemp, Warning, TEXT("Instance INIT"));
 	if (IOnlineSubsystem* subsys = IOnlineSubsystem::Get())
 	{
-		// Online Session Interface API Á¢±Ù¿ë ÀÎ½ºÅÏ½º °¡Á®¿À±â
+		// Online Session Interface API ì ‘ê·¼ìš© ì¸ìŠ¤í„´ìŠ¤ ê°€ì ¸ì˜¤ê¸°
 		sessionInterface = subsys->GetSessionInterface();
 
-		//// ¼¼¼Ç ÀÌº¥Æ®¿¡ ÇÔ¼ö ¹ÙÀÎµùÇÏ±â
-		//ÆÄ¶ó¹ÌÅÍ 2°³¾²´Â ÀÏ¹İ µ¨¸®°ÔÀÌÆ®
+		//// ì„¸ì…˜ ì´ë²¤íŠ¸ì— í•¨ìˆ˜ ë°”ì¸ë”©í•˜ê¸°
+		//íŒŒë¼ë¯¸í„° 2ê°œì“°ëŠ” ì¼ë°˜ ë¸ë¦¬ê²Œì´íŠ¸
 
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnCreatedMySession);
 		sessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UNetGameInstance::OnDestroyMySession);
@@ -43,24 +43,24 @@ void UNetGameInstance::CreateMySession(FText roomName, int32 playerCount)
 	else {
 		FOnlineSessionSettings sessionSettings;
 	
-		// 1. LAN ¿¬°áÀÎÁö DEDICATED ¿¬°áÀÎÁö ¼³Á¤ÇÑ´Ù.
+		// 1. LAN ì—°ê²°ì¸ì§€ DEDICATED ì—°ê²°ì¸ì§€ ì„¤ì •í•œë‹¤.
 		sessionSettings.bIsDedicated = false;
 		sessionSettings.bIsLANMatch = IOnlineSubsystem::Get()->GetSubsystemName() == FName("NULL");
 
-		// 2. °Ë»ö °¡´ÉÇÑ ¹æÀ¸·Î ¼³Á¤ÇÑ´Ù.
+		// 2. ê²€ìƒ‰ ê°€ëŠ¥í•œ ë°©ìœ¼ë¡œ ì„¤ì •í•œë‹¤.
 		sessionSettings.bShouldAdvertise = true;
 
-		// 3. ÀÚ±â Á¤º¸¸¦ Àü´ŞµÉ ¼ö ÀÖ°Ô ¼³Á¤ÇÑ´Ù.
+		// 3. ìê¸° ì •ë³´ë¥¼ ì „ë‹¬ë  ìˆ˜ ìˆê²Œ ì„¤ì •í•œë‹¤.
 		sessionSettings.bUsesPresence = true;
 
-		// 4. ´Ù¸¥ À¯ÀúÀÇ Áß°£ ÀÔÀåÀ» Çã¿ëÇÑ´Ù.
+		// 4. ë‹¤ë¥¸ ìœ ì €ì˜ ì¤‘ê°„ ì…ì¥ì„ í—ˆìš©í•œë‹¤.
 		sessionSettings.bAllowJoinInProgress = true;
 		sessionSettings.bAllowJoinViaPresence = true;
 
-		// 5. ÀÔÀå °¡´É ÀÎ¿øÀ» ¼³Á¤ÇÑ´Ù.
+		// 5. ì…ì¥ ê°€ëŠ¥ ì¸ì›ì„ ì„¤ì •í•œë‹¤.
 		sessionSettings.NumPublicConnections = playerCount;
 
-		//// 6. ¼¼¼Ç¿¡ Ãß°¡ ¼³Á¤À» ³Ö´Â´Ù.
+		//// 6. ì„¸ì…˜ì— ì¶”ê°€ ì„¤ì •ì„ ë„£ëŠ”ë‹¤.
 		sessionSettings.Set(FName("ROOM_NAME"), InputRoomName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 		sessionSettings.Set(FName("HOST_NAME"), mySessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
@@ -72,7 +72,7 @@ void UNetGameInstance::OnCreatedMySession(FName sessionName, bool bWasSuccessful
 {
 	if (bWasSuccessful)
 	{
-		//listen -> listen serverÀÇ ÁÖÃ¼·Î¼­ ¼­¹öÆ®·¹ºí
+		//listen -> listen serverì˜ ì£¼ì²´ë¡œì„œ ì„œë²„íŠ¸ë ˆë¸”
 		bool result = GetWorld()->ServerTravel("/Game/Map/JellyGameMap?Listen", true);
 		UE_LOG(LogTemp, Warning, TEXT("Travel Result: %s"), result ? *FString("Success") : *FString("Failed..."));
 	}
@@ -90,13 +90,13 @@ void UNetGameInstance::FindOtherSession()
 {
 	sessionSearch = MakeShareable(new FOnlineSessionSearch());
 
-	// 1. ¼¼¼Ç °Ë»öÀ» LANÀ¸·Î ÇÒ °ÍÀÎÁö ¿©ºÎ¸¦ ¼³Á¤ÇÑ´Ù.
+	// 1. ì„¸ì…˜ ê²€ìƒ‰ì„ LANìœ¼ë¡œ í•  ê²ƒì¸ì§€ ì—¬ë¶€ë¥¼ ì„¤ì •í•œë‹¤.
 	sessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == FName("NULL");
 
-	// 2. ¼¼¼Ç Äõ¸®(query) ¼³Á¤ÇÑ´Ù.
+	// 2. ì„¸ì…˜ ì¿¼ë¦¬(query) ì„¤ì •í•œë‹¤.
 	sessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
-	// 3. ¼¼¼ÇÀÇ °Ë»ö·®À» ¼³Á¤ÇÑ´Ù.
+	// 3. ì„¸ì…˜ì˜ ê²€ìƒ‰ëŸ‰ì„ ì„¤ì •í•œë‹¤.
 	sessionSearch->MaxSearchResults = 50;
 
 	sessionInterface->FindSessions(0, sessionSearch.ToSharedRef());
@@ -106,7 +106,7 @@ void UNetGameInstance::OnFindOtherSessions(bool bWasSuccessful)
 {
 	if (bWasSuccessful)
 	{
-		// °Ë»öµÈ ¼¼¼Ç ¸ñ·ÏÀ» °¡Á®¿Â´Ù.
+		// ê²€ìƒ‰ëœ ì„¸ì…˜ ëª©ë¡ì„ ê°€ì ¸ì˜¨ë‹¤.
 		if(sessionSearch == nullptr) return;
 
 		TArray<FOnlineSessionSearchResult> searchResults = sessionSearch->SearchResults;
@@ -125,12 +125,12 @@ void UNetGameInstance::OnFindOtherSessions(bool bWasSuccessful)
 
 			UE_LOG(LogTemp, Warning, TEXT("Room Name: %s, HostName: %s, OpenNumber: %d, MaxNumber: %d, Ping Speed: %d"), *roomName, *hostName, openNumber, maxNumber, pingSpeed);
 
-			// ±¸Á¶Ã¼ º¯¼ö¿¡ Ã£Àº ¼¼¼Ç Á¤º¸¸¦ ÀÔ·ÂÇÑ´Ù.
+			// êµ¬ì¡°ì²´ ë³€ìˆ˜ì— ì°¾ì€ ì„¸ì…˜ ì •ë³´ë¥¼ ì…ë ¥í•œë‹¤.
 			FSessionSlotInfo slotInfo;
 			//slotInfo.Set(roomName, hostName, FString::Printf(TEXT("(%d/%d)"), maxNumber - openNumber, maxNumber), pingSpeed, i);
 			slotInfo.Set(roomName, hostName, FString::Printf(TEXT("(%d/%d)"), 1, maxNumber), pingSpeed, i);
 
-			// ¼¼¼Ç Á¤º¸¸¦ µ¨¸®°ÔÀÌÆ®·Î ÀüÆÄÇÑ´Ù.
+			// ì„¸ì…˜ ì •ë³´ë¥¼ ë¸ë¦¬ê²Œì´íŠ¸ë¡œ ì „íŒŒí•œë‹¤.
 			onSearchCompleted.Broadcast(slotInfo);
 		}
 
@@ -159,12 +159,12 @@ void UNetGameInstance::OnJoinSelectedSession(FName sessionName, EOnJoinSessionCo
 
 		if (playerCon != nullptr)
 		{
-			// joinµÈ ¼¼¼Ç È£½ºÆ®ÀÇ ServerTravel µÈ ¸Ê ÁÖ¼Ò¸¦ ¹Ş¾Æ¿Â´Ù.
+			// joinëœ ì„¸ì…˜ í˜¸ìŠ¤íŠ¸ì˜ ServerTravel ëœ ë§µ ì£¼ì†Œë¥¼ ë°›ì•„ì˜¨ë‹¤.
 			FString url;
 			sessionInterface->GetResolvedConnectString(sessionName, url);
 			UE_LOG(LogTemp, Warning, TEXT("Connection URL: %s"), *url);
 
-			// ÁÖ¼Ò¸¦ ¹Ş¾Ò´Ù¸é, ±× ÁÖ¼Ò¿¡ µû¶ó¼­ ¸Ê ÀÌµ¿ÇÑ´Ù.
+			// ì£¼ì†Œë¥¼ ë°›ì•˜ë‹¤ë©´, ê·¸ ì£¼ì†Œì— ë”°ë¼ì„œ ë§µ ì´ë™í•œë‹¤.
 			if (!url.IsEmpty())
 			{
 				playerCon->ClientTravel(url, ETravelType::TRAVEL_Absolute);

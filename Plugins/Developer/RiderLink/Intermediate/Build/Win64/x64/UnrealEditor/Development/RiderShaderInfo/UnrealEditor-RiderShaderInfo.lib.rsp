@@ -6,6 +6,6 @@
 /NAME:"UnrealEditor-RiderShaderInfo.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
+"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderShaderInfo\Module.RiderShaderInfo.cpp.obj"
 "J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderShaderInfo\Default.rc2.res"
 /OUT:"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderShaderInfo\UnrealEditor-RiderShaderInfo.lib"

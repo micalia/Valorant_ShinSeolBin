@@ -6,10 +6,6 @@
 /NAME:"UnrealEditor-RiderDebuggerSupport.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\BlueprintStackGetter.cpp.obj"
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\DebugLogger.cpp.obj"
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\RiderDebuggerSupport.cpp.obj"
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\UnrealFunctions.cpp.obj"
-"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\WideStringWrapper.cpp.obj"
+"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\Module.RiderDebuggerSupport.cpp.obj"
 "J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\Default.rc2.res"
 /OUT:"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderDebuggerSupport\UnrealEditor-RiderDebuggerSupport.lib"

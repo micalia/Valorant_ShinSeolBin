@@ -83,9 +83,17 @@ ABaseCharacter::ABaseCharacter()
 	Head->SetupAttachment(GetMesh(), FName("Head"));
 	Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	Spine2 = CreateDefaultSubobject<UBoxComponent>(TEXT("Spine2"));
-	Spine2->SetupAttachment(GetMesh(), FName("Spine2"));
-	Spine2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Spine3 = CreateDefaultSubobject<UBoxComponent>(TEXT("Spine3"));
+	Spine3->SetupAttachment(GetMesh(), FName("Spine3"));
+	Spine3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	L_Elbow = CreateDefaultSubobject<UBoxComponent>(TEXT("L_Elbow"));
+	L_Elbow->SetupAttachment(GetMesh(), FName("L_Elbow"));
+	L_Elbow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	R_Elbow = CreateDefaultSubobject<UBoxComponent>(TEXT("R_Elbow"));
+	R_Elbow->SetupAttachment(GetMesh(), FName("R_Elbow"));
+	R_Elbow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	L_Knee = CreateDefaultSubobject<UBoxComponent>(TEXT("L_Knee"));
 	L_Knee->SetupAttachment(GetMesh(), FName("L_Knee"));
@@ -94,6 +102,14 @@ ABaseCharacter::ABaseCharacter()
 	R_Knee = CreateDefaultSubobject<UBoxComponent>(TEXT("R_Knee"));
 	R_Knee->SetupAttachment(GetMesh(), FName("R_Knee"));
 	R_Knee->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	L_Hip = CreateDefaultSubobject<UBoxComponent>(TEXT("L_Hip"));
+	L_Hip->SetupAttachment(GetMesh(), FName("L_Hip"));
+	L_Hip->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	R_Hip = CreateDefaultSubobject<UBoxComponent>(TEXT("R_Hip"));
+	R_Hip->SetupAttachment(GetMesh(), FName("R_Hip"));
+	R_Hip->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 #pragma region Constructor
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> tempIMC(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/ThirdPerson/Input/IMC_Default.IMC_Default'"));

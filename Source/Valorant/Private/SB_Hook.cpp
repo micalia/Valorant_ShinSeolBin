@@ -8,10 +8,8 @@
 #include "Net/UnrealNetwork.h"
 #include "../../Engine/Classes/Engine/EngineTypes.h"
 
-// Sets default values
 ASB_Hook::ASB_Hook()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	HookColl = CreateDefaultSubobject<USphereComponent>(TEXT("HookCollison"));
@@ -31,7 +29,7 @@ ASB_Hook::ASB_Hook()
 	HookMesh->SetRelativeLocation(FVector(-37, 0, 0));
 	HookMesh->SetRelativeRotation(FRotator(-90, 0, 0));
 	HookMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	
 	bReplicates = true;
 }
 
@@ -75,7 +73,7 @@ void ASB_Hook::Tick(float DeltaTime)
 		ServerNewLocation = HookP0 + HookVT;
 		SetActorLocation(ServerNewLocation, true);
 	}
-	else { // Å¬¶óÀÌ¾ðÆ® À§Ä¡ °ª º¸°£
+	else { // Å¬ï¿½ï¿½ï¿½Ì¾ï¿½Æ® ï¿½ï¿½Ä¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		ClientTimeSinceUpdate += DeltaTime;
 		if (ClientTimeBetweenLastUpdate < KINDA_SMALL_NUMBER)
 		{

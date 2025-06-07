@@ -6,9 +6,13 @@
 #include "Animation/AnimInstance.h"
 #include "SB_SovaAnim.generated.h"
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class ESovaWalkState :uint8
+{
+	IDLE = 0,
+	WALKING,
+	CROUCHING,
+};
 UCLASS()
 class VALORANT_API USB_SovaAnim : public UAnimInstance
 {
@@ -26,6 +30,12 @@ public:
 	float direction = 0;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = MySettings)
 	float deltaRot = 0;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MySettings)
+	bool bCrounch = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MySettings)
+	ESovaWalkState CurrWalkState = ESovaWalkState::IDLE;
 
 	UFUNCTION()
 	void AnimNotify_ReloadComplete();

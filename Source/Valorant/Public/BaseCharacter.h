@@ -9,6 +9,8 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FInputBindingDelegate, class UInputComponent*);
 
+class UBoxComponent;
+
 UCLASS()
 class VALORANT_API ABaseCharacter : public ACharacter
 {
@@ -297,4 +299,21 @@ private:
 	float currCheckZposTime=0;
 
 	void RandomSpawn();
+
+protected:
+	/** More actions
+	* Hit boxes used for server-side rewind
+	*/
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* Head;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* Spine2;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* L_Knee;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* R_Knee;
 };

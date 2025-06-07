@@ -5,10 +5,8 @@
 #include "UI_SB_ScoutingArrow.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
-#include "BaseWeapon.h"
 #include "SB_Arrow.h"
 #include "SB_DragonArrow.h"
-#include <GameFramework/ProjectileMovementComponent.h>
 #include <Components/SplineComponent.h>
 #include "PlayerFireComponent.h"
 #include "SB_SovaAnim.h"
@@ -16,11 +14,7 @@
 #include "Net/UnrealNetwork.h"
 #include <Camera/CameraComponent.h>
 #include <Kismet/GameplayStatics.h>
-#include <Particles/ParticleSystemComponent.h>
 #include "SkillWidget.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
-#include "FireUserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include <Sound/SoundBase.h>
 #include "Kismet/KismetMathLibrary.h"
@@ -33,14 +27,13 @@
 #include "Components/ChildActorComponent.h"
 #include "CableComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
 #include "../../Engine/Classes/GameFramework/SpringArmComponent.h"
 #include "../../UMG/Public/Blueprint/WidgetLayoutLibrary.h"
 #include "../../Engine/Classes/GameFramework/CharacterMovementComponent.h"
 #include "SB_Hook.h"
-#include "../../UMG/Public/Components/TextBlock.h"
-#include "../../UMG/Public/Components/SizeBox.h"
-#include "../../UMG/Public/Components/Overlay.h"
+#include "Components/TextBlock.h"
+#include "Components/SizeBox.h"
+#include "Components/Overlay.h"
 #include "../../Engine/Classes/Engine/TimerHandle.h"
 #include "../../Engine/Classes/Camera/CameraShakeBase.h"
 
@@ -361,7 +354,7 @@ void ASB_Sova::Tick(float DeltaTime)
 			break;
 		}
 
-	// ASB_Sova::Tick ¸Å ÇÁ·¹ÀÓ¸¶´Ù ±ËÀûÀ» »ý¼ºÇÔ
+	// ASB_Sova::Tick ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (bThrowing) ShowProjectilePath();
 	if (bCameraShake == true) CameraShakeRandom();
 }
@@ -699,6 +692,13 @@ void ASB_Sova::KeyR()
 	}
 }
 
+void ASB_Sova::KeyV()
+{
+	Super::KeyV();
+
+	ServerSetCrounch();
+}
+
 void ASB_Sova::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -889,7 +889,7 @@ void ASB_Sova::Server_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
 }
 
 void ASB_Sova::Mulitcast_SetBoolScoutingArrow_Implementation(bool bScoutingChk)
-{ // ½ºÅ³ È°¼ºÈ­ »óÅÂ°¡ ¾Æ´Ï¶ó¸é È­»ìÀ» ¼û±è
+{ // ï¿½ï¿½Å³ È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´Ï¶ï¿½ï¿½ È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	bScoutingArrow = bScoutingChk;
 	if (bScoutingChk) {
 		if (!arrowMesh->GetVisibleFlag()) {
@@ -921,7 +921,7 @@ FVector ASB_Sova::GetArrowDirVec()
 
 		FHitResult HitResult;
 		FCollisionQueryParams param;
-		param.AddIgnoredActor(GetOwner()); // ¶óÀÎÆ®·¹ÀÌ½º°¡ ¹°Ã¼¿Í Ãæµ¹ÇÏ¸é Ãæµ¹ÇÑ À§Ä¡¿¡ ¾×ÅÍ ½ºÆù
+		param.AddIgnoredActor(GetOwner()); // ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½Ì½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½æµ¹ï¿½Ï¸ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		GetWorld()->LineTraceSingleByChannel(HitResult, TraceStartLoc, TraceEndLoc, ECC_GameTraceChannel4, param);
 
 		FVector ArrowSpawnLoc = ArrowFirePos->GetComponentLocation();
@@ -974,7 +974,7 @@ void ASB_Sova::Server_DestroyArrow_Implementation()
 	}
 }
 
-// È­»ì ¼Óµµ Á¶Àý
+// È­ï¿½ï¿½ ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
 void ASB_Sova::ArrowPowerGaugeUp()
 {
 	gaugeCurrTime += GetWorld()->GetDeltaSeconds();
@@ -994,14 +994,14 @@ void ASB_Sova::ArrowPowerGaugeUp()
 		}
 	}
 }
-// È­»ì Æ¨±è È½¼ö Áõ°¡
+// È­ï¿½ï¿½ Æ¨ï¿½ï¿½ È½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 void ASB_Sova::IncreaseBounceCount()
 {
 	if (ui_SB_ScoutingArrowInstance == nullptr) return;
 
 	skillBounceCount++;
-	if (skillBounceCount > 2) skillBounceCount = 0; // ÃÖ´ëÈ½¼ö 2È¸°¡ ÃÊ°úÇÏ¸é ´Ù½Ã 0À¸·Î ÃÊ±âÈ­
-	// È­»ì Æ¨±èÈ½¼ö UI·Î Ç¥½Ã
+	if (skillBounceCount > 2) skillBounceCount = 0; // ï¿½Ö´ï¿½È½ï¿½ï¿½ 2È¸ï¿½ï¿½ ï¿½Ê°ï¿½ï¿½Ï¸ï¿½ ï¿½Ù½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
+	// È­ï¿½ï¿½ Æ¨ï¿½ï¿½È½ï¿½ï¿½ UIï¿½ï¿½ Ç¥ï¿½ï¿½
 	if (skillBounceCount == 0) { // XX
 		ui_SB_ScoutingArrowInstance->BounceCount1_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
 		ui_SB_ScoutingArrowInstance->BounceCount2_img->SetColorAndOpacity(ui_SB_ScoutingArrowInstance->NotActiveColor);
@@ -1038,7 +1038,7 @@ void ASB_Sova::MulticastGrenadeThrowReady_Implementation(APlayerController* MyPl
 void ASB_Sova::ShowProjectilePath()
 {
 	if (bThrowing) {
-		// ÀÌÀü ÇÁ·¹ÀÓ¿¡¼­ »ý¼ºÇÑ ±ËÀû Á¦°Å
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		ClearPath();
 
 		FVector StartPos = projectileComp->GetComponentLocation();
@@ -1048,7 +1048,7 @@ void ASB_Sova::ShowProjectilePath()
 		FVector OutLastTraceDest;
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
-		// ¼ö·ùÅºÀ» ´øÁö´Â ¼Ó·Â¿¡ µû¸¥ ¿¹Ãø ±ËÀûÀÇ À§Ä¡°ªµéÀ» ¹è¿­¿¡ ÀúÀå
+		// ï¿½ï¿½ï¿½ï¿½Åºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ó·Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		UGameplayStatics::Blueprint_PredictProjectilePath_ByTraceChannel(GetWorld(), HitResult, OutPathPositions, OutLastTraceDest, StartPos, ThrowVelocity, true, 0, ECC_Camera, false, ActorsToIgnore, EDrawDebugTrace::None, 0, 15, 3, 0);
 
 		for (int i = 0; i < OutPathPositions.Num(); i++)
@@ -1056,25 +1056,25 @@ void ASB_Sova::ShowProjectilePath()
 			projectilePath->AddSplinePointAtIndex(OutPathPositions[i], i, ESplineCoordinateSpace::Local, true);
 		}
 
-		//½ºÇÃ¶óÀÎÀÇ ¼±ºÐ(Segment) °¹¼ö¿¡¼­ ½ºÇÃ¶óÀÎ ¸Þ½¬ÀÇ °ãÄ§ ¹®Á¦¸¦ ¾ø¾Ö±â À§ÇØ 1À» »©ÁÜ
+		//ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(Segment) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä§ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		int32 LastIndex = projectilePath->GetNumberOfSplineSegments() - 1;
 		for (int j = 0; j < LastIndex; j++)
 		{
 			USplineMeshComponent* SplineMeshComponent = NewObject<USplineMeshComponent>(this, USplineMeshComponent::StaticClass());
-			//½Ç¸°´õ ¸Þ½¬¸¦ »ç¿ëÇÒ‹š °î¸éÀÌ ÀÖ´Â ºÎºÐÀÌ XÃà Á¤¸éÀÏ¶§, ÆòÆòÇÑ À­¸é ZÃàÀ» Á¤¸éÀ¸·Î º¯°æ
+			//ï¿½Ç¸ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ò‹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Îºï¿½ï¿½ï¿½ Xï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¶ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Zï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			SplineMeshComponent->SetForwardAxis(ESplineMeshAxis::Z);
 			SplineMeshComponent->SetStaticMesh(GrenadeSplineMesh);
-			// ¸Þ½¬ ¿òÁ÷ÀÏ ¼ö ÀÖµµ·Ï ¼³Á¤
+			// ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			SplineMeshComponent->SetMobility(EComponentMobility::Movable);
-			//¿ùµå¿¡ µî·Ï
+			//ï¿½ï¿½ï¿½å¿¡ ï¿½ï¿½ï¿½
 			SplineMeshComponent->RegisterComponentWithWorld(GetWorld());
-			//±ËÀû ½ÃÀÛ À§Ä¡ºÎÅÍ ½ºÇÃ¶óÀÎ ¸Þ½¬¸¦ Ãß°¡
+			//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½
 			SplineMeshComponent->AttachToComponent(projectilePath, FAttachmentTransformRules::KeepWorldTransform);
-			//¸Þ½¬ ½ºÄÉÀÏ Á¶Àý
+			//ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			SplineMeshComponent->SetStartScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f), UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
 			SplineMeshComponent->SetEndScale(FVector2D(UKismetSystemLibrary::MakeLiteralFloat(0.1f), UKismetSystemLibrary::MakeLiteralFloat(0.1f)));
 
-			//½ÃÀÛ°ú ³¡ÁöÁ¡ÀÇ À§Ä¡°ª°ú ÅºÁ¨Æ®°ªÀ» ±¸ÇÏ¿© ºÎµå·¯¿î °î¼±À» ¸¸µê
+			//ï¿½ï¿½ï¿½Û°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ Åºï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½Îµå·¯ï¿½ï¿½ ï¿½î¼±ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			const FVector StartPoint = projectilePath->GetLocationAtSplinePoint(j, ESplineCoordinateSpace::Local);
 			const FVector StartTangent = projectilePath->GetTangentAtSplinePoint(j, ESplineCoordinateSpace::Local);
 			const FVector EndPoint = projectilePath->GetLocationAtSplinePoint(j + 1, ESplineCoordinateSpace::Local);
@@ -1083,11 +1083,11 @@ void ASB_Sova::ShowProjectilePath()
 			SplineMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 			if (GrenadeSplineMat)
-			{ // ¸ÓÅ×¸®¾ó ÇÒ´ç
+			{ // ï¿½ï¿½ï¿½×¸ï¿½ï¿½ï¿½ ï¿½Ò´ï¿½
 				SplineMeshComponent->SetMaterial(0, GrenadeSplineMat);
 			}
-			// ±ËÀû ¸Þ½¬¸¦ ¸ÅÇÁ·¹ÀÓ¸¶´Ù »ý¼ºÇÏ±â ¶§¹®¿¡ 
-			// ÀÌÀü ÇÁ·¹ÀÓ¿¡¼­ »ý¼ºÇÑ ±ËÀûÀ» Áö¿ì±â À§ÇØ ¸Þ½¬ ÄÄÆ÷³ÍÆ® Æ÷ÀÎÅÍ ¹è¿­ ÀúÀå
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½ï¿½ï¿½ï¿½
 			SplineMeshComponents.Add(SplineMeshComponent);
 		}
 	}
@@ -1232,7 +1232,7 @@ void ASB_Sova::DeactiveAirSmoke()
 
 void ASB_Sova::AirSmokeLogic()
 {
-	AirSmokeVoice(); // ¼Ò¹Ù ½ºÅ³ ½ÃÀü È¿°úÀ½ : "½Ã¾ß¸¦ Â÷´ÜÇØ"
+	AirSmokeVoice(); // ï¿½Ò¹ï¿½ ï¿½ï¿½Å³ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ : "ï¿½Ã¾ß¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
 	if (auto SmokeSkillUI = Cast<UAirSmokeMinimapWidget>(smokeSkillUIinstance)) {
 		if (airSmokeCurrCount == 0) {
 			if (HasAuthority()) {
@@ -1248,9 +1248,9 @@ void ASB_Sova::AirSmokeLogic()
 			FVector EndLoc = FVector(SpawnSmokePosVal.X, SpawnSmokePosVal.Y, -5000);
 			FHitResult HitResult;
 			FCollisionQueryParams param;
-			param.AddIgnoredActor(GetOwner()); // ¶óÀÎÆ®·¹ÀÌ½º°¡ ¹°Ã¼¿Í Ãæµ¹ÇÏ¸é Ãæµ¹ÇÑ À§Ä¡¿¡ ¾×ÅÍ ½ºÆù
+			param.AddIgnoredActor(GetOwner()); // ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½Ì½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½æµ¹ï¿½Ï¸ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECC_GameTraceChannel7, param);
-			if (IsHit) { // ¼­¹ö RPCÇÔ¼ö¿¡ ½ºÆùÇÒ À§Ä¡¸¦ ÀÎÀÚ°ªÀ¸·Î ³Ñ°ÜÁÖ°í, ¼­¹ö¿¡¼­ °øÁß¿¬¸· ¾×ÅÍ ½ºÆù
+			if (IsHit) { // ï¿½ï¿½ï¿½ï¿½ RPCï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ú°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ°ï¿½ï¿½Ö°ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				if (HasAuthority()) {
 					ServerSpawnSmokeObj_Implementation(HitResult.ImpactPoint);
 				}
@@ -1447,11 +1447,11 @@ void ASB_Sova::Server_DestroyDragonArrow_Implementation()
 
 void ASB_Sova::SuperSkillGaugeUp(int32 DamageVal, class ABaseCharacter* WhoHitMe)
 {
-	if (WhoHitMe != nullptr) { // °ÔÀÌÁö°¡ ¿Ã¶ó°¡´Â ¼öÄ¡
+	if (WhoHitMe != nullptr) { // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¶ó°¡´ï¿½ ï¿½ï¿½Ä¡
 		float TempGaugeVal = WhoHitMe->SuperSkillGauge + (DamageVal * 1.7 / 100);
 		if (TempGaugeVal > 1) {
 			TempGaugeVal = 1;
-		} // °ø°ÝÇÑ ÇÃ·¹ÀÌ¾îÀÇ ½ºÅ³°ÔÀÌÁö°¡ ¿Ã¶ó°¡¾ß ÇÔ
+		} // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½Å³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¶ó°¡¾ï¿½ ï¿½ï¿½
 		WhoHitMe->SuperSkillGauge = TempGaugeVal;
 		if(ASB_Sova* HitMePlayer = Cast<ASB_Sova>(WhoHitMe)){
 			HitMePlayer->MulticastSuperSkillGaugeUp(WhoHitMe->SuperSkillGauge);
@@ -1502,6 +1502,17 @@ void ASB_Sova::UltimateGaugeInit()
 	}
 }
 
+void ASB_Sova::ServerSetCrounch_Implementation()
+{
+	if (bSovaCrounch)
+	{
+		bSovaCrounch = false;
+	}else
+	{
+		bSovaCrounch = true;
+	}
+}
+
 void ASB_Sova::MulticastSuperSkillGaugeUp_Implementation(float InGaugeVal)
 {
 	if(IsLocallyControlled() == false || skillWigetInstance == nullptr) return;
@@ -1528,6 +1539,7 @@ void ASB_Sova::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	DOREPLIFETIME(ASB_Sova, bCanGrappleAction);
 	DOREPLIFETIME(ASB_Sova, CurrArrow);
 	DOREPLIFETIME(ASB_Sova, CurrDragonArrow);
+	DOREPLIFETIME(ASB_Sova, bSovaCrounch);
 }
 
 void ASB_Sova::CameraShakeRandom()

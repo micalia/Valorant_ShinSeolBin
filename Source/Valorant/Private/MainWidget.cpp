@@ -2,12 +2,11 @@
 
 
 #include "MainWidget.h"
-#include "MinimapWidget.h"
 
 void UMainWidget::NativeConstruct()
 {
 	//
-	// ½½·Ô À§Á¬À» »ý¼ºÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	//minimap = CreateWidget<UMinimapWidget>(GetWorld(), minimapWidget);
 	
 	//UFont* MyFont = LoadObject<UFont>(nullptr, TEXT("/Game/Path/To/YourFontAsset.YourFontAsset"));

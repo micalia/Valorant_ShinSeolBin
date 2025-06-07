@@ -5,7 +5,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/ChildActorComponent.h"
 #include "SB_Sova.h"
-#include "../../Engine/Classes/Particles/ParticleSystemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "SB_TwoDragonArrowSpawn.h"
 
@@ -60,16 +59,16 @@ void ASB_DragonArrow::BeginPlay()
 void ASB_DragonArrow::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// ¿òÁ÷ÀÓÀº ¼­¹ö¿¡¼­ Ã³¸®
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 	if (HasAuthority() && bMove) {
 		Velocity = InitDirVector * InitSpeed;
 
-		// µî¼Ó ¿îµ¿ °ø½Ä : P = P0 + vt 
+		// ï¿½ï¿½ï¿½ ï¿½îµ¿ ï¿½ï¿½ï¿½ï¿½ : P = P0 + vt 
 		FVector P0 = GetActorLocation();
 		FVector VT = Velocity * DeltaTime;
 		P = P0 + VT;
 		SetActorLocation(P, true);
-		// ¹æÇâ º¤ÅÍ¸¦ È°¿ëÇÏ¿© È­»ìÀÌ ¿òÁ÷ÀÌ´Â ¹æÇâÀ¸·Î È­»ì È¸Àü(ÀÚ¿¬½º·¯¿î ¿òÁ÷ÀÓ ±¸Çö)
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ È°ï¿½ï¿½ï¿½Ï¿ï¿½ È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ È¸ï¿½ï¿½(ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 		FVector RotDirVec = (P - P0).GetSafeNormal();
 		FMatrix RotationMatrix = FRotationMatrix::MakeFromX(RotDirVec);
 		NewRotation = RotationMatrix.Rotator();

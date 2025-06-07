@@ -3,7 +3,6 @@
 
 #include "CharacterSelectionrWidget.h"
 #include "Components/Button.h"
-#include "Animation/WidgetAnimation.h"
 #include "../Public/NetGameInstance.h"
 #include "Components/CircularThrobber.h"
 
@@ -47,7 +46,7 @@ void UCharacterSelectionrWidget::Selection3Player()
 
 void UCharacterSelectionrWidget::EnterInGame()
 {
-	if (!bStartChk) { // ÇÑ¹ø¸¸ ·Î±×ÀÎ Å¬¸¯ÇÒ ¼ö ÀÖ°Ô Ã³¸®
+	if (!bStartChk) { // ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö°ï¿½ Ã³ï¿½ï¿½
 		bStartChk = true; 
 		LoadingIcon->SetRenderOpacity(1);
 	}

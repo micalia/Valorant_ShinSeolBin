@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-RiderBlueprint.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderBlueprint\BlueprintProvider.cpp.obj"
+"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderBlueprint\RiderBlueprint.cpp.obj"
+"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderBlueprint\Default.rc2.res"
+/OUT:"J:\ProgrammingWorks\Unreal\Valorant_ShinSeolBin\Plugins\Developer\RiderLink\Intermediate\Build\Win64\x64\UnrealEditor\Development\RiderBlueprint\UnrealEditor-RiderBlueprint.lib"

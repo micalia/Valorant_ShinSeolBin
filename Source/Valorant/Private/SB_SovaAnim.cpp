@@ -3,7 +3,6 @@
 
 #include "SB_SovaAnim.h"
 #include "SB_Sova.h"
-#include "NetPlayerController.h"
 #include "PlayerFireComponent.h"
 
 void USB_SovaAnim::NativeInitializeAnimation()
@@ -24,7 +23,10 @@ void USB_SovaAnim::NativeUpdateAnimation(float DeltaSeconds)
 		direction = FMath::Clamp(FVector::DotProduct(right, velocity), -100, 100);
 		FRotator delta = (me->GetActorRotation() - me->GetBaseAimRotation()).GetNormalized();
 		deltaRot = delta.Pitch;
+		
+		bCrounch =  me->bSovaCrounch;
 	}
+
 }
 
 void USB_SovaAnim::AnimNotify_ReloadComplete()
@@ -81,4 +83,3 @@ void USB_SovaAnim::AnimNotify_CanScoutingArrow()
 {
 	me->SetBoolScoutingArrow(true);
 }
-

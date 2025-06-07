@@ -6,13 +6,9 @@
 #include "Animation/WidgetAnimation.h"
 #include <Kismet/GameplayStatics.h>
 #include "BaseCharacter.h"
-#include "Net/UnrealNetwork.h"
-#include "EngineUtils.h"
 #include <Sound/SoundBase.h>
 #include "Animation/UMGSequencePlayer.h"
-#include "../../Engine/Classes/GameFramework/PlayerState.h"
 #include "../../UMG/Public/Components/TextBlock.h"
-#include "../../Engine/Classes/GameFramework/GameStateBase.h"
 #include "SB_Sova.h"
 #include "SkillWidget.h"
 #include "InGameTopUi.h"
@@ -39,12 +35,12 @@ void UWinLoseWidget::NativeConstruct()
 	BindToAnimationFinished(LossAnimation, AnimFinshed);
 }
 
-void UWinLoseWidget::StartLoseAnim() // Á³À»¶§ À§¿¡ ³ª¿À´Â UI
+void UWinLoseWidget::StartLoseAnim() // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UI
 {
 	SetVisibility(ESlateVisibility::Visible);
 	OV_Loss->SetVisibility(ESlateVisibility::Visible);
 
-	PlayAnimation(LossAnimation); // ¾Ö´Ï¸ÞÀÌ¼Ç ½ÇÇà
+	PlayAnimation(LossAnimation); // ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	FTimerHandle delay;
 	GetWorld()->GetTimerManager().SetTimer(delay, FTimerDelegate::CreateLambda([&]() {
@@ -58,7 +54,7 @@ void UWinLoseWidget::onDestory()
 	this->RemoveFromParent();
 }
 
-void UWinLoseWidget::StartWinAnim() // ÀÌ°åÀ»¶§ À§¿¡ ³ª¿À´Â UI
+void UWinLoseWidget::StartWinAnim() // ï¿½Ì°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ UI
 {
 	SetVisibility(ESlateVisibility::Visible);
 	OV_Win->SetVisibility(ESlateVisibility::Visible);
@@ -72,7 +68,7 @@ void UWinLoseWidget::StartWinAnim() // ÀÌ°åÀ»¶§ À§¿¡ ³ª¿À´Â UI
 		}), 3.0f, false);
 }
 
-void UWinLoseWidget::StartLoseBackAnim() // Á³À»‹š ¹é±×¶ó¿îµå UI 
+void UWinLoseWidget::StartLoseBackAnim() // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½×¶ï¿½ï¿½ï¿½ UI 
 {
 	SetVisibility(ESlateVisibility::Visible);
 	PlayAnimationForward(LoseBackGroundAnim);
@@ -83,7 +79,7 @@ void UWinLoseWidget::StartLoseBackAnim() // Á³À»‹š ¹é±×¶ó¿îµå UI
 		}), 3.0f, false);
 }
 
-void UWinLoseWidget::StartWinBackAnim() //ÀÌ°åÀ»‹š ¹é±×¶ó¿îµå UI 
+void UWinLoseWidget::StartWinBackAnim() //ï¿½Ì°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½×¶ï¿½ï¿½ï¿½ UI 
 {
 	SetVisibility(ESlateVisibility::Visible);
 	PlayAnimationForward(WinBackGroundAnim);

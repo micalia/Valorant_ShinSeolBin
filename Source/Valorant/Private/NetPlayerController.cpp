@@ -5,7 +5,6 @@
 #include "GameFramework/PlayerController.h"
 #include "BattleGameModeBase.h"
 #include <GameFramework/SpectatorPawn.h>
-#include "SB_Sova.h"
 
 void ANetPlayerController::BeginPlay()
 {
@@ -17,7 +16,7 @@ void ANetPlayerController::BeginPlay()
 	}
 }
 
-// Àç½ÃÀÛ ÇÔ¼ö
+// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 void ANetPlayerController::ServerRespawnPlayer_Implementation()
 {
 	if (gm != nullptr)
@@ -26,12 +25,12 @@ void ANetPlayerController::ServerRespawnPlayer_Implementation()
 		UnPossess();
 		playerPawn->Destroy();
 
-		// Ã³À½ ¹èÁ¤¹ÞÀº PlayerStart ¾×ÅÍ À§Ä¡¿¡¼­ ¸®½ºÆù
+		// Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PlayerStart ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		//if (HasAuthority()) {
 			gm->RestartPlayer(this);
 		//}
 
-		// ÁöÁ¤µÈ Transform¿¡¼­ ¸®½ºÆù
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Transformï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	/*	FTransform restartPoint;
 		restartPoint.SetLocation(FVector(7880.000000,  11294.614303,  192.000005));*/
 
@@ -43,7 +42,7 @@ void ANetPlayerController::ServerRespawnPlayer_Implementation()
 
 void ANetPlayerController::ServerChangePlayerToSpectator_Implementation()
 {
-	// ÇÃ·¹ÀÌ¾î·ÎºÎÅÍ Unpossess¸¦ ÇÑ´Ù.
+	// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½Îºï¿½ï¿½ï¿½ Unpossessï¿½ï¿½ ï¿½Ñ´ï¿½.
 
 	UE_LOG(LogTemp, Warning, TEXT("ServerChange NetMode : %d"), GetNetMode());
 
@@ -53,7 +52,7 @@ void ANetPlayerController::ServerChangePlayerToSpectator_Implementation()
 		UnPossess();
 	}
 
-	// °üÀüÀÚ ÆùÀ» »ý¼ºÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	if (gm != nullptr)
 	{
 		FActorSpawnParameters param;
@@ -62,15 +61,15 @@ void ANetPlayerController::ServerChangePlayerToSpectator_Implementation()
 
 		if (spectator != nullptr)
 		{
-			// »ý¼ºµÈ °üÀüÀÚ Æù¿¡ ºùÀÇÇÑ´Ù.
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 			SetShowMouseCursor(false);
 			Possess(spectator);
 		}
 	}
-	// ÇÃ·¹ÀÌ¾î¸¦ Á¦°ÅÇÑ´Ù.
+	// ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	player->Destroy();
 
-		// 5ÃÊ µÚ¿¡ ¸®½ºÆùÇÑ´Ù.
+		// 5ï¿½ï¿½ ï¿½Ú¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 		FTimerHandle respawnHandle;
 
 		GetWorldTimerManager().SetTimer(respawnHandle, this, &ANetPlayerController::ServerRespawnPlayer_Implementation, 1.0f, false);

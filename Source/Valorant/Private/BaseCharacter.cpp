@@ -9,31 +9,25 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include <../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputMappingContext.h>
+#include "InputMappingContext.h"
 #include "PlayerFireComponent.h"
 #include "Net/UnrealNetwork.h"
 #include <GameFramework/PlayerController.h>
-#include "EngineUtils.h"
 #include "WinLoseWidget.h"
 #include <GameFramework/PlayerState.h>
 #include "FadeOut.h"
 #include "NetPlayerController.h"
-#include "NetGameInstance.h"
 #include <GameFramework/Character.h>
 #include <Kismet/GameplayStatics.h>
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "FireUserWidget.h"
 #include "Engine/World.h"
-#include "BattleGameModeBase.h"
 #include <Kismet/KismetMathLibrary.h>
 #include <Sound/SoundBase.h>
-#include "Blueprint/WidgetLayoutLibrary.h"
 #include "NetGameStateBase.h"
-#include "SB_FireComponent.h"
 #include "SB_Sova.h"
 #include "SkillWidget.h"
 #include "Components/Image.h"
-#include "../../Engine/Classes/GameFramework/PlayerController.h"
+#include "Components/BoxComponent.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
@@ -81,6 +75,26 @@ ABaseCharacter::ABaseCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
+/** More actions
+	* Hit boxes for server-side rewind
+	*/
+
+	Head = CreateDefaultSubobject<UBoxComponent>(TEXT("Head"));
+	Head->SetupAttachment(GetMesh(), FName("Head"));
+	Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	Spine2 = CreateDefaultSubobject<UBoxComponent>(TEXT("Spine2"));
+	Spine2->SetupAttachment(GetMesh(), FName("Spine2"));
+	Spine2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	L_Knee = CreateDefaultSubobject<UBoxComponent>(TEXT("L_Knee"));
+	L_Knee->SetupAttachment(GetMesh(), FName("L_Knee"));
+	L_Knee->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	R_Knee = CreateDefaultSubobject<UBoxComponent>(TEXT("R_Knee"));
+	R_Knee->SetupAttachment(GetMesh(), FName("R_Knee"));
+	R_Knee->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 #pragma region Constructor
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> tempIMC(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/ThirdPerson/Input/IMC_Default.IMC_Default'"));
 	if (tempIMC.Succeeded())

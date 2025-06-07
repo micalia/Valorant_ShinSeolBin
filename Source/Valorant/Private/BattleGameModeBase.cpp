@@ -4,10 +4,6 @@
 #include "BattleGameModeBase.h"
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
-#include "WinLoseWidget.h"
-#include <Kismet/GameplayStatics.h>
-#include "BaseCharacter.h"
-
 
 ABattleGameModeBase::ABattleGameModeBase()
 {

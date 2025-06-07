@@ -6,7 +6,6 @@
 #include "BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Blueprint/UserWidget.h"
-#include "BattleGameModeBase.h"
 
 void UFadeOut::NativeConstruct()
 {
@@ -15,7 +14,7 @@ void UFadeOut::NativeConstruct()
 	
 	AnimFinshed.BindDynamic(this, &UFadeOut::onDestory);
 	BindToAnimationFinished(Fadeout, AnimFinshed);
-	//fadin animationÀÌ ³¡³ª¸é,,
+	//fadin animationï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,,
 
 	fadIn();
 
@@ -51,7 +50,7 @@ void UFadeOut::onDestory()
 {
 	if (player && player->HasAuthority())
 	{
-		//½ÂºÎ°¡ ³ªÁö ¾ÊÀ¸¸é ´Ù½Ã ÇÃ·¹ÀÌ¾î ½ºÆù
+		//ï¿½ÂºÎ°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (!player->TheEndGame) {
 			player->RestartProcess();
 		}

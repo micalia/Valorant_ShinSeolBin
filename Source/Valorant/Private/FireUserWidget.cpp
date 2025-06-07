@@ -2,14 +2,7 @@
 
 
 #include "FireUserWidget.h"
-#include "Components/TextBlock.h"
-#include "Kismet/GameplayStatics.h"
-#include "Components/CanvasPanelSlot.h"
-#include "Components/CanvasPanel.h"
-#include "Blueprint/WidgetLayoutLibrary.h"
-#include "Components/Border.h"
 #include "Components/SizeBox.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "BaseCharacter.h"
 #include "PlayerFireComponent.h"
 
@@ -105,7 +98,7 @@ void UFireUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	// ÇÃ·¹ÀÌ¾îÀÇ ÃÑ¾Ë Á¤º¸ °»½Å
+	// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½Ñ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (player != nullptr)
 	{
 		fireComp = Cast<UPlayerFireComponent>(player->GetComponentByClass(UPlayerFireComponent::StaticClass()));

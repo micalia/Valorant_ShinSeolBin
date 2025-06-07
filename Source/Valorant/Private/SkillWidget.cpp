@@ -7,9 +7,7 @@
 #include "BaseCharacter.h"
 #include <GameFramework/PlayerState.h>
 #include <GameFramework/GameStateBase.h>
-#include "SB_Sova.h"
 #include "InGameTopUi.h"
-#include "PlayerFireComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/Image.h"
 #include "Components/CanvasPanel.h"
@@ -102,7 +100,7 @@ void USkillWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			}
 		}
 
-		// ÇÃ·¹ÀÌ¾îÀÇ ÃÑ¾Ë Á¤º¸ °»½Å
+		// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½Ñ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (UiOwner->GetPlayerState()) {
 			WB_TopUI->MyName_txt->SetText(FText::FromString(FString::Printf(TEXT("%s"), *UiOwner->GetPlayerState()->GetPlayerName())));
 			WB_TopUI->MyScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), (int32)UiOwner->GetPlayerState()->GetScore())));

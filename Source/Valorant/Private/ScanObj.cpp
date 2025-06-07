@@ -5,7 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Kismet/KismetMaterialLibrary.h"
-#include "Net/UnrealNetwork.h"
 #include "../Public/SB_Sova.h"
 #include "../Public/SB_ArrowVersion2.h"
 

@@ -2,18 +2,12 @@
 
 
 #include "BaseWeapon.h"
-#include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
 #include <Components/SkeletalMeshComponent.h>
 #include "BaseCharacter.h"
 #include "PlayerFireComponent.h"
-#include <Engine/SkeletalMeshSocket.h>
 #include <Particles/ParticleSystemComponent.h>
 #include <Engine/SkeletalMesh.h>
-#include "Net/UnrealNetwork.h"
-#include "PlayerBaseComponent.h"
-#include "EngineUtils.h"
-#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ABaseWeapon::ABaseWeapon()
@@ -77,7 +71,7 @@ void ABaseWeapon::BeginPlay()
 		}
 	}
 	SetOwner(playerInstance);
-	GrabWeapon(playerInstance); // ÃÑ ÀåÂø, ÃÑ¾Ë °¹¼ö ³Ñ±è
+	GrabWeapon(playerInstance); // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½Ñ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ±ï¿½
 }
 // Called every frame
 void ABaseWeapon::Tick(float DeltaTime)
@@ -86,16 +80,16 @@ void ABaseWeapon::Tick(float DeltaTime)
 
 }
 
-//¼¼ÆÃ, Å¬¶ó
+//ï¿½ï¿½ï¿½ï¿½, Å¬ï¿½ï¿½
 void ABaseWeapon::GrabWeapon(ABaseCharacter* player)
 {
 	if (player) {
 		if (fireComp) {
 			fireComp->SetOwningWeapon(this);
 
-			// ÃÑÀÇ Á¤º¸ ³Ñ±â±â
-			fireComp->SetAmmo(ammo); //ÃÑ¾Ë
-			fireComp->SetAttckPower(attackPower); //µ¥¹ÌÁö
+			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ±ï¿½ï¿½
+			fireComp->SetAmmo(ammo); //ï¿½Ñ¾ï¿½
+			fireComp->SetAttckPower(attackPower); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 
 		boxComp->SetSimulatePhysics(false);
@@ -103,7 +97,7 @@ void ABaseWeapon::GrabWeapon(ABaseCharacter* player)
 
 		if (player != nullptr)
 		{
-			//// ¹ß»ç Fire Location
+			//// ï¿½ß»ï¿½ Fire Location
 			boxComp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
 			boxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}

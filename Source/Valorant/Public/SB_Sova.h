@@ -33,14 +33,15 @@ public:
 	virtual void MouseLeftReleasedAction() override;
 	virtual void MouseRightAction() override;
 	virtual void MouseRightReleasedAction() override;
-	virtual void KeyE() override; // Á¤Âû¿ë È­»ì
-	virtual void KeyQ() override; // ¼ö·ùÅº
-	virtual void KeyC() override; // °øÁß ¿¬¸·
-	virtual void KeyF() override; // ·ÎÇÁ ÀÌµ¿
-	virtual void KeyR() override; // ¿ëÀÇ ÀÏ°Ý
+	virtual void KeyE() override; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½
+	virtual void KeyQ() override; // ï¿½ï¿½ï¿½ï¿½Åº
+	virtual void KeyC() override; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	virtual void KeyF() override; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
+	virtual void KeyR() override; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½
+	virtual void KeyV() override; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½
 	virtual void PossessedBy(AController* NewController) override;
 public:
-//Ä«¸Þ¶ó ½¦ÀÌÅ©
+//Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½Å©
 	UPROPERTY(EditAnywhere)
 	float cameraShakeTime = 0.1;
 	float camCurrTime;
@@ -117,7 +118,7 @@ public:
 
 	void SkillCoolTimeInit();
 
-	//********Á¤Âû¿ëÈ­»ì********//
+	//********ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È­ï¿½ï¿½********//
 	UPROPERTY(EditAnywhere)
 	float ScoutingArrowCoolTime = 5;
 	float ScoutingArrowCoolCurrTime = ScoutingArrowCoolTime;
@@ -167,7 +168,7 @@ public:
 	void Server_DestroyArrow();
 
 	UPROPERTY(EditAnywhere)
-	//ÆÄ¿ö °ÔÀÌÁö Â÷´Â ¼Óµµ
+	//ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½
 	float gaugeTime = 1;
 	float gaugeCurrTime;
 
@@ -189,11 +190,11 @@ public:
 	class UUI_SB_ScoutingArrow* ui_SB_ScoutingArrowInstance;
 
 	FTimerHandle DestroyArrowDelayHandle;
-	//********¼ö·ùÅº********//
+	//********ï¿½ï¿½ï¿½ï¿½Åº********//
 	UPROPERTY(EditAnywhere)
 	float GrenadeCoolTime = 5;
 	float GrenadeCoolCurrTime = GrenadeCoolTime;
-	//¸ùÅ¸ÁÖ
+	//ï¿½ï¿½Å¸ï¿½ï¿½
 	UPROPERTY()
 	class UAnimMontage* SovaGrenadeMongtage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
@@ -212,7 +213,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ThrowPower = 1700;
 
-	// ´øÁú ÁØºñ
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Øºï¿½
 	UFUNCTION(Server, Reliable)
 	void ServerGrenadeThrowReady(APlayerController* MyPlayerController);
 	UFUNCTION(NetMulticast, Reliable)
@@ -227,7 +228,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerCancelGrenade();
 
-	// ¼ö·ùÅº »ý¼º
+	// ï¿½ï¿½ï¿½ï¿½Åº ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AGrenade> GrenadeFactory;
 	class AGrenade* MyGrenade;
@@ -239,7 +240,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USoundBase* GrenadeSound2;
 
-	//********°øÁß¿¬¸·********//
+	//********ï¿½ï¿½ï¿½ß¿ï¿½ï¿½ï¿½********//
 	UPROPERTY(EditAnywhere)
 	float AirSmokeCoolTime = 5;
 	float AirSmokeCoolCurrTime = AirSmokeCoolTime;
@@ -301,7 +302,7 @@ public:
 	void DebugSphere();
 
 public:
-	//********·ÎÇÁ ÀÌµ¿********//
+	//********ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½********//
 	UPROPERTY(EditAnywhere)
 	float HookCoolTime = 2;
 	float HookCoolCurrTime = HookCoolTime;
@@ -366,7 +367,7 @@ public:
 
 	FTimerHandle GrappleMoveDelayHandle;
 public:
-	//********¿ëÀÇ ÀÏ°Ý********//
+	//********ï¿½ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½********//
 	bool bDragonArrowOn = false;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ASB_DragonArrow> DragonArrowFactory;
@@ -403,4 +404,9 @@ public:
 	FTimerHandle DragonStrikeStartDelayHandle;
 	FTimerHandle DestroyDragonArrowDelayHandle;
 
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite, Category = MySettings)
+	bool bSovaCrounch = false;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetCrounch();
 };

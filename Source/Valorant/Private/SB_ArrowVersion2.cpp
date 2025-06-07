@@ -5,7 +5,6 @@
 #include "Components/SphereComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "../Public/ScanObj.h"
 #include "SB_Sova.h"
 
@@ -56,7 +55,7 @@ void ASB_ArrowVersion2::BeginPlay()
 void ASB_ArrowVersion2::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// ¿òÁ÷ÀÓÀº ¼­¹ö¿¡¼­ Ã³¸®
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 	if (HasAuthority() && bMove) {
 		FVector startLoc = GetActorLocation();
 		FVector endLoc = startLoc + GetActorForwardVector() * DetectObjDistance;
@@ -70,17 +69,17 @@ void ASB_ArrowVersion2::Tick(float DeltaTime)
 			ArrowReflection(hitInfo);
 		}
 
-// µî°¡¼Óµµ ¿îµ¿ °ø½Ä : v = v0 + at  >> ÇöÀç ¼Ó·Â¿¡ Áß·Â °¡¼Óµµ¸¦ ´õÇÔ
+// ï¿½î°¡ï¿½Óµï¿½ ï¿½îµ¿ ï¿½ï¿½ï¿½ï¿½ : v = v0 + at  >> ï¿½ï¿½ï¿½ï¿½ ï¿½Ó·Â¿ï¿½ ï¿½ß·ï¿½ ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		Velocity = InitDirVector * InitSpeed;
 		zVelocity += CustomGravity * DeltaTime;
 		Velocity.Z += zVelocity;
 
-// µî¼Ó ¿îµ¿ °ø½Ä : P = P0 + vt 
+// ï¿½ï¿½ï¿½ ï¿½îµ¿ ï¿½ï¿½ï¿½ï¿½ : P = P0 + vt 
 		FVector P0 = GetActorLocation();
 		FVector VT = Velocity * DeltaTime;
 		P = P0 + VT;
 		SetActorLocation(P, true);
-// ¹æÇâ º¤ÅÍ¸¦ È°¿ëÇÏ¿© È­»ìÀÌ ¿òÁ÷ÀÌ´Â ¹æÇâÀ¸·Î È­»ì È¸Àü(ÀÚ¿¬½º·¯¿î ¿òÁ÷ÀÓ ±¸Çö)
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ È°ï¿½ï¿½ï¿½Ï¿ï¿½ È­ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ È¸ï¿½ï¿½(ï¿½Ú¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 		FVector RotDirVec = (P - P0).GetSafeNormal();
 		FMatrix RotationMatrix = FRotationMatrix::MakeFromX(RotDirVec);
 		NewRotation = RotationMatrix.Rotator();
@@ -154,17 +153,17 @@ void ASB_ArrowVersion2::Server_ArrowShotInit_Implementation(float InInitSpeed, i
 
 void ASB_ArrowVersion2::ArrowReflection(FHitResult& InHitInfo)
 {
-	if (HasAuthority()) {  // ¼­¹ö¿¡¼­¸¸ Ãæµ¹Ã³¸®
+	if (HasAuthority()) {  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹Ã³ï¿½ï¿½
 		SetActorLocation(InHitInfo.ImpactPoint);
 		if (currBounceCount < maxBounceCount) {
 			zVelocity = 0;
 			currBounceCount++;
-			// R(¹Ý»ç°¢) = L(ÀÔ»ç°¢) + 2N(-L¡¤N)
+			// R(ï¿½Ý»ç°¢) = L(ï¿½Ô»ç°¢) + 2N(-Lï¿½ï¿½N)
 			FVector ShootDir = Velocity.GetSafeNormal();
 			float Projection = FVector::DotProduct(-ShootDir, InHitInfo.ImpactNormal);
 			FVector ReflectionVec = ShootDir + 2 * InHitInfo.ImpactNormal * Projection;
 			InitDirVector = ReflectionVec;
-		}// ¹ß»ç½Ã ¼³Á¤µÈ Ãæµ¹ È½¼ö¸¸Å­ Ãæµ¹ÇÏ¸é, È­»ì ¿òÁ÷ÀÓ Á¤Áö ÈÄ Àû±º º® Åõ½Ã ½ºÄµ½ÃÀÛ
+		}// ï¿½ß»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ È½ï¿½ï¿½ï¿½ï¿½Å­ ï¿½æµ¹ï¿½Ï¸ï¿½, È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½
 		else {
 			LastImpactNormal = InHitInfo.ImpactNormal;
 			bMove = false;

@@ -8,11 +8,9 @@
 #include "Components/WidgetSwitcher.h"
 #include "NetGameInstance.h"
 #include "Components/EditableText.h"
-#include "Components/Slider.h"
 #include "SessionInfoWidget.h"
 #include "Components/ScrollBox.h"
 #include <Kismet/GameplayStatics.h>
-#include <Components/AudioComponent.h>
 
 UStartLoginWidget::UStartLoginWidget(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
 {
@@ -108,12 +106,12 @@ void UStartLoginWidget::BackToFirstCanvas()
 void UStartLoginWidget::AddRoomSlot(struct FSessionSlotInfo slotInfo)
 {
 	UE_LOG(LogTemp, Warning, TEXT("AddRoomSlot!!"))
-	// ½½·Ô À§Á¬À» »ý¼ºÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	sessionSlot = CreateWidget<USessionInfoWidget>(GetWorld(), sessionInfoWidget);
 
 	if (sessionSlot != nullptr)
 	{
-		// ½½·Ô À§Á¬ÀÇ °¢ ¿ä¼Ò¿¡ ½½·Ô Á¤º¸¸¦ ³Ö´Â´Ù.
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ò¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Â´ï¿½.
 		UE_LOG(LogTemp, Warning, TEXT("slotRoomName: %s"), *slotInfo.roomName)
 		sessionSlot->text_RoomName->SetText(FText::FromString(slotInfo.roomName));
 		sessionSlot->text_HostName->SetText(FText::FromString(slotInfo.hostName));
@@ -121,7 +119,7 @@ void UStartLoginWidget::AddRoomSlot(struct FSessionSlotInfo slotInfo)
 		//sessionSlot->text_PingSpeed->SetText(FText::AsNumber(slotInfo.pingSpeed));
 		sessionSlot->sessionIndex = slotInfo.sessionIndex;
 		
-		// »ý¼ºÇÑ ½½·Ô À§Á¬À» ½ºÅ©·Ñ ¹Ú½º¿¡ ÀÚ½ÄÀ¸·Î Ãß°¡ÇÑ´Ù.
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å©ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½Ñ´ï¿½.
 		sb_RoomListBox->AddChild(sessionSlot);
 	}
 }
@@ -145,7 +143,7 @@ void UStartLoginWidget::UnPlay()
 
 void UStartLoginWidget::ClickedPlay()
 {
-  // ÇÃ·¹ÀÌ Å¬¸¯
+  // ï¿½Ã·ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½
   SwitchCanvas(1);
 }
 
@@ -209,7 +207,7 @@ void UStartLoginWidget::Selection3Player()
 
 void UStartLoginWidget::EnterInGame()
 {
-	if (!bStartChk) { // ÇÑ¹ø¸¸ ·Î±×ÀÎ Å¬¸¯ÇÒ ¼ö ÀÖ°Ô Ã³¸®
+	if (!bStartChk) { // ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½Î±ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö°ï¿½ Ã³ï¿½ï¿½
 		bStartChk = true;
 		LoadingIcon->SetRenderOpacity(1);
 		if (gi) {
